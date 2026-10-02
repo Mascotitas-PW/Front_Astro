@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react';
+import { GRAPHQL_ENDPOINT } from '../graphql/client';
 
-const graphqlUrls = [import.meta.env.VITE_GRAPHQL_URL, 'http://localhost:5113/graphql', 'http://localhost:5097/graphql'].filter(Boolean);
+const graphqlUrls = [GRAPHQL_ENDPOINT, 'http://localhost:5097/graphql'];
 let state = { productos: [], cargando: true, error: null, pantalla: 'HOME', categoriaSeleccionada: null, productoSeleccionadoId: null, cantidadSeleccionada: 1, busqueda: '', carrito: [] };
 const listeners = new Set();
 
@@ -21,7 +22,7 @@ async function cargarProductos() {
       console.warn(`No se pudo conectar con ${url}:`, error.message);
     }
   }
-  actualizarState({ cargando: false, error: 'No se pudo conectar con el backend C# GraphQL. Revisa que esté corriendo en http://localhost:5113/graphql o http://localhost:5097/graphql.' });
+  actualizarState({ cargando: false, error: 'No se pudo conectar con el backend C# GraphQL. Revisa que esté corriendo en [https://backastro-production.up.railway.app/graphql](https://backastro-production.up.railway.app/graphql) o http://localhost:5097/graphql.' });
 }
 
 if (typeof window !== 'undefined') cargarProductos();

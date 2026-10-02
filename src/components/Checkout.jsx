@@ -1,6 +1,8 @@
 import { useStore } from "../store/useStore";
 import { useState, useEffect } from "react";
+import { useStore } from "../store/useStore";
 import { obtenerUsuarioSesion } from "../utils/auth";
+import { GRAPHQL_ENDPOINT } from "../graphql/client";
 
 const CREAR_PEDIDO_MUTATION = `
   mutation CrearPedido($input: CrearPedidoInput!) {
@@ -13,6 +15,8 @@ const CREAR_PEDIDO_MUTATION = `
 `;
 
 export const Checkout = ({ onBackToHome }) => {
+  // 1. Usamos las variables reales de tu useStore.js
+
   const store = useStore();
   const carrito = store.carrito || [];
   const totalCarrito = store.totalCarrito || 0;
@@ -24,6 +28,11 @@ export const Checkout = ({ onBackToHome }) => {
     const sesion = obtenerUsuarioSesion();
     setUsuarioSesion(sesion);
   }, []);
+
+  // Obtener usuario del sessionStorage que guardaste en el Login
+  const usuarioEmail = typeof window !== "undefined" ? sessionStorage.getItem("adminemail") : null;
+  // Si guardaste el ID del usuario en el login (p.ej. sessionStorage.setItem("usuarioId", usuario.id))
+  const usuarioId = typeof window !== "undefined" ? sessionStorage.getItem("usuarioId") : null;
 
   const [nombre, setNombre] = useState('');
   const [direccion, setDireccion] = useState('');
@@ -53,23 +62,28 @@ export const Checkout = ({ onBackToHome }) => {
       alert('El carrito está vacío');
       return;
     }
-
     if (!usuarioSesion || !usuarioSesion.id) {
+      if (!usuarioId) {
+        alert('Inicia sesión para completar tu compra');
+        return;
+      }
       alert('Tu sesión no tiene un ID válido. Por favor, vuelve a iniciar sesión.');
+      return;
+    }
       return;
     }
 
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5113/graphql", {
+      const res = await fetch(GRAPHQL_ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           query: CREAR_PEDIDO_MUTATION,
           variables: {
             input: {
-              usuarioId: Number(usuarioSesion.id),
+              usuarioId: Number(usuarioSesion?.id ?? usuarioId),
               items: carrito.map((item) => ({
                 productoId: Number(item.id),
                 cantidad: Number(item.cantidad),
@@ -88,8 +102,10 @@ export const Checkout = ({ onBackToHome }) => {
         return;
       }
 
-      // No immuli ti nakasaguday a data
-      if (result.data && result.data.crearPedido) {
+      if (result.data?.crearPedido) {
+        setPedidoCreado(result.data.crearPedido);
+        store.finalizarCompra(); // Limpia el carrito y redirige en tu store
+      }
         setPedidoCreado(result.data.crearPedido);
 
         // No adda function-mo nga ag-clear ti carrito iti store:
@@ -142,13 +158,6 @@ export const Checkout = ({ onBackToHome }) => {
   return (
     <div style={{ padding: '20px', maxWidth: '600px', margin: '20px auto', fontFamily: 'sans-serif' }}>
       <h2>Confirmar Compra (Checkout)</h2>
-
-      {/* Indicador de usuario logueado */}
-      {usuarioSesion && (
-        <p style={{ backgroundColor: '#e8f8f5', padding: '8px 12px', borderRadius: '5px', color: '#16a085' }}>
-          Comprando como: <strong>{usuarioSesion.nombre || usuarioSesion.email}</strong>
-        </p>
-      )}
 
       <div style={{ backgroundColor: '#f9f9f9', padding: '15px', borderRadius: '8px', marginBottom: '20px' }}>
         <h3>Resumen del Pedido</h3>
