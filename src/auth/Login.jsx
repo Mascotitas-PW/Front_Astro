@@ -46,12 +46,6 @@ function Login() {
         const usuario = result.data.login;
 
         // Guardar sesión del usuario/admin en el almacenamiento del navegador
-<<<<<<< HEAD
-        sessionStorage.setItem("usuarioId", usuario.id);
-        sessionStorage.setItem("adminemail", usuario.email);
-        sessionStorage.setItem("usuarioNombre", usuario.nombre);
-        sessionStorage.setItem("usuarioRol", usuario.rol);
-=======
        if (result.data && result.data.login) {
   const usuario = result.data.login;
 
@@ -64,7 +58,6 @@ function Login() {
   alert(`¡Bienvenido de nuevo, ${usuario.nombre}!`);
   window.location.href = "/App";
 }
->>>>>>> 7c434a7 (prueba del checkout)
 
         alert(`¡Bienvenido de nuevo, ${usuario.nombre}!`);
 
