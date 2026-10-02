@@ -1,7 +1,7 @@
 export function obtenerUsuarioSesion() {
   if (typeof window === 'undefined') return null;
 
-  // Intenta recuperar el ID o los datos guardados en sessionStorage
+
   const id = sessionStorage.getItem("usuarioId") || sessionStorage.getItem("id");
   const email = sessionStorage.getItem("adminemail") || sessionStorage.getItem("email");
   const nombre = sessionStorage.getItem("usuarioNombre") || sessionStorage.getItem("adminNombre");
