@@ -16,9 +16,18 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      VITE_GRAPHQL_URL: ${{ vars.VITE_GRAPHQL_URL }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Validate GraphQL endpoint
+        run: |
+          case "$VITE_GRAPHQL_URL" in
+            https://*) ;;
+            *) echo "::error::Set the VITE_GRAPHQL_URL repository variable to the public HTTPS GraphQL endpoint."; exit 1 ;;
+          esac
 
       - name: Install, build, and upload Site
         uses: withastro/action@v3
