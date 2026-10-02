@@ -1,27 +1,27 @@
 import { useStore } from '../store/useStore';
+import { useEffect, useState } from "react";
+import { fetchGraphQL } from "../graphql/client";
 
-// Mutación GraphQL para crear el pedido
 const CREAR_PEDIDO_MUTATION = gql`
-  mutation CrearPedido($input: PedidoInput!) {
+  mutation CrearPedido($input: CrearPedidoInput!) {
     crearPedido(input: $input) {
       id
-      estado
+      status
       total
     }
   }
 `;
 
 export const Checkout = ({ onBackToHome }) => {
-  const { cart, getTotalPrice, getSubtotal, getShippingCost, clearCart } = useCartStore();
+  // OJO: `user` debe ser el usuario que guardas al hacer login (con su id)
+  const { cart, user, getTotalPrice, getSubtotal, getShippingCost, clearCart } = useStore();
 
-  // Estados del formulario
   const [nombre, setNombre] = useState('');
   const [direccion, setDireccion] = useState('');
   const [telefono, setTelefono] = useState('');
   const [metodoPago, setMetodoPago] = useState('Tarjeta');
-  const [completado, setCompletado] = useState(false);
+  const [pedidoCreado, setPedidoCreado] = useState(null);
 
-  // Hook de mutación de Apollo
   const [crearPedido, { loading, error }] = useMutation(CREAR_PEDIDO_MUTATION);
 
   const handleSubmit = async (e) => {
@@ -31,44 +31,37 @@ export const Checkout = ({ onBackToHome }) => {
       alert('El carrito está vacío');
       return;
     }
-
-    // Estructura de datos requerida para la mutación GraphQL
-    const datosPedido = {
-      cliente: nombre,
-      direccion,
-      telefono,
-      metodoPago,
-      total: getTotalPrice(),
-      items: cart.map((item) => ({
-        productoId: item.id,
-        cantidad: item.quantity,
-        precio: item.precio,
-      })),
-    };
+    if (!user?.id) {
+      alert('Inicia sesión para completar tu compra');
+      return;
+    }
 
     try {
-      // Ejecución de la mutación GraphQL
+      // El backend calcula precios y total; solo manda usuario y productos
       const { data } = await crearPedido({
         variables: {
-          input: datosPedido,
+          input: {
+            usuarioId: Number(user.id),
+            items: cart.map((item) => ({
+              productoId: Number(item.id),
+              cantidad: item.quantity,
+            })),
+          },
         },
       });
 
-      console.log('Pedido creado exitosamente:', data);
-
-      // Vaciamos el carrito tras confirmar el pedido
       clearCart();
-      setCompletado(true);
+      setPedidoCreado(data.crearPedido);
     } catch (err) {
       console.error('Error al procesar el pedido:', err);
     }
   };
 
-  if (completado) {
+  if (pedidoCreado) {
     return (
       <div style={{ padding: '40px', textAlign: 'center', maxWidth: '500px', margin: '40px auto', fontFamily: 'sans-serif' }}>
         <h2 style={{ color: '#27ae60' }}>¡Gracias por tu compra! 🐾</h2>
-        <p>Tu pedido ha sido registrado correctamente.</p>
+        <p>Tu pedido #{pedidoCreado.id} ha sido registrado correctamente.</p>
         <button
           onClick={onBackToHome}
           style={{
@@ -88,11 +81,14 @@ export const Checkout = ({ onBackToHome }) => {
     );
   }
 
+  const inputStyle = { width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box' };
+  const labelStyle = { display: 'block', marginBottom: '5px', fontWeight: 'bold' };
+  const deshabilitado = loading || cart.length === 0;
+
   return (
     <div style={{ padding: '20px', maxWidth: '600px', margin: '20px auto', fontFamily: 'sans-serif' }}>
       <h2>Confirmar Compra (Checkout)</h2>
 
-      {/* Resumen de Productos */}
       <div style={{ backgroundColor: '#f9f9f9', padding: '15px', borderRadius: '8px', marginBottom: '20px' }}>
         <h3>Resumen del Pedido</h3>
         {cart.length === 0 ? (
@@ -120,58 +116,28 @@ export const Checkout = ({ onBackToHome }) => {
         </div>
       </div>
 
-      {/* Manejo de error de GraphQL */}
       {error && (
         <div style={{ color: '#c0392b', backgroundColor: '#f9d6d5', padding: '10px', borderRadius: '4px', marginBottom: '15px' }}>
-          Hubo un problema al enviar tu pedido. Por favor, inténtalo de nuevo.
+          {error.graphQLErrors?.[0]?.message ?? 'Hubo un problema al enviar tu pedido. Inténtalo de nuevo.'}
         </div>
       )}
 
-      {/* Formulario de Datos del Cliente */}
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
         <div>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Nombre Completo:</label>
-          <input
-            required
-            type="text"
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-            placeholder="Ej. Juan Pérez"
-            style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box' }}
-          />
+          <label style={labelStyle}>Nombre Completo:</label>
+          <input required type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej. Juan Pérez" style={inputStyle} />
         </div>
-
         <div>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Dirección de Entrega:</label>
-          <input
-            required
-            type="text"
-            value={direccion}
-            onChange={(e) => setDireccion(e.target.value)}
-            placeholder="Calle, Número, Colonia, Ciudad"
-            style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box' }}
-          />
+          <label style={labelStyle}>Dirección de Entrega:</label>
+          <input required type="text" value={direccion} onChange={(e) => setDireccion(e.target.value)} placeholder="Calle, Número, Colonia, Ciudad" style={inputStyle} />
         </div>
-
         <div>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Teléfono de Contacto:</label>
-          <input
-            required
-            type="tel"
-            value={telefono}
-            onChange={(e) => setTelefono(e.target.value)}
-            placeholder="10 dígitos"
-            style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box' }}
-          />
+          <label style={labelStyle}>Teléfono de Contacto:</label>
+          <input required type="tel" value={telefono} onChange={(e) => setTelefono(e.target.value)} placeholder="10 dígitos" style={inputStyle} />
         </div>
-
         <div>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Método de Pago:</label>
-          <select
-            value={metodoPago}
-            onChange={(e) => setMetodoPago(e.target.value)}
-            style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box' }}
-          >
+          <label style={labelStyle}>Método de Pago:</label>
+          <select value={metodoPago} onChange={(e) => setMetodoPago(e.target.value)} style={inputStyle}>
             <option value="Tarjeta">Tarjeta de Crédito / Débito</option>
             <option value="Efectivo">Efectivo contra entrega</option>
             <option value="Transferencia">Transferencia SPEI</option>
@@ -180,14 +146,14 @@ export const Checkout = ({ onBackToHome }) => {
 
         <button
           type="submit"
-          disabled={loading || cart.length === 0}
+          disabled={deshabilitado}
           style={{
             padding: '14px',
-            backgroundColor: loading || cart.length === 0 ? '#95a5a6' : '#27ae60',
+            backgroundColor: deshabilitado ? '#95a5a6' : '#27ae60',
             color: '#fff',
             border: 'none',
             borderRadius: '5px',
-            cursor: loading || cart.length === 0 ? 'not-allowed' : 'pointer',
+            cursor: deshabilitado ? 'not-allowed' : 'pointer',
             fontWeight: 'bold',
             fontSize: '16px',
             marginTop: '10px',
