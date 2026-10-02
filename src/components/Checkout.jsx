@@ -1,4 +1,4 @@
-import { useStore } from '../store/useStore';
+import { useStore } from "../store/useStore";
 import { useState } from "react";
 
 const CREAR_PEDIDO_MUTATION = `
@@ -12,26 +12,36 @@ const CREAR_PEDIDO_MUTATION = `
 `;
 
 export const Checkout = ({ onBackToHome }) => {
-  const { cart, user, getTotalPrice, getSubtotal, getShippingCost, clearCart } = useStore();
+  // 1. Usamos las variables reales de tu useStore.js
+  const store = useStore();
+  const carrito = store.carrito || [];
+  const totalCarrito = store.totalCarrito || 0;
+
+  // Obtener usuario del sessionStorage que guardaste en el Login
+  const usuarioEmail = typeof window !== 'undefined' ? sessionStorage.getItem("adminemail") : null;
+  // Si guardaste el ID del usuario en el login (p.ej. sessionStorage.setItem("usuarioId", usuario.id))
+  const usuarioId = typeof window !== 'undefined' ? sessionStorage.getItem("usuarioId") : null;
 
   const [nombre, setNombre] = useState('');
   const [direccion, setDireccion] = useState('');
   const [telefono, setTelefono] = useState('');
   const [metodoPago, setMetodoPago] = useState('Tarjeta');
   
-  // Estados para controlar carga, error y resultado
   const [pedidoCreado, setPedidoCreado] = useState(null);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
 
+  const costoEnvio = totalCarrito > 500 || totalCarrito === 0 ? 0 : 99;
+  const totalFinal = totalCarrito + costoEnvio;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (cart.length === 0) {
+    if (carrito.length === 0) {
       alert('El carrito está vacío');
       return;
     }
-    if (!user?.id) {
+    if (!usuarioId) {
       alert('Inicia sesión para completar tu compra');
       return;
     }
@@ -49,10 +59,10 @@ export const Checkout = ({ onBackToHome }) => {
           query: CREAR_PEDIDO_MUTATION,
           variables: {
             input: {
-              usuarioId: Number(user.id),
-              items: cart.map((item) => ({
+              usuarioId: Number(usuarioId),
+              items: carrito.map((item) => ({
                 productoId: Number(item.id),
-                cantidad: item.quantity,
+                cantidad: Number(item.cantidad),
               })),
             },
           },
@@ -64,7 +74,7 @@ export const Checkout = ({ onBackToHome }) => {
       if (result.errors && result.errors.length > 0) {
         setErrorMsg(result.errors[0].message);
       } else if (result.data?.crearPedido) {
-        clearCart();
+        store.finalizarCompra(); // Limpia el carrito y redirige en tu store
         setPedidoCreado(result.data.crearPedido);
       } else {
         setErrorMsg("Ocurrió un error inesperado al procesar la orden.");
@@ -103,7 +113,7 @@ export const Checkout = ({ onBackToHome }) => {
 
   const inputStyle = { width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box' };
   const labelStyle = { display: 'block', marginBottom: '5px', fontWeight: 'bold' };
-  const deshabilitado = loading || cart.length === 0;
+  const deshabilitado = loading || carrito.length === 0;
 
   return (
     <div style={{ padding: '20px', maxWidth: '600px', margin: '20px auto', fontFamily: 'sans-serif' }}>
@@ -111,28 +121,28 @@ export const Checkout = ({ onBackToHome }) => {
 
       <div style={{ backgroundColor: '#f9f9f9', padding: '15px', borderRadius: '8px', marginBottom: '20px' }}>
         <h3>Resumen del Pedido</h3>
-        {cart.length === 0 ? (
+        {carrito.length === 0 ? (
           <p>Tu carrito está vacío.</p>
         ) : (
-          cart.map((item) => (
+          carrito.map((item) => (
             <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <span>{item.nombre} (x{item.quantity})</span>
-              <span>${(item.precio * item.quantity).toFixed(2)}</span>
+              <span>{item.nombre} (x{item.cantidad})</span>
+              <span>${(item.precio * item.cantidad).toFixed(2)}</span>
             </div>
           ))
         )}
         <hr />
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
           <span>Subtotal:</span>
-          <span>${getSubtotal().toFixed(2)}</span>
+          <span>${totalCarrito.toFixed(2)}</span>
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
           <span>Envío:</span>
-          <span>{getShippingCost() === 0 ? '¡Gratis!' : `$${getShippingCost()}`}</span>
+          <span>{costoEnvio === 0 ? '¡Gratis!' : `$${costoEnvio}`}</span>
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '18px', marginTop: '10px' }}>
           <span>Total Final:</span>
-          <span style={{ color: '#27ae60' }}>${getTotalPrice().toFixed(2)}</span>
+          <span style={{ color: '#27ae60' }}>${totalFinal.toFixed(2)}</span>
         </div>
       </div>
 

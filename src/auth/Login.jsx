@@ -46,6 +46,7 @@ function Login() {
         const usuario = result.data.login;
 
         // Guardar sesión del usuario/admin en el almacenamiento del navegador
+        sessionStorage.setItem("usuarioId", usuario.id);
         sessionStorage.setItem("adminemail", usuario.email);
         sessionStorage.setItem("usuarioNombre", usuario.nombre);
         sessionStorage.setItem("usuarioRol", usuario.rol);
