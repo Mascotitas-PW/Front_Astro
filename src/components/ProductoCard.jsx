@@ -1,6 +1,8 @@
 export default function ProductoCard({ producto, onVer }) {
-  // Carga directamente el archivo desde public/productos/
-  const src = producto?.imagen ? `/productos/${producto.imagen}` : "/productos/correa.png";
+  const fallback = `${import.meta.env.BASE_URL}productos/cama.png`;
+  const src = producto?.imagen
+    ? `${import.meta.env.BASE_URL}productos/${producto.imagen}`
+    : fallback;
 
   return (
     <article className="producto-card" onClick={onVer}>
@@ -8,8 +10,8 @@ export default function ProductoCard({ producto, onVer }) {
         src={src}
         alt={producto.nombre}
         onError={(e) => {
-          // Imagen por defecto si la ruta no existe o falla
-          e.target.src = "/productos/correa.png";
+          e.currentTarget.onerror = null;
+          e.currentTarget.src = fallback;
         }}
       />
       <div className="producto-info">
