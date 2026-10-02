@@ -1,6 +1,5 @@
 import { useStore } from '../store/useStore';
-import { useEffect, useState } from "react";
-import { fetchGraphQL } from "../graphql/client";
+import { useState } from "react";
 
 const CREAR_PEDIDO_MUTATION = `
   mutation CrearPedido($input: CrearPedidoInput!) {
@@ -13,16 +12,17 @@ const CREAR_PEDIDO_MUTATION = `
 `;
 
 export const Checkout = ({ onBackToHome }) => {
-  // OJO: `user` debe ser el usuario que guardas al hacer login (con su id)
   const { cart, user, getTotalPrice, getSubtotal, getShippingCost, clearCart } = useStore();
 
   const [nombre, setNombre] = useState('');
   const [direccion, setDireccion] = useState('');
   const [telefono, setTelefono] = useState('');
   const [metodoPago, setMetodoPago] = useState('Tarjeta');
+  
+  // Estados para controlar carga, error y resultado
   const [pedidoCreado, setPedidoCreado] = useState(null);
-
-  const [crearPedido, { loading, error }] = useMutation(CREAR_PEDIDO_MUTATION);
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,24 +36,44 @@ export const Checkout = ({ onBackToHome }) => {
       return;
     }
 
+    setLoading(true);
+    setErrorMsg(null);
+
     try {
-      // El backend calcula precios y total; solo manda usuario y productos
-      const { data } = await crearPedido({
-        variables: {
-          input: {
-            usuarioId: Number(user.id),
-            items: cart.map((item) => ({
-              productoId: Number(item.id),
-              cantidad: item.quantity,
-            })),
-          },
+      const res = await fetch("http://localhost:5113/graphql", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
         },
+        body: JSON.stringify({
+          query: CREAR_PEDIDO_MUTATION,
+          variables: {
+            input: {
+              usuarioId: Number(user.id),
+              items: cart.map((item) => ({
+                productoId: Number(item.id),
+                cantidad: item.quantity,
+              })),
+            },
+          },
+        })
       });
 
-      clearCart();
-      setPedidoCreado(data.crearPedido);
+      const result = await res.json();
+
+      if (result.errors && result.errors.length > 0) {
+        setErrorMsg(result.errors[0].message);
+      } else if (result.data?.crearPedido) {
+        clearCart();
+        setPedidoCreado(result.data.crearPedido);
+      } else {
+        setErrorMsg("Ocurrió un error inesperado al procesar la orden.");
+      }
     } catch (err) {
-      console.error('Error al procesar el pedido:', err);
+      console.error('Error de red al procesar el pedido:', err);
+      setErrorMsg('Error de conexión con el servidor de Mascotitas.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -116,9 +136,9 @@ export const Checkout = ({ onBackToHome }) => {
         </div>
       </div>
 
-      {error && (
+      {errorMsg && (
         <div style={{ color: '#c0392b', backgroundColor: '#f9d6d5', padding: '10px', borderRadius: '4px', marginBottom: '15px' }}>
-          {error.graphQLErrors?.[0]?.message ?? 'Hubo un problema al enviar tu pedido. Inténtalo de nuevo.'}
+          {errorMsg}
         </div>
       )}
 
