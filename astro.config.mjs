@@ -6,6 +6,6 @@ import react from '@astrojs/react';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://mascotitas-pw.github.io',
-  base: '/Front_Astro',
+  base: '/Front_Astro/',
   integrations: [react()]
 });

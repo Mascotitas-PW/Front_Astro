@@ -22,7 +22,7 @@ async function cargarProductos() {
       console.warn(`No se pudo conectar con ${url}:`, error.message);
     }
   }
-  actualizarState({ cargando: false, error: 'No se pudo conectar con el backend C# GraphQL. Revisa que esté corriendo en [https://backastro-production.up.railway.app](https://backastro-production.up.railway.app) o http://localhost:5097/graphql.' });
+  actualizarState({ cargando: false, error: 'No se pudo conectar con el backend C# GraphQL. Revisa que esté corriendo en [https://backastro-production.up.railway.app/graphql](https://backastro-production.up.railway.app/graphql) o http://localhost:5097/graphql.' });
 }
 
 if (typeof window !== 'undefined') cargarProductos();
