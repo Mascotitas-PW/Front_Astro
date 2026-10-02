@@ -64,7 +64,7 @@ if (result.data && result.data.login) {
   sessionStorage.setItem("usuarioRol", usuario.rol);
 
   alert(`¡Bienvenido de nuevo, ${usuario.nombre}!`);
-  window.location.href = `${BASE_URL}App/`;
+  window.location.href = `${BASE_URL}/App/`;
 }
 alert(`¡Bienvenido de nuevo, ${usuario.nombre}!`);
         window.location.href = `${BASE_URL}App/`;
@@ -73,7 +73,7 @@ alert(`¡Bienvenido de nuevo, ${usuario.nombre}!`);
         alert(`¡Bienvenido de nuevo, ${usuario.nombre}!`);
 
         // Redirigir al panel principal de Mascotitas
-        window.location.href = `${BASE_URL}App/`;
+        window.location.href = `${BASE_URL}/App/`;
       } else {
         alert("Usuario o contraseña incorrectos.");
       }
@@ -85,7 +85,7 @@ alert(`¡Bienvenido de nuevo, ${usuario.nombre}!`);
   };
 
   const irARegister = () => {
-    window.location.href = `${BASE_URL}Registro/`;
+    window.location.href = `${BASE_URL}/Registro/`;
   };
 
   return (

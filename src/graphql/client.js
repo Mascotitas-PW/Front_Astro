@@ -1,4 +1,4 @@
-export const GRAPHQL_ENDPOINT = import.meta.env.VITE_GRAPHQL_URL || "[https://backastro-production.up.railway.app/graphql](https://backastro-production.up.railway.app/graphql)";
+export const GRAPHQL_ENDPOINT = import.meta.env.VITE_GRAPHQL_URL || "https://backastro-production.up.railway.app/graphql/";
 
 export async function fetchGraphQL(query, variables = {}) {
   const res = await fetch(GRAPHQL_ENDPOINT, {
