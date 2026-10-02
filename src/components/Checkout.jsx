@@ -2,7 +2,7 @@ import { useStore } from '../store/useStore';
 import { useEffect, useState } from "react";
 import { fetchGraphQL } from "../graphql/client";
 
-const CREAR_PEDIDO_MUTATION = gql`
+const CREAR_PEDIDO_MUTATION = `
   mutation CrearPedido($input: CrearPedidoInput!) {
     crearPedido(input: $input) {
       id
