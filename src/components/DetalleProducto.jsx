@@ -6,8 +6,10 @@ export function DetalleProducto({ productoId }) {
 
   if (!producto) return <main style={{ padding: '2rem' }}>Producto no encontrado.</main>;
 
-  // Ruta dinámica apuntando a public/productos/
-  const src = producto?.imagen ? `/productos/${producto.imagen}` : '/productos/correa.png';
+  const fallback = `${import.meta.env.BASE_URL}productos/cama.png`;
+  const src = producto?.imagen
+    ? `${import.meta.env.BASE_URL}productos/${producto.imagen}`
+    : fallback;
 
   return (
     <main style={{ padding: '2rem' }}>
@@ -16,7 +18,8 @@ export function DetalleProducto({ productoId }) {
           src={src} 
           alt={producto.nombre} 
           onError={(e) => {
-            e.target.src = '/productos/correa.png';
+            e.currentTarget.onerror = null;
+            e.currentTarget.src = fallback;
           }}
           style={{ display: 'block', width: 'min(100%, 280px)', height: '280px', objectFit: 'contain', margin: '0 auto 1rem' }} 
         />
