@@ -1,5 +1,6 @@
 import { useStore } from "../store/useStore";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { obtenerUsuarioSesion } from "../utils/auth"; 
 
 const CREAR_PEDIDO_MUTATION = `
   mutation CrearPedido($input: CrearPedidoInput!) {
@@ -12,15 +13,17 @@ const CREAR_PEDIDO_MUTATION = `
 `;
 
 export const Checkout = ({ onBackToHome }) => {
-  // 1. Usamos las variables reales de tu useStore.js
   const store = useStore();
   const carrito = store.carrito || [];
   const totalCarrito = store.totalCarrito || 0;
 
-  // Obtener usuario del sessionStorage que guardaste en el Login
-  const usuarioEmail = typeof window !== 'undefined' ? sessionStorage.getItem("adminemail") : null;
-  // Si guardaste el ID del usuario en el login (p.ej. sessionStorage.setItem("usuarioId", usuario.id))
-  const usuarioId = typeof window !== 'undefined' ? sessionStorage.getItem("usuarioId") : null;
+  // Validar usuario usando el helper
+  const [usuarioSesion, setUsuarioSesion] = useState(null);
+
+  useEffect(() => {
+    const sesion = obtenerUsuarioSesion();
+    setUsuarioSesion(sesion);
+  }, []);
 
   const [nombre, setNombre] = useState('');
   const [direccion, setDireccion] = useState('');
@@ -41,8 +44,11 @@ export const Checkout = ({ onBackToHome }) => {
       alert('El carrito está vacío');
       return;
     }
-    if (!usuarioId) {
-      alert('Inicia sesión para completar tu compra');
+
+    // Si no encontramos id directo, le pedimos volver a iniciar sesión para actualizar los datos
+    if (!usuarioSesion || !usuarioSesion.id) {
+      alert('Tu sesión no tiene un ID válido. Por favor, vuelve a iniciar sesión.');
+      window.location.href = "/";
       return;
     }
 
@@ -59,7 +65,7 @@ export const Checkout = ({ onBackToHome }) => {
           query: CREAR_PEDIDO_MUTATION,
           variables: {
             input: {
-              usuarioId: Number(usuarioId),
+              usuarioId: Number(usuarioSesion.id),
               items: carrito.map((item) => ({
                 productoId: Number(item.id),
                 cantidad: Number(item.cantidad),
@@ -74,7 +80,7 @@ export const Checkout = ({ onBackToHome }) => {
       if (result.errors && result.errors.length > 0) {
         setErrorMsg(result.errors[0].message);
       } else if (result.data?.crearPedido) {
-        store.finalizarCompra(); // Limpia el carrito y redirige en tu store
+        store.finalizarCompra();
         setPedidoCreado(result.data.crearPedido);
       } else {
         setErrorMsg("Ocurrió un error inesperado al procesar la orden.");
@@ -118,6 +124,13 @@ export const Checkout = ({ onBackToHome }) => {
   return (
     <div style={{ padding: '20px', maxWidth: '600px', margin: '20px auto', fontFamily: 'sans-serif' }}>
       <h2>Confirmar Compra (Checkout)</h2>
+
+      {/* Indicador de usuario logueado */}
+      {usuarioSesion && (
+        <p style={{ backgroundColor: '#e8f8f5', padding: '8px 12px', borderRadius: '5px', color: '#16a085' }}>
+          Comprando como: <strong>{usuarioSesion.nombre || usuarioSesion.email}</strong>
+        </p>
+      )}
 
       <div style={{ backgroundColor: '#f9f9f9', padding: '15px', borderRadius: '8px', marginBottom: '20px' }}>
         <h3>Resumen del Pedido</h3>
