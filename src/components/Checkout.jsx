@@ -1,6 +1,4 @@
-import React, { useState } from 'react';
-import { gql, useMutation } from '@apollo/client';
-import { useCartStore } from '../useCartStore';
+import { useStore } from '../store/useStore';
 
 // Mutación GraphQL para crear el pedido
 const CREAR_PEDIDO_MUTATION = gql`
@@ -16,14 +14,14 @@ const CREAR_PEDIDO_MUTATION = gql`
 export const Checkout = ({ onBackToHome }) => {
   const { cart, getTotalPrice, getSubtotal, getShippingCost, clearCart } = useCartStore();
 
-
+  // Estados del formulario
   const [nombre, setNombre] = useState('');
   const [direccion, setDireccion] = useState('');
   const [telefono, setTelefono] = useState('');
   const [metodoPago, setMetodoPago] = useState('Tarjeta');
   const [completado, setCompletado] = useState(false);
 
-
+  // Hook de mutación de Apollo
   const [crearPedido, { loading, error }] = useMutation(CREAR_PEDIDO_MUTATION);
 
   const handleSubmit = async (e) => {
