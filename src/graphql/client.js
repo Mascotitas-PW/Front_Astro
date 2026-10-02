@@ -1,7 +1,7 @@
-const ENDPOINT = "http://localhost:5113/graphql";
+export const GRAPHQL_ENDPOINT = import.meta.env.VITE_GRAPHQL_URL || "[https://backastro-production.up.railway.app](https://backastro-production.up.railway.app)";
 
 export async function fetchGraphQL(query, variables = {}) {
-  const res = await fetch(ENDPOINT, {
+  const res = await fetch(GRAPHQL_ENDPOINT, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ query, variables }),

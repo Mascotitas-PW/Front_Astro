@@ -1,8 +1,8 @@
-name: Deploy Astro site to Pages
+name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: ["main"]
+    branches: [ main ]
 
 permissions:
   contents: read
@@ -10,36 +10,27 @@ permissions:
   id-token: write
 
 concurrency:
-  group: "pages"
-  cancel-in-progress: false
+  group: 'pages'
+  cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      VITE_GRAPHQL_URL: ${{ vars.VITE_GRAPHQL_URL }}
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Validate GraphQL endpoint
-        run: |
-          case "$VITE_GRAPHQL_URL" in
-            https://*) ;;
-            *) echo "::error::Set the VITE_GRAPHQL_URL repository variable to the public HTTPS GraphQL endpoint."; exit 1 ;;
-          esac
-
-      - name: Install, build, and upload Site
+      - name: Install, build, and upload site
         uses: withastro/action@v3
         with:
           node-version: 22
 
   deploy:
+    needs: build
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
     steps:
       - name: Deploy to GitHub Pages
         id: deployment

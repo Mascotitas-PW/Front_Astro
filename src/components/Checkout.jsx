@@ -1,5 +1,6 @@
 import { useStore } from "../store/useStore";
 import { useState } from "react";
+import { GRAPHQL_ENDPOINT } from "../graphql/client";
 
 const CREAR_PEDIDO_MUTATION = `
   mutation CrearPedido($input: CrearPedidoInput!) {
@@ -50,7 +51,7 @@ export const Checkout = ({ onBackToHome }) => {
     setErrorMsg(null);
 
     try {
-      const res = await fetch("http://localhost:5113/graphql", {
+      const res = await fetch(GRAPHQL_ENDPOINT, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
