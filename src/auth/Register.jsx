@@ -6,11 +6,11 @@ function Registro() {
     event.preventDefault();
 
     const nombre = document.getElementById("nombre").value.trim();
-    const correo = document.getElementById("correo").value.trim();
+    const email = document.getElementById("email").value.trim();
     const contraseña = document.getElementById("contraseña").value;
     const contraseña2 = document.getElementById("contraseña2").value;
 
-    if (!nombre || !correo || !contraseña || !contraseña2) {
+    if (!nombre || !email || !contraseña || !contraseña2) {
       alert("Todos los campos son obligatorios.");
       return;
     }
@@ -26,33 +26,44 @@ function Registro() {
     }
 
     try {
-      const res = await fetch("guardar.php", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          accion: "registro_admin",
-          nombre: nombre,
-          correo: correo,
-          password: contraseña
-        })
-      });
+      const res = await fetch("http://localhost:5113/graphql", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    query: `
+      mutation ($nombre: String!, $email: String!, $password: String!) {
+        registrar(nombre: $nombre, email: $email, password: $password)
+      }
+    `,
+    variables: {
+      nombre: nombre,
+      email: email,
+      password: contraseña
+    }
+  })
+});
 
-      const data = await res.json();
 
-      if (data.ok) {
+
+      const response = await res.json();
+
+      if (!res.ok || response.errors?.length) {
+        alert(response.errors?.[0]?.message || "Error al crear la cuenta.");
+        return;
+      }
+
+      if (response.data?.registrar) {
 
         sessionStorage.setItem("adminNombre", nombre);
 
         alert("Cuenta creada correctamente.");
 
-        window.location.href = "/Login";
+        window.location.href = "/";
 
       } else {
-
-        alert(data.error || "Error al crear la cuenta.");
-
+        alert("El servidor no confirmó la creación de la cuenta.");
       }
 
     } catch (e) {
@@ -61,7 +72,7 @@ function Registro() {
   };
 
   const irALogin = () => {
-    window.location.href = "/Login";
+    window.location.href = "/";
   };
 
   return (
@@ -86,15 +97,15 @@ function Registro() {
           placeholder="Nombre de usuario"
         />
 
-        <label htmlFor="correo">
-          Correo
+        <label htmlFor="email">
+          email
         </label>
 
         <input
           type="email"
-          id="correo"
-          name="correo"
-          placeholder="Correo"
+          id="email"
+          name="email"
+          placeholder="email"
         />
 
         <label htmlFor="contraseña">
@@ -142,4 +153,3 @@ function Registro() {
 }
 
 export default Registro;
-```

@@ -1,27 +1,16 @@
-import shampoo from "../assets/shampoo.png";
-import correa from "../assets/correa.png";
-import pelota from "../assets/pelota.png";
-import raton from "../assets/raton.png";
-import cama from "../assets/cama.png";
-
-
-const imagenes = {
-  "croquetas.png": shampoo,
-  "sobre.png": shampoo,
-  "pelota.png": pelota,
-  "raton.png": raton,
-  "correa.png": correa,
-  "cama.png": cama,
-};
-
 export default function ProductoCard({ producto, onVer }) {
-  const src = imagenes[producto.imagen] || correa;
+  // Carga directamente el archivo desde public/productos/
+  const src = producto?.imagen ? `/productos/${producto.imagen}` : "/productos/correa.png";
 
   return (
     <article className="producto-card" onClick={onVer}>
       <img
         src={src}
         alt={producto.nombre}
+        onError={(e) => {
+          // Imagen por defecto si la ruta no existe o falla
+          e.target.src = "/productos/correa.png";
+        }}
       />
       <div className="producto-info">
         <h3>{producto.nombre}</h3>

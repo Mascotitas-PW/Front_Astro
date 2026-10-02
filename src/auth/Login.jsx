@@ -5,41 +5,62 @@ function Login() {
   const LOGIN = async (event) => {
     event.preventDefault();
 
-    const correo = document.getElementById("correo").value.trim();
+    const email = document.getElementById("email").value.trim();
     const contraseña = document.getElementById("contraseña").value;
 
-    if (!correo || !contraseña) {
+    if (!email || !contraseña) {
       alert("Todos los campos son obligatorios.");
       return;
     }
 
     try {
-      const res = await fetch("guardar.php", {
+      const res = await fetch("http://localhost:5113/graphql", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          accion: "login_admin",
-          correo: correo,
-          password: contraseña
+          query: `
+            mutation ($email: String!, $password: String!) {
+              login(email: $email, password: $password) {
+                id
+                nombre
+                email
+                rol
+              }
+            }
+          `,
+          variables: {
+            email: email,
+            password: contraseña
+          }
         })
       });
 
-      const data = await res.json();
+      const result = await res.json();
 
-      if (data.ok) {
-        sessionStorage.setItem("adminCorreo", correo);
+      // Verificar si GraphQL devolvió errores de validación o contraseña incorrecta
+      if (result.errors && result.errors.length > 0) {
+        alert(result.errors[0].message);
+      } else if (result.data && result.data.login) {
+        const usuario = result.data.login;
 
-        alert("Sesión iniciada correctamente");
+        // Guardar sesión del usuario/admin en el almacenamiento del navegador
+        sessionStorage.setItem("adminemail", usuario.email);
+        sessionStorage.setItem("usuarioNombre", usuario.nombre);
+        sessionStorage.setItem("usuarioRol", usuario.rol);
 
-        window.location.href = "/panpri.html";
+        alert(`¡Bienvenido de nuevo, ${usuario.nombre}!`);
+
+        // Redirigir al panel principal de Mascotitas
+        window.location.href = "/App";
       } else {
-        alert(data.error || "Usuario o contraseña incorrectos.");
+        alert("Usuario o contraseña incorrectos.");
       }
 
     } catch (e) {
-      alert("Error de conexión con el servidor.");
+      console.error("Error de conexión:", e);
+      alert("Error de conexión con el servidor de Mascotitas.");
     }
   };
 
@@ -58,15 +79,15 @@ function Login() {
 
       <form onSubmit={LOGIN}>
 
-        <label htmlFor="correo">
-          Correo
+        <label htmlFor="email">
+          Email
         </label>
 
         <input
           type="email"
-          id="correo"
-          name="correo"
-          placeholder="Ingresa tu correo"
+          id="email"
+          name="email"
+          placeholder="Ingresa tu email"
         />
 
         <label htmlFor="contraseña">
@@ -103,4 +124,3 @@ function Login() {
 }
 
 export default Login;
-```
