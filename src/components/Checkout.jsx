@@ -1,6 +1,5 @@
 import { useStore } from "../store/useStore";
 import { useState, useEffect } from "react";
-import { useStore } from "../store/useStore";
 import { obtenerUsuarioSesion } from "../utils/auth";
 import { GRAPHQL_ENDPOINT } from "../graphql/client";
 
@@ -15,34 +14,25 @@ const CREAR_PEDIDO_MUTATION = `
 `;
 
 export const Checkout = ({ onBackToHome }) => {
-  // 1. Usamos las variables reales de tu useStore.js
-
   const store = useStore();
   const carrito = store.carrito || [];
   const totalCarrito = store.totalCarrito || 0;
 
-  // Validar usuario usando el helper
   const [usuarioSesion, setUsuarioSesion] = useState(null);
+  const [nombre, setNombre] = useState("");
+  const [direccion, setDireccion] = useState("");
+  const [telefono, setTelefono] = useState("");
+  const [metodoPago, setMetodoPago] = useState("Tarjeta");
+  const [pedidoCreado, setPedidoCreado] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState(null);
 
   useEffect(() => {
     const sesion = obtenerUsuarioSesion();
     setUsuarioSesion(sesion);
   }, []);
 
-  // Obtener usuario del sessionStorage que guardaste en el Login
-  const usuarioEmail = typeof window !== "undefined" ? sessionStorage.getItem("adminemail") : null;
-  // Si guardaste el ID del usuario en el login (p.ej. sessionStorage.setItem("usuarioId", usuario.id))
   const usuarioId = typeof window !== "undefined" ? sessionStorage.getItem("usuarioId") : null;
-
-  const [nombre, setNombre] = useState('');
-  const [direccion, setDireccion] = useState('');
-  const [telefono, setTelefono] = useState('');
-  const [metodoPago, setMetodoPago] = useState('Tarjeta');
-
-  const [pedidoCreado, setPedidoCreado] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState(null);
-
   const costoEnvio = totalCarrito > 500 || totalCarrito === 0 ? 0 : 99;
   const totalFinal = totalCarrito + costoEnvio;
 
@@ -50,7 +40,7 @@ export const Checkout = ({ onBackToHome }) => {
     if (onBackToHome) {
       onBackToHome();
     } else if (store.cambiarPantalla) {
-      store.cambiarPantalla('HOME');
+      store.cambiarPantalla("HOME");
     }
   };
 
@@ -59,17 +49,13 @@ export const Checkout = ({ onBackToHome }) => {
     setErrorMsg(null);
 
     if (carrito.length === 0) {
-      alert('El carrito está vacío');
+      alert("El carrito está vacío");
       return;
     }
-    if (!usuarioSesion || !usuarioSesion.id) {
-      if (!usuarioId) {
-        alert('Inicia sesión para completar tu compra');
-        return;
-      }
-      alert('Tu sesión no tiene un ID válido. Por favor, vuelve a iniciar sesión.');
-      return;
-    }
+
+    const usuarioIdActual = usuarioSesion?.id ?? (usuarioId ? Number(usuarioId) : null);
+    if (!usuarioIdActual) {
+      alert("Inicia sesión para completar tu compra");
       return;
     }
 
@@ -83,7 +69,7 @@ export const Checkout = ({ onBackToHome }) => {
           query: CREAR_PEDIDO_MUTATION,
           variables: {
             input: {
-              usuarioId: Number(usuarioSesion?.id ?? usuarioId),
+              usuarioId: Number(usuarioIdActual),
               items: carrito.map((item) => ({
                 productoId: Number(item.id),
                 cantidad: Number(item.cantidad),
@@ -95,7 +81,6 @@ export const Checkout = ({ onBackToHome }) => {
 
       const result = await res.json();
 
-      // Panag-check no adda GraphQL errors
       if (result.errors && result.errors.length > 0) {
         const mensajeError = result.errors[0].message || "Error al procesar el pedido.";
         setErrorMsg(mensajeError);
@@ -104,19 +89,11 @@ export const Checkout = ({ onBackToHome }) => {
 
       if (result.data?.crearPedido) {
         setPedidoCreado(result.data.crearPedido);
-        store.finalizarCompra(); // Limpia el carrito y redirige en tu store
+        store.finalizarCompra();
+        return;
       }
-        setPedidoCreado(result.data.crearPedido);
 
-        // No adda function-mo nga ag-clear ti carrito iti store:
-        if (store.vaciarCarrito) {
-          store.vaciarCarrito();
-        } else if (store.limpiarCarrito) {
-          store.limpiarCarrito();
-        }
-      } else {
-        setErrorMsg("No se recibió confirmación del pedido.");
-      }
+      setErrorMsg("No se recibió confirmación del pedido.");
     } catch (err) {
       console.error("Error en el catch del fetch:", err);
       setErrorMsg("Error de conexión con el servidor.");
@@ -127,22 +104,28 @@ export const Checkout = ({ onBackToHome }) => {
 
   if (pedidoCreado) {
     return (
-      <div style={{ padding: '40px', textAlign: 'center', maxWidth: '500px', margin: '40px auto', fontFamily: 'sans-serif' }}>
-        <h2 style={{ color: '#27ae60' }}>¡Gracias por tu compra! 🐾</h2>
-        <p>Tu pedido <strong>#{pedidoCreado.id}</strong> ha sido registrado correctamente.</p>
-        <p>Total cobrado: <strong>${pedidoCreado.total?.toFixed(2)}</strong></p>
-        <p>Estado: <strong>{pedidoCreado.status}</strong></p>
+      <div style={{ padding: "40px", textAlign: "center", maxWidth: "500px", margin: "40px auto", fontFamily: "sans-serif" }}>
+        <h2 style={{ color: "#27ae60" }}>¡Gracias por tu compra! 🐾</h2>
+        <p>
+          Tu pedido <strong>#{pedidoCreado.id}</strong> ha sido registrado correctamente.
+        </p>
+        <p>
+          Total cobrado: <strong>${pedidoCreado.total?.toFixed(2)}</strong>
+        </p>
+        <p>
+          Estado: <strong>{pedidoCreado.status}</strong>
+        </p>
         <button
           onClick={handleVolverAlHome}
           style={{
-            marginTop: '20px',
-            padding: '10px 20px',
-            backgroundColor: '#2980b9',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: 'pointer',
-            fontWeight: 'bold',
+            marginTop: "20px",
+            padding: "10px 20px",
+            backgroundColor: "#2980b9",
+            color: "#fff",
+            border: "none",
+            borderRadius: "5px",
+            cursor: "pointer",
+            fontWeight: "bold",
           }}
         >
           Volver a la Tienda
@@ -151,48 +134,56 @@ export const Checkout = ({ onBackToHome }) => {
     );
   }
 
-  const inputStyle = { width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box' };
-  const labelStyle = { display: 'block', marginBottom: '5px', fontWeight: 'bold' };
+  const inputStyle = {
+    width: "100%",
+    padding: "10px",
+    borderRadius: "4px",
+    border: "1px solid #ccc",
+    boxSizing: "border-box",
+  };
+  const labelStyle = { display: "block", marginBottom: "5px", fontWeight: "bold" };
   const deshabilitado = loading || carrito.length === 0;
 
   return (
-    <div style={{ padding: '20px', maxWidth: '600px', margin: '20px auto', fontFamily: 'sans-serif' }}>
+    <div style={{ padding: "20px", maxWidth: "600px", margin: "20px auto", fontFamily: "sans-serif" }}>
       <h2>Confirmar Compra (Checkout)</h2>
 
-      <div style={{ backgroundColor: '#f9f9f9', padding: '15px', borderRadius: '8px', marginBottom: '20px' }}>
+      <div style={{ backgroundColor: "#f9f9f9", padding: "15px", borderRadius: "8px", marginBottom: "20px" }}>
         <h3>Resumen del Pedido</h3>
         {carrito.length === 0 ? (
           <p>Tu carrito está vacío.</p>
         ) : (
           carrito.map((item) => (
-            <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <span>{item.nombre} (x{item.cantidad})</span>
+            <div key={item.id} style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+              <span>
+                {item.nombre} (x{item.cantidad})
+              </span>
               <span>${(item.precio * item.cantidad).toFixed(2)}</span>
             </div>
           ))
         )}
         <hr />
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
           <span>Subtotal:</span>
           <span>${totalCarrito.toFixed(2)}</span>
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
           <span>Envío:</span>
-          <span>{costoEnvio === 0 ? '¡Gratis!' : `$${costoEnvio}`}</span>
+          <span>{costoEnvio === 0 ? "¡Gratis!" : `$${costoEnvio}`}</span>
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '18px', marginTop: '10px' }}>
+        <div style={{ display: "flex", justifyContent: "space-between", fontWeight: "bold", fontSize: "18px", marginTop: "10px" }}>
           <span>Total Final:</span>
-          <span style={{ color: '#27ae60' }}>${totalFinal.toFixed(2)}</span>
+          <span style={{ color: "#27ae60" }}>${totalFinal.toFixed(2)}</span>
         </div>
       </div>
 
       {errorMsg && (
-        <div style={{ color: '#c0392b', backgroundColor: '#f9d6d5', padding: '10px', borderRadius: '4px', marginBottom: '15px' }}>
+        <div style={{ color: "#c0392b", backgroundColor: "#f9d6d5", padding: "10px", borderRadius: "4px", marginBottom: "15px" }}>
           {errorMsg}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
         <div>
           <label style={labelStyle}>Nombre Completo:</label>
           <input required type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej. Juan Pérez" style={inputStyle} />
@@ -218,18 +209,18 @@ export const Checkout = ({ onBackToHome }) => {
           type="submit"
           disabled={deshabilitado}
           style={{
-            padding: '14px',
-            backgroundColor: deshabilitado ? '#95a5a6' : '#27ae60',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: deshabilitado ? 'not-allowed' : 'pointer',
-            fontWeight: 'bold',
-            fontSize: '16px',
-            marginTop: '10px',
+            padding: "14px",
+            backgroundColor: deshabilitado ? "#95a5a6" : "#27ae60",
+            color: "#fff",
+            border: "none",
+            borderRadius: "5px",
+            cursor: deshabilitado ? "not-allowed" : "pointer",
+            fontWeight: "bold",
+            fontSize: "16px",
+            marginTop: "10px",
           }}
         >
-          {loading ? 'Procesando Pedido...' : 'Confirmar y Enviar Pedido'}
+          {loading ? "Procesando Pedido..." : "Confirmar y Enviar Pedido"}
         </button>
       </form>
     </div>
