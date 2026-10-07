@@ -7,5 +7,6 @@ import react from '@astrojs/react';
 export default defineConfig({
   site: 'https://mascotitas-pw.github.io',
   base: '/Front_Astro/',
+  
   integrations: [react()]
 });

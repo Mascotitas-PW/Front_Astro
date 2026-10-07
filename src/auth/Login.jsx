@@ -58,7 +58,7 @@ function Login() {
       sessionStorage.setItem("usuarioRol", usuario.rol);
 
       alert(`¡Bienvenido de nuevo, ${usuario.nombre}!`);
-      window.location.href = `${BASE_URL}App/`;
+      window.location.href = `${BASE_URL}`;
     } catch (e) {
       console.error("Error de conexión:", e);
       alert("Error de conexión con el servidor de Mascotitas.");

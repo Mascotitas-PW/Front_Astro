@@ -14,7 +14,13 @@ export function DetalleProducto({ productoId }) {
   return (
     <main style={{ padding: '2rem' }}>
       <div style={{ backgroundColor: '#FFF', padding: '2.5rem', borderRadius: '12px', maxWidth: '500px', margin: '0 auto', textAlign: 'center' }}>
-        <img 
+          
+          <button 
+          onClick={() => cambiarPantalla('HOME')} 
+          style={{background: 'none', border: 0, cursor: 'pointer',color: '#ff4800',fontSize:'2rem',position:'relative', left:'-220px', top:'-35px'}}
+        >
+          ✕
+        </button><img 
           src={src} 
           alt={producto.nombre} 
           onError={(e) => {
