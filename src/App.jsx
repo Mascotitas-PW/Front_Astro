@@ -4,7 +4,7 @@ import { Home } from './screens/Home';
 import { DetalleProducto } from './components/DetalleProducto';
 import { Checkout } from './screens/Checkout';
 import {Login} from './screens/Login';
-import { Register } from './screens/Register';
+import { Registro } from './screens/Register';
 
 export default function App() {
   const { pantalla, productoSeleccionadoId } = useStore();
@@ -14,7 +14,7 @@ export default function App() {
       <TopBar />
       {pantalla === 'HOME' && <Home />}
       {pantalla === 'LOGIN' && <Login />}
-      {pantalla === 'REGISTER' && <Register />} 
+      {pantalla === 'REGISTER' && <Registro />} 
       {pantalla === 'DETALLE_PRODUCTO' && <DetalleProducto productoId={productoSeleccionadoId} />}
       {pantalla === 'CHECKOUT' && <Checkout />}
     </div>
