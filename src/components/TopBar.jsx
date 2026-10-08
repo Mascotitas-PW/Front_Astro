@@ -38,6 +38,7 @@ export function TopBar() {
           🛒 Carrito ({totalItemsCarrito})
         </button>
         <button onClick={() => window.location.href = `${BASE_URL}/Login/`} style={botonSecundario}>
+          Login 
         </button>
       </div>
     </header>
