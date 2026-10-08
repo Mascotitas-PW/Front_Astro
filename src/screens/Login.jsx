@@ -3,7 +3,7 @@ import { GRAPHQL_ENDPOINT } from "../graphql/client";
 
 const BASE_URL = import.meta.env.BASE_URL;
 
-function Login() {
+export function Login() {
 
   const LOGIN = async (event) => {
     event.preventDefault();
