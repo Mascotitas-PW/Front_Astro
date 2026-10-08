@@ -160,13 +160,24 @@ export const Checkout = ({ onBackToHome }) => {
   }),
 });
 
-paymentData = await response.json();
+const responseText = await response.text();
+
+console.log("STATUS BACKEND:", response.status);
+console.log("RESPUESTA BACKEND:", responseText);
+
+try {
+  paymentData = JSON.parse(responseText);
+} catch {
+  paymentData = {
+    message: responseText || "El servidor no devolvió información."
+  };
+}
 
 if (!response.ok) {
   throw new Error(
     paymentData.message ||
     paymentData.error ||
-    "Mercado Pago rechazó la solicitud."
+    `Error del servidor (${response.status})`
   );
 }
 
