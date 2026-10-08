@@ -20,7 +20,7 @@ export function obtenerUsuarioSesion() {
   return null;
 }
 
-const cerrarSesion = () => {
+export const cerrarSesion = () => {
   sessionStorage.clear();
   cambiarPantalla('HOME');
 };
