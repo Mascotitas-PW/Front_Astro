@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import { GRAPHQL_ENDPOINT } from '../graphql/client';
-import { obtenerUsuarioSesion } from '../auth';
+import { obtenerUsuarioSesion } from '../auth/auth';
 
 const graphqlUrls = [GRAPHQL_ENDPOINT, 'http://localhost:5097/graphql'];
 let state = { productos: [], cargando: true, error: null, pantalla: 'HOME', categoriaSeleccionada: null, productoSeleccionadoId: null, cantidadSeleccionada: 1, busqueda: '', carrito: [], usuario: obtenerUsuarioSesion() };
