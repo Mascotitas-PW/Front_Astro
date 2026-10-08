@@ -28,13 +28,29 @@ async function cargarProductos() {
 
 if (typeof window !== 'undefined') cargarProductos();
 
+function sincronizarUsuarioDesdeSesion() {
+  const usuario = obtenerUsuarioSesion();
+
+  if (usuario) {
+    actualizarState({ usuario });
+    return usuario;
+  }
+
+  if (state.usuario) {
+    actualizarState({ usuario: null });
+  }
+
+  return null;
+}
+
 const acciones = {
   seleccionarCategoria(categoria) { actualizarState({ categoriaSeleccionada: categoria, pantalla: 'HOME' }); },
   seleccionarProducto(producto) { actualizarState({ productoSeleccionadoId: producto.id, cantidadSeleccionada: 1, pantalla: 'DETALLE_PRODUCTO' }); },
   cambiarPantalla(pantalla) {
-    if (pantalla === 'CHECKOUT' && !state.usuario) {
+    const usuarioActual = sincronizarUsuarioDesdeSesion();
+    if (pantalla === 'CHECKOUT' && !usuarioActual) {
       alert('Inicia sesión para continuar con tu compra.');
-  actualizarState({ pantalla: 'LOGIN' });
+      actualizarState({ pantalla: 'LOGIN' });
       return;
     }
     actualizarState({ pantalla });
@@ -42,16 +58,17 @@ const acciones = {
   cambiarBusqueda(busqueda) { actualizarState({ busqueda }); },
   cambiarCantidad(cantidad) { actualizarState({ cantidadSeleccionada: Math.max(1, cantidad || 1) }); },
   agregarAlCarrito(producto, cantidad) {
-    if (!state.usuario) {
+    const usuarioActual = sincronizarUsuarioDesdeSesion();
+    if (!usuarioActual) {
       alert('Inicia sesión para agregar productos al carrito.');
-  actualizarState({ pantalla: 'LOGIN' });
+      actualizarState({ pantalla: 'LOGIN' });
       return;
     }
     const itemExistente = state.carrito.find((item) => item.id === producto.id);
     const carrito = itemExistente
       ? state.carrito.map((item) => item.id === producto.id ? { ...item, cantidad: item.cantidad + cantidad } : item)
       : [...state.carrito, { ...producto, cantidad }];
-    actualizarState({ carrito, pantalla: 'HOME' });
+    actualizarState({ usuario: usuarioActual, carrito, pantalla: 'HOME' });
   },
   cerrarSesion() {
     if (typeof window !== 'undefined') {
