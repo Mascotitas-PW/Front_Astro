@@ -3,7 +3,7 @@ import { useStore } from '../store/useStore';
 import { CartModal } from './CartModal';
 
 export function TopBar() {
-  const { busqueda, cambiarBusqueda, cambiarPantalla, totalItemsCarrito } = useStore();
+  const { busqueda, cambiarBusqueda, cambiarPantalla, totalItemsCarrito, usuario, cerrarSesion } = useStore();
   const [carritoAbierto, setCarritoAbierto] = useState(false);
 
   return <>
@@ -11,7 +11,7 @@ export function TopBar() {
     <header style={{ backgroundColor: '#E8B93E', padding: '1rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
       <h1 onClick={() => cambiarPantalla('HOME')} style={{ color: '#4A3623', margin: 0, cursor: 'pointer' }}>🐾 Mascotitas</h1>
       <input type="text" placeholder="🔍 Buscar productos..." value={busqueda} onChange={(event) => cambiarBusqueda(event.target.value)} style={{ padding: '0.5rem 1rem', borderRadius: '20px', border: '1px solid #CCC', width: '250px' }} />
-      <button onClick={() => window.location.href = `${import.meta.env.BASE_URL}Login/`} style={{ backgroundColor: '#E8734A', color: 'white', border: 'none', padding: '0.6rem 1.2rem', borderRadius: '20px', cursor: 'pointer', fontWeight: 'bold' }}>👤 Login</button>
+      <button onClick={() => usuario ? cerrarSesion() : window.location.href = `${import.meta.env.BASE_URL}Login/`} style={{ backgroundColor: '#E8734A', color: 'white', border: 'none', padding: '0.6rem 1.2rem', borderRadius: '20px', cursor: 'pointer', fontWeight: 'bold' }}>{usuario ? 'Cerrar sesión' : '👤 Login'}</button>
       <button onClick={() => setCarritoAbierto(true)} style={{ backgroundColor: '#E8734A', color: 'white', border: 'none', padding: '0.6rem 1.2rem', borderRadius: '20px', cursor: 'pointer', fontWeight: 'bold' }}>🛒 Carrito ({totalItemsCarrito})</button>
     </header>
     <CartModal isOpen={carritoAbierto} onClose={() => setCarritoAbierto(false)} onGoToCheckout={() => cambiarPantalla('CHECKOUT')} />
