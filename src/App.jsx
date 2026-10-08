@@ -1,8 +1,8 @@
 import { useStore } from './store/useStore';
-import { TopBar } from './components/TopBar';
-import { Home } from './components/Home';
+import { TopBar } from './layout/TopBar';
+import { Home } from './screens/Home';
 import { DetalleProducto } from './components/DetalleProducto';
-import { Checkout } from './components/Checkout';
+import { Checkout } from './screens/Checkout';
 
 export default function App() {
   const { pantalla, productoSeleccionadoId } = useStore();

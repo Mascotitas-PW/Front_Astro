@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { useStore } from '../store/useStore';
-import { CartModal } from './CartModal';
+import { CartModal } from '../components/CartModal';
 import { obtenerUsuarioSesion } from '../auth/auth';
-import { navigate } from 'astro:transitions/client';
 
 
 export function TopBar() {
@@ -38,19 +37,9 @@ export function TopBar() {
         <button onClick={() => setCarritoAbierto(true)} style={botonSecundario}>
           🛒 Carrito ({totalItemsCarrito})
         </button>
-       import { navigate } from 'astro:transitions/client';
 
 <button 
-  type="button"
-  onClick={() => {
-    const base = import.meta.env.BASE_URL.endsWith('/') 
-      ? import.meta.env.BASE_URL.slice(0, -1) 
-      : import.meta.env.BASE_URL;
-    
-    navigate(`${base}/login/`);
-  }} 
-  style={botonSecundario}
->
+  type="button" onClick={() => cambiarPantalla('Login')} style={botonSecundario} >
   Login
 </button>
       </div>
