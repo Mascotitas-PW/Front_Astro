@@ -12,6 +12,8 @@ export function TopBar() {
   // sessionStorage no es reactivo: se relee en cada render del TopBar
   const usuario = obtenerUsuarioSesion();
   const esAdmin = usuario?.rol?.toLowerCase() === 'admin';
+const salir = () => { cerrarSesion(); cambiarPantalla('HOME'); };
+
 
   const botonSecundario = {
     backgroundColor: 'transparent', color: '#4A3623', border: '2px solid #4A3623',
@@ -42,7 +44,7 @@ export function TopBar() {
     Login
   </button>
   
-  <button type="button" onClick={cerrarSesion} style={botonSecundario}>
+  <button type="button" onClick={salir} style={botonSecundario}>
     Cerrar sesión
   </button>
       </div>
