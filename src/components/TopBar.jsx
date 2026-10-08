@@ -38,9 +38,9 @@ export function TopBar() {
         <button onClick={() => setCarritoAbierto(true)} style={botonSecundario}>
           🛒 Carrito ({totalItemsCarrito})
         </button>
-<button onClick={() => navigate("/Login/")} style={botonSecundario}>
-  Login
-</button>
+        <button onClick={() => navigate("/login/")} style={botonSecundario}>
+        Login
+        </button>
       </div>
     </header>
     <CartModal isOpen={carritoAbierto} onClose={() => setCarritoAbierto(false)} onGoToCheckout={() => cambiarPantalla('CHECKOUT')} />
