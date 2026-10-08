@@ -11,7 +11,7 @@ const MUTATION_LOGIN = `
   }`;
 
 export function Login() {
-  const { cambiarPantalla } = useStore();
+  const { cambiarPantalla, refrescarUsuario } = useStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
@@ -54,6 +54,7 @@ export function Login() {
       sessionStorage.setItem("usuarioNombre", usuario.nombre);
       sessionStorage.setItem("usuarioRol", usuario.rol);
 
+      refrescarUsuario();
       cambiarPantalla("HOME");
     } catch (e) {
       console.error("Error de conexión:", e);

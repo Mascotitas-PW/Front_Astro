@@ -14,8 +14,7 @@ const CREAR_PEDIDO_MUTATION = `
 `;
 
 const MERCADOPAGO_PUBLIC_KEY = import.meta.env.PUBLIC_MP_KEY;
-const MERCADOPAGO_PAYMENT_URL = import.meta.env.VITE_MERCADOPAGO_PAYMENT_URL
-  || GRAPHQL_ENDPOINT.replace(/\/graphql\/?$/, "/process_order");
+const MERCADOPAGO_PAYMENT_URL = "https://backastro-production.up.railway.app/process_order";
 
 function cargarSdkMercadoPago() {
   if (window.MercadoPago) return Promise.resolve();

@@ -44,6 +44,9 @@ function sincronizarUsuarioDesdeSesion() {
 }
 
 const acciones = {
+  refrescarUsuario() {
+    return sincronizarUsuarioDesdeSesion();
+  },
   seleccionarCategoria(categoria) { actualizarState({ categoriaSeleccionada: categoria, pantalla: 'HOME' }); },
   seleccionarProducto(producto) { actualizarState({ productoSeleccionadoId: producto.id, cantidadSeleccionada: 1, pantalla: 'DETALLE_PRODUCTO' }); },
   cambiarPantalla(pantalla) {
