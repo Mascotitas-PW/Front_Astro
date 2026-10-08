@@ -37,9 +37,10 @@ export function TopBar() {
         <button onClick={() => setCarritoAbierto(true)} style={botonSecundario}>
           🛒 Carrito ({totalItemsCarrito})
         </button>
-        <button onClick={() => window.location.href = `${BASE_URL}/Login/`} style={botonSecundario}>
-          Login 
-        </button>
+        // Si tu archivo se llama src/pages/login.astro o src/pages/login/index.astro:
+<button onClick={() => window.location.href = "/login"} style={botonSecundario}>
+  Login
+</button>
       </div>
     </header>
     <CartModal isOpen={carritoAbierto} onClose={() => setCarritoAbierto(false)} onGoToCheckout={() => cambiarPantalla('CHECKOUT')} />
