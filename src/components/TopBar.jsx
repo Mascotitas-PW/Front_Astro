@@ -38,9 +38,21 @@ export function TopBar() {
         <button onClick={() => setCarritoAbierto(true)} style={botonSecundario}>
           🛒 Carrito ({totalItemsCarrito})
         </button>
-        <button onClick={() => navigate(`${base}/Login/`)} style={botonSecundario}>
-        Login
-        </button>
+       import { navigate } from 'astro:transitions/client';
+
+<button 
+  type="button"
+  onClick={() => {
+    const base = import.meta.env.BASE_URL.endsWith('/') 
+      ? import.meta.env.BASE_URL.slice(0, -1) 
+      : import.meta.env.BASE_URL;
+    
+    navigate(`${base}/login/`);
+  }} 
+  style={botonSecundario}
+>
+  Login
+</button>
       </div>
     </header>
     <CartModal isOpen={carritoAbierto} onClose={() => setCarritoAbierto(false)} onGoToCheckout={() => cambiarPantalla('CHECKOUT')} />
