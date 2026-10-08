@@ -13,6 +13,16 @@ const CREAR_PEDIDO_MUTATION = `
   }
 `;
 
+const CREAR_PEDIDO_SIN_PAGO_MUTATION = `
+  mutation CrearPedidoSinPago($input: CrearPedidoSinPagoInput!) {
+    crearPedidoSinPago(input: $input) {
+      id
+      status
+      total
+    }
+  }
+`;
+
 const MERCADOPAGO_PUBLIC_KEY = import.meta.env.PUBLIC_MP_KEY;
 const MERCADOPAGO_PAYMENT_URL = import.meta.env.VITE_MERCADOPAGO_PAYMENT_URL
   || GRAPHQL_ENDPOINT.replace(/\/graphql\/?$/, "/process_order");
@@ -34,13 +44,29 @@ function cargarSdkMercadoPago() {
   });
 }
 
+// Llamada GraphQL que lanza error si el back responde con errores
+async function llamarGraphQL(query, input) {
+  const res = await fetch(GRAPHQL_ENDPOINT, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ query, variables: { input } }),
+  });
+  const result = await res.json();
+  if (!res.ok || result.errors?.length) {
+    throw new Error(result.errors?.[0]?.message || "No se pudo registrar el pedido.");
+  }
+  return result.data;
+}
 
 export const Checkout = ({ onBackToHome }) => {
   const store = useStore();
   const carrito = store.carrito || [];
   const totalCarrito = store.totalCarrito || 0;
 
-  const [usuarioSesion, setUsuarioSesion] = useState(null);
+  // La sesión vive en sessionStorage; se relee en cada render
+  const usuario = obtenerUsuarioSesion();
+  const usuarioIdActual = usuario?.id ?? null;
+
   const [nombre, setNombre] = useState("");
   const [direccion, setDireccion] = useState("");
   const [telefono, setTelefono] = useState("");
@@ -49,60 +75,45 @@ export const Checkout = ({ onBackToHome }) => {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
 
-  useEffect(() => {
-    const sesion = obtenerUsuarioSesion();
-    setUsuarioSesion(sesion);
-  }, []);
-
-
-  // Obtener usuario del sessionStorage
-  const usuarioEmail = typeof window !== "undefined" ? sessionStorage.getItem("adminemail") : null;
-  const usuarioId = typeof window !== "undefined" ? sessionStorage.getItem("usuarioId") : null;
-  const usuarioIdActual = usuarioSesion?.id ?? (usuarioId ? Number(usuarioId) : null);
   const costoEnvio = totalCarrito > 500 || totalCarrito === 0 ? 0 : 99;
   const totalFinal = totalCarrito + costoEnvio;
 
-  const registrarPedido = async (paymentId) => {
-  const res = await fetch(GRAPHQL_ENDPOINT, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      query: CREAR_PEDIDO_MUTATION,
-      variables: {
-        input: {
-          usuarioId: Number(usuarioIdActual),
-          paymentId: Number(paymentId),
-          items: carrito.map((item) => ({
-            productoId: Number(item.id),
-            cantidad: Number(item.cantidad),
-          })),
-        },
-      },
-    }),
-  });
+  const itemsInput = () =>
+    carrito.map((item) => ({
+      productoId: Number(item.id),
+      cantidad: Number(item.cantidad),
+    }));
 
-    const result = await res.json();
-    if (!res.ok || result.errors?.length) {
-      throw new Error(result.errors?.[0]?.message || "No se pudo registrar el pedido.");
-    }
-
-    if (!result.data?.crearPedido) {
-      throw new Error("No se recibió confirmación del pedido.");
-    }
-
-    return result.data.crearPedido;
+  // Pedido pagado con tarjeta (el back valida el pago contra Mercado Pago)
+  const registrarPedidoConPago = async (paymentId) => {
+    const data = await llamarGraphQL(CREAR_PEDIDO_MUTATION, {
+      usuarioId: Number(usuarioIdActual),
+      paymentId: Number(paymentId),
+      items: itemsInput(),
+    });
+    if (!data?.crearPedido) throw new Error("No se recibió confirmación del pedido.");
+    return data.crearPedido;
   };
 
+  // Pedido en efectivo / transferencia (queda pendiente de pago)
+  const registrarPedidoSinPago = async () => {
+    const data = await llamarGraphQL(CREAR_PEDIDO_SIN_PAGO_MUTATION, {
+      usuarioId: Number(usuarioIdActual),
+      metodoPago,
+      items: itemsInput(),
+    });
+    if (!data?.crearPedidoSinPago) throw new Error("No se recibió confirmación del pedido.");
+    return data.crearPedidoSinPago;
+  };
+
+  // Brick de Mercado Pago (solo con tarjeta)
   useEffect(() => {
-    if (metodoPago !== "Tarjeta" || !totalFinal) return;
+    if (metodoPago !== "Tarjeta" || !totalFinal || pedidoCreado) return;
     if (!MERCADOPAGO_PUBLIC_KEY) {
       setErrorMsg("Configura PUBLIC_MP_KEY para habilitar el pago con tarjeta.");
       return;
     }
-    if (!usuarioIdActual) {
-      setErrorMsg("Inicia sesión para pagar con tarjeta.");
-      return;
-    }
+    if (!usuarioIdActual) return;
 
     let cancelado = false;
     let brickController;
@@ -117,30 +128,25 @@ export const Checkout = ({ onBackToHome }) => {
           initialization: { amount: Number(totalFinal.toFixed(2)) },
           callbacks: {
             onReady: () => setErrorMsg(null),
-            onSubmit: async (formData, additionalData) => {
+            onSubmit: async (formData) => {
               setLoading(true);
               setErrorMsg(null);
               let pagoAprobado = false;
               let paymentData;
 
               try {
-                const submitData = {
-                  usuarioId: Number(usuarioIdActual),
-                  items: carrito.map((item) => ({
-                    productoId: Number(item.id),
-                    cantidad: Number(item.cantidad),
-                  })),
-                  token: formData.token,
-                  paymentMethodId: formData.payment_method_id,
-                  installments: Number(formData.installments || 1),
-                  email: formData.payer.email || usuarioSesion?.email,
-                  transaction_amount: Number(formData.transaction_amount),
-                };
-
                 const response = await fetch(MERCADOPAGO_PAYMENT_URL, {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify(submitData),
+                  body: JSON.stringify({
+                    usuarioId: Number(usuarioIdActual),
+                    items: itemsInput(),
+                    token: formData.token,
+                    paymentMethodId: formData.payment_method_id,
+                    installments: Number(formData.installments || 1),
+                    email: formData.payer?.email || usuario?.email,
+                    transaction_amount: Number(formData.transaction_amount),
+                  }),
                 });
                 paymentData = await response.json();
 
@@ -152,9 +158,9 @@ export const Checkout = ({ onBackToHome }) => {
                 }
 
                 pagoAprobado = true;
-                const pedido = await registrarPedido(paymentData.id);
+                const pedido = await registrarPedidoConPago(paymentData.id);
                 setPedidoCreado(pedido);
-                store.finalizarCompra();
+                store.vaciarCarrito();
                 return paymentData;
               } catch (error) {
                 setErrorMsg(pagoAprobado
@@ -182,75 +188,37 @@ export const Checkout = ({ onBackToHome }) => {
       cancelado = true;
       brickController?.unmount();
     };
-  }, [metodoPago, totalFinal, usuarioIdActual]);
+  }, [metodoPago, totalFinal, usuarioIdActual, pedidoCreado]);
 
   const handleVolverAlHome = () => {
     if (onBackToHome) {
       onBackToHome();
-    } else if (store.cambiarPantalla) {
+    } else {
       store.cambiarPantalla("HOME");
     }
   };
 
+  // Submit del formulario: solo aplica para efectivo / transferencia
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (metodoPago === "Tarjeta") return; // la tarjeta se envía desde el Brick
+
     setErrorMsg(null);
 
     if (carrito.length === 0) {
-
-      alert('El carrito está vacío');
+      setErrorMsg("El carrito está vacío.");
       return;
     }
-
-    const idValido = usuarioSesion?.id ?? usuarioId;
-
-    if (!idValido) {
-      alert('Inicia sesión para completar tu compra');
+    if (!usuarioIdActual) {
+      setErrorMsg("Inicia sesión para completar tu compra.");
       return;
     }
 
     setLoading(true);
-
     try {
-      const res = await fetch(GRAPHQL_ENDPOINT, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          query: CREAR_PEDIDO_MUTATION,
-          variables: {
-            input: {
-              usuarioId: Number(idValido),
-              items: carrito.map((item) => ({
-                productoId: Number(item.id),
-                cantidad: Number(item.cantidad),
-              })),
-            },
-          },
-        }),
-      });
-
-      const result = await res.json();
-
-      if (result.errors && result.errors.length > 0) {
-        const mensajeError = result.errors[0].message || "Error al procesar el pedido.";
-        setErrorMsg(mensajeError);
-        return;
-      }
-
-      if (result.data?.crearPedido) {
-        setPedidoCreado(result.data.crearPedido);
-
-        // Limpiar el carrito según el método disponible en tu store
-        if (store.finalizarCompra) {
-          store.finalizarCompra();
-        } else if (store.vaciarCarrito) {
-          store.vaciarCarrito();
-        } else if (store.limpiarCarrito) {
-          store.limpiarCarrito();
-        }
-      } else {
-        setErrorMsg("No se recibió confirmación del pedido.");
-      }
+      const pedido = await registrarPedidoSinPago();
+      setPedidoCreado(pedido);
+      store.vaciarCarrito();
     } catch (err) {
       console.error("Error al registrar el pedido:", err);
       setErrorMsg(err.message || "Error de conexión con el servidor.");
@@ -259,7 +227,24 @@ export const Checkout = ({ onBackToHome }) => {
     }
   };
 
+  // Sin sesión no se puede comprar
+  if (!usuario) {
+    return (
+      <div style={{ padding: "40px", textAlign: "center", maxWidth: "500px", margin: "40px auto" }}>
+        <h2>Inicia sesión para pagar</h2>
+        <p>Necesitas una cuenta para completar tu compra.</p>
+        <button
+          onClick={() => store.cambiarPantalla("LOGIN")}
+          style={{ marginTop: "20px", padding: "10px 20px", fontWeight: "bold" }}
+        >
+          Ir a iniciar sesión
+        </button>
+      </div>
+    );
+  }
+
   if (pedidoCreado) {
+    const pagado = metodoPago === "Tarjeta";
     return (
       <div style={{ padding: "40px", textAlign: "center", maxWidth: "500px", margin: "40px auto", fontFamily: "sans-serif" }}>
         <h2 style={{ color: "#27ae60" }}>¡Gracias por tu compra! 🐾</h2>
@@ -267,7 +252,7 @@ export const Checkout = ({ onBackToHome }) => {
           Tu pedido <strong>#{pedidoCreado.id}</strong> ha sido registrado correctamente.
         </p>
         <p>
-          Total cobrado: <strong>${pedidoCreado.total?.toFixed(2)}</strong>
+          {pagado ? "Total cobrado" : "Total a pagar"}: <strong>${Number(pedidoCreado.total).toFixed(2)}</strong>
         </p>
         <p>
           Estado: <strong>{pedidoCreado.status}</strong>
@@ -277,7 +262,7 @@ export const Checkout = ({ onBackToHome }) => {
           style={{
             marginTop: "20px",
             padding: "10px 20px",
-            backgroundColor: "#2980b9",
+            backgroundColor: "#E8734A",
             color: "#fff",
             border: "none",
             borderRadius: "5px",
@@ -355,7 +340,7 @@ export const Checkout = ({ onBackToHome }) => {
         </div>
         <div>
           <label style={labelStyle}>Método de Pago:</label>
-          <select value={metodoPago} onChange={(e) => setMetodoPago(e.target.value)} style={inputStyle}>
+          <select value={metodoPago} onChange={(e) => { setErrorMsg(null); setMetodoPago(e.target.value); }} style={inputStyle}>
             <option value="Tarjeta">Tarjeta de Crédito / Débito</option>
             <option value="Efectivo">Efectivo contra entrega</option>
             <option value="Transferencia">Transferencia SPEI</option>
