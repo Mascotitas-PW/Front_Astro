@@ -1,7 +1,7 @@
 import { useStore } from '../store/useStore';
 
 export function DetalleProducto({ productoId }) {
-  const { productos, cantidadSeleccionada, cambiarCantidad, agregarAlCarrito, cambiarPantalla } = useStore();
+  const { productos, cantidadSeleccionada, cambiarCantidad, agregarAlCarrito, cambiarPantalla, usuario } = useStore();
   const producto = productos.find((item) => item.id === productoId);
 
   if (!producto) return <main style={{ padding: '2rem' }}>Producto no encontrado.</main>;
@@ -14,7 +14,13 @@ export function DetalleProducto({ productoId }) {
   return (
     <main style={{ padding: '2rem' }}>
       <div style={{ backgroundColor: '#FFF', padding: '2.5rem', borderRadius: '12px', maxWidth: '500px', margin: '0 auto', textAlign: 'center' }}>
-        <img 
+          
+          <button 
+          onClick={() => cambiarPantalla('HOME')} 
+          style={{background: 'none', border: 0, cursor: 'pointer',color: '#ff4800',fontSize:'2rem',position:'relative', left:'-220px', top:'-35px'}}
+        >
+          ✕
+        </button><img 
           src={src} 
           alt={producto.nombre} 
           onError={(e) => {
@@ -41,7 +47,7 @@ export function DetalleProducto({ productoId }) {
           onClick={() => agregarAlCarrito(producto, cantidadSeleccionada)} 
           style={{ display: 'block', width: '100%', marginTop: '1.5rem', backgroundColor: '#E8734A', color: '#FFF', border: 0, padding: '1rem', borderRadius: '8px', cursor: 'pointer' }}
         >
-          Agregar al Carrito
+          {usuario ? 'Agregar al Carrito' : 'Inicia sesión para agregar'}
         </button>
 
         <button 

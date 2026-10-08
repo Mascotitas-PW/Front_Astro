@@ -1,8 +1,9 @@
 import { useSyncExternalStore } from 'react';
 import { GRAPHQL_ENDPOINT } from '../graphql/client';
+import { obtenerUsuarioSesion } from '../utils/auth';
 
 const graphqlUrls = [GRAPHQL_ENDPOINT, 'http://localhost:5097/graphql'];
-let state = { productos: [], cargando: true, error: null, pantalla: 'HOME', categoriaSeleccionada: null, productoSeleccionadoId: null, cantidadSeleccionada: 1, busqueda: '', carrito: [] };
+let state = { productos: [], cargando: true, error: null, pantalla: 'HOME', categoriaSeleccionada: null, productoSeleccionadoId: null, cantidadSeleccionada: 1, busqueda: '', carrito: [], usuario: obtenerUsuarioSesion() };
 const listeners = new Set();
 
 function actualizarState(cambios) {
@@ -30,15 +31,33 @@ if (typeof window !== 'undefined') cargarProductos();
 const acciones = {
   seleccionarCategoria(categoria) { actualizarState({ categoriaSeleccionada: categoria, pantalla: 'HOME' }); },
   seleccionarProducto(producto) { actualizarState({ productoSeleccionadoId: producto.id, cantidadSeleccionada: 1, pantalla: 'DETALLE_PRODUCTO' }); },
-  cambiarPantalla(pantalla) { actualizarState({ pantalla }); },
+  cambiarPantalla(pantalla) {
+    if (pantalla === 'CHECKOUT' && !state.usuario) {
+      alert('Inicia sesión para continuar con tu compra.');
+      window.location.href = `${import.meta.env.BASE_URL}Login/`;
+      return;
+    }
+    actualizarState({ pantalla });
+  },
   cambiarBusqueda(busqueda) { actualizarState({ busqueda }); },
   cambiarCantidad(cantidad) { actualizarState({ cantidadSeleccionada: Math.max(1, cantidad || 1) }); },
   agregarAlCarrito(producto, cantidad) {
+    if (!state.usuario) {
+      alert('Inicia sesión para agregar productos al carrito.');
+      window.location.href = `${import.meta.env.BASE_URL}Login/`;
+      return;
+    }
     const itemExistente = state.carrito.find((item) => item.id === producto.id);
     const carrito = itemExistente
       ? state.carrito.map((item) => item.id === producto.id ? { ...item, cantidad: item.cantidad + cantidad } : item)
       : [...state.carrito, { ...producto, cantidad }];
     actualizarState({ carrito, pantalla: 'HOME' });
+  },
+  cerrarSesion() {
+    if (typeof window !== 'undefined') {
+      ['usuarioId', 'id', 'adminemail', 'email', 'usuarioNombre', 'usuarioRol', 'adminNombre'].forEach((key) => sessionStorage.removeItem(key));
+    }
+    actualizarState({ usuario: null, carrito: [], pantalla: 'HOME', productoSeleccionadoId: null });
   },
   eliminarDelCarrito(id) { actualizarState({ carrito: state.carrito.filter((item) => item.id !== id) }); },
   actualizarCantidad(id, cantidad) {
