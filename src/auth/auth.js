@@ -1,3 +1,7 @@
+import { useStore } from '../store/useStore';
+
+const { cambiarPantalla } = useStore();
+
 export function obtenerUsuarioSesion() {
   if (typeof window === 'undefined') return null;
 
