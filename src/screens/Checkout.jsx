@@ -128,48 +128,85 @@ export const Checkout = ({ onBackToHome }) => {
           callbacks: {
             onReady: () => setErrorMsg(null),
             onSubmit: async (formData) => {
-              setLoading(true);
-              setErrorMsg(null);
-              let pagoAprobado = false;
-              let paymentData;
+  setLoading(true);
+  setErrorMsg(null);
 
-              try {
-                const response = await fetch(MERCADOPAGO_PAYMENT_URL, {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    usuarioId: Number(usuarioIdActual),
-                    items: itemsInput(),
-                    token: formData.token,
-                    paymentMethodId: formData.payment_method_id,
-                    installments: Number(formData.installments || 1),
-                    email: formData.payer?.email || usuario?.email,
-                    transaction_amount: Number(formData.transaction_amount),
-                  }),
-                });
-                paymentData = await response.json();
+  let pagoAprobado = false;
+  let paymentData;
 
-                if (!response.ok) {
-                  throw new Error(paymentData.message || paymentData.error || "Mercado Pago rechazó la solicitud.");
-                }
-                if (paymentData.status !== "approved") {
-                  throw new Error(paymentData.message || `El pago no fue aprobado (estado: ${paymentData.status || "desconocido"}).`);
-                }
+  try {
+   const response = await fetch(MERCADOPAGO_PAYMENT_URL, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    usuarioId: Number(usuarioIdActual),
 
-                pagoAprobado = true;
-                const pedido = await registrarPedidoConPago(paymentData.id);
-                setPedidoCreado(pedido);
-                store.vaciarCarrito();
-                return paymentData;
-              } catch (error) {
-                setErrorMsg(pagoAprobado
-                  ? `El pago fue aprobado, pero no se pudo guardar el pedido: ${error.message}`
-                  : error.message || "No se pudo procesar el pago.");
-                if (pagoAprobado) return paymentData;
-                throw error;
-              } finally {
-                setLoading(false);
-              }
+    items: carrito.map((item) => ({
+      productoId: Number(item.id),
+      cantidad: Number(item.cantidad),
+    })),
+
+    token: formData.token,
+
+    paymentMethodId: formData.payment_method_id,
+
+    installments: Number(formData.installments || 1),
+
+    payer: {
+      email: formData.payer?.email || usuarioSesion?.email || "",
+    },
+  }),
+});
+
+paymentData = await response.json();
+
+if (!response.ok) {
+  throw new Error(
+    paymentData.message ||
+    paymentData.error ||
+    "Mercado Pago rechazó la solicitud."
+  );
+}
+
+if (paymentData.status !== "approved") {
+  throw new Error(
+    paymentData.message ||
+    `El pago no fue aprobado (estado: ${
+      paymentData.status || "desconocido"
+    }).`
+  );
+}
+    pagoAprobado = true;
+
+    const pedido = await registrarPedidoConPago(paymentData.id);
+
+    setPedidoCreado(pedido);
+
+    store.vaciarCarrito();
+
+    return paymentData;
+
+  } catch (error) {
+
+    console.error("Error procesando pago:", error);
+
+    setErrorMsg(
+      pagoAprobado
+        ? `El pago fue aprobado, pero no se pudo guardar el pedido: ${error.message}`
+        : error.message || "No se pudo procesar el pago."
+    );
+
+    if (pagoAprobado) {
+      return paymentData;
+    }
+
+    throw error;
+
+  } finally {
+    setLoading(false);
+  }
             },
             onError: (error) => {
               console.error("Error en Mercado Pago Brick:", error);
