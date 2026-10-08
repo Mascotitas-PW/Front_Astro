@@ -40,9 +40,17 @@ const salir = () => { cerrarSesion(); cambiarPantalla('HOME'); };
         <button onClick={() => setCarritoAbierto(true)} style={botonSecundario}>
           🛒 Carrito ({totalItemsCarrito})
         </button>
-        <button type="button" onClick={() => cambiarPantalla('LOGIN')} style={botonSecundario}>
-    Login
-  </button>
+        <button
+  type="button" onClick={() => {
+    if (usuario) {
+      alert(`Ya has iniciado sesión, ${usuario.nombre}.`);
+      return;
+    }
+    cambiarPantalla('LOGIN');
+  }}
+  style={botonSecundario}>
+  Login
+</button>
   
   <button type="button" onClick={salir} style={botonSecundario}>
     Cerrar sesión
