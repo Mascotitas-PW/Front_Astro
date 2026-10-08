@@ -38,7 +38,7 @@ export function TopBar() {
         <button onClick={() => setCarritoAbierto(true)} style={botonSecundario}>
           🛒 Carrito ({totalItemsCarrito})
         </button>
-        <button onClick={() => navigate("/login/")} style={botonSecundario}>
+        <button onClick={() => navigate(`${base}/Login/`)} style={botonSecundario}>
         Login
         </button>
       </div>
