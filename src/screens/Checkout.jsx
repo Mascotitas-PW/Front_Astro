@@ -1,6 +1,7 @@
-import { useStore } from "../store/useStore";
 import { useState, useEffect } from "react";
-import { obtenerUsuarioSesion } from "../utils/auth";
+
+import { useStore } from "../store/useStore";
+import { obtenerUsuarioSesion } from "../auth/auth";
 import { GRAPHQL_ENDPOINT } from "../graphql/client";
 
 const CREAR_PEDIDO_MUTATION = `
@@ -34,6 +35,7 @@ function cargarSdkMercadoPago() {
   });
 }
 
+
 export const Checkout = ({ onBackToHome }) => {
   const store = useStore();
   const carrito = store.carrito || [];
@@ -53,6 +55,9 @@ export const Checkout = ({ onBackToHome }) => {
     setUsuarioSesion(sesion);
   }, []);
 
+
+  // Obtener usuario del sessionStorage
+  const usuarioEmail = typeof window !== "undefined" ? sessionStorage.getItem("adminemail") : null;
   const usuarioId = typeof window !== "undefined" ? sessionStorage.getItem("usuarioId") : null;
   const usuarioIdActual = usuarioSesion?.id ?? (usuarioId ? Number(usuarioId) : null);
   const costoEnvio = totalCarrito > 500 || totalCarrito === 0 ? 0 : 99;
@@ -192,21 +197,60 @@ export const Checkout = ({ onBackToHome }) => {
     setErrorMsg(null);
 
     if (carrito.length === 0) {
-      alert("El carrito está vacío");
+
+      alert('El carrito está vacío');
       return;
     }
 
-    if (!usuarioIdActual) {
-      alert("Inicia sesión para completar tu compra");
+    const idValido = usuarioSesion?.id ?? usuarioId;
+
+    if (!idValido) {
+      alert('Inicia sesión para completar tu compra');
       return;
     }
 
     setLoading(true);
 
     try {
-      const pedido = await registrarPedido();
-      setPedidoCreado(pedido);
-      store.finalizarCompra();
+      const res = await fetch(GRAPHQL_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query: CREAR_PEDIDO_MUTATION,
+          variables: {
+            input: {
+              usuarioId: Number(idValido),
+              items: carrito.map((item) => ({
+                productoId: Number(item.id),
+                cantidad: Number(item.cantidad),
+              })),
+            },
+          },
+        }),
+      });
+
+      const result = await res.json();
+
+      if (result.errors && result.errors.length > 0) {
+        const mensajeError = result.errors[0].message || "Error al procesar el pedido.";
+        setErrorMsg(mensajeError);
+        return;
+      }
+
+      if (result.data?.crearPedido) {
+        setPedidoCreado(result.data.crearPedido);
+
+        // Limpiar el carrito según el método disponible en tu store
+        if (store.finalizarCompra) {
+          store.finalizarCompra();
+        } else if (store.vaciarCarrito) {
+          store.vaciarCarrito();
+        } else if (store.limpiarCarrito) {
+          store.limpiarCarrito();
+        }
+      } else {
+        setErrorMsg("No se recibió confirmación del pedido.");
+      }
     } catch (err) {
       console.error("Error al registrar el pedido:", err);
       setErrorMsg(err.message || "Error de conexión con el servidor.");
