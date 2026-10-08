@@ -38,8 +38,7 @@ export function TopBar() {
         <button onClick={() => setCarritoAbierto(true)} style={botonSecundario}>
           🛒 Carrito ({totalItemsCarrito})
         </button>
-        // Si tu archivo se llama src/pages/login.astro o src/pages/login/index.astro:
-<button onClick={() => navigate("/Login")} style={botonSecundario}>
+<button onClick={() => navigate("/Login/")} style={botonSecundario}>
   Login
 </button>
       </div>
