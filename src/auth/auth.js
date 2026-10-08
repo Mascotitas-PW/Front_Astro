@@ -19,3 +19,8 @@ export function obtenerUsuarioSesion() {
 
   return null;
 }
+
+const cerrarSesion = () => {
+  sessionStorage.clear();
+  cambiarPantalla('HOME');
+};

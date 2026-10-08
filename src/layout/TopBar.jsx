@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useStore } from '../store/useStore';
 import { CartModal } from '../components/CartModal';
 import { obtenerUsuarioSesion } from '../auth/auth';
+import { cerrarSesion } from '../auth/auth';
 
 
 export function TopBar() {
@@ -39,6 +40,10 @@ export function TopBar() {
         </button>
         <button type="button" onClick={() => cambiarPantalla('LOGIN')} style={botonSecundario}>
     Login
+  </button>
+  
+  <button type="button" onClick={cerrarSesion} style={botonSecundario}>
+    Cerrar sesión
   </button>
       </div>
     </header>
