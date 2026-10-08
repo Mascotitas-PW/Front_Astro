@@ -79,6 +79,7 @@ export function Registro() {
   };
 
   return (
+    <div className="auth-page">
     <div className="card">
 
       <h1>Mascotitas</h1>
@@ -151,6 +152,7 @@ export function Registro() {
         Iniciar sesión
       </button>
 
+    </div>
     </div>
   );
 }
