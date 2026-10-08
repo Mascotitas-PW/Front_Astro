@@ -2,6 +2,8 @@ import { useState } from "react";
 import "../auth/auth.css";
 import { GRAPHQL_ENDPOINT } from "../graphql/client";
 import { useStore } from "../store/useStore";
+import { useEffect } from "react";
+import { obtenerUsuarioSesion } from "../auth/auth";
 
 const MUTATION_LOGIN = `
   mutation ($email: String!, $password: String!) {
@@ -60,7 +62,14 @@ export function Login() {
       setCargando(false);
     }
   };
+const usuarioActual = obtenerUsuarioSesion();
 
+useEffect(() => {
+  if (usuarioActual) {
+    alert('Ya has iniciado sesión.');
+    cambiarPantalla('HOME');
+  }
+}, []);
   return (
     <div className="auth-page">
       <div className="card">
