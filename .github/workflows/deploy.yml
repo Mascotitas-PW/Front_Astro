@@ -36,5 +36,5 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
   env:
-    PUBLIC_MP_KEY: ${{ vars.PUBLIC_MP_KEY }} # O ${{ secrets.PUBLIC_MP_KEY }} si lo guardaste como Secret
+    PUBLIC_MP_KEY: ${{ vars.PUBLIC_MP_KEY }} 
   run: npm run build
