@@ -48,36 +48,19 @@ function Login() {
       } else if (result.data && result.data.login) {
         const usuario = result.data.login;
 
-        // Guardar sesión del usuario/admin en el almacenamiento del navegador
-if (result.data && result.data.login) {
-  const usuario = result.data.login;
-
-  // Guardar sesión del usuario/admin en el almacenamiento del navegador
-
-       if (result.data && result.data.login) {
-  const usuario = result.data.login;
-
-  // Guardar sesión del usuario en sessionStorage
-  sessionStorage.setItem("usuarioId", usuario.id); // <-- AGREGAR ESTA LÍNEA
-  sessionStorage.setItem("adminemail", usuario.email);
-  sessionStorage.setItem("usuarioNombre", usuario.nombre);
-  sessionStorage.setItem("usuarioRol", usuario.rol);
-
-  alert(`¡Bienvenido de nuevo, ${usuario.nombre}!`);
-  window.location.href = `${BASE_URL}/App/`;
-}
-alert(`¡Bienvenido de nuevo, ${usuario.nombre}!`);
-        window.location.href = `${BASE_URL}App/`;
-
+        // Guardar sesión del usuario en sessionStorage
+        sessionStorage.setItem("usuarioId", usuario.id);
+        sessionStorage.setItem("adminemail", usuario.email);
+        sessionStorage.setItem("usuarioNombre", usuario.nombre);
+        sessionStorage.setItem("usuarioRol", usuario.rol);
 
         alert(`¡Bienvenido de nuevo, ${usuario.nombre}!`);
 
         // Redirigir al panel principal de Mascotitas
-        window.location.href = `${BASE_URL}/App/`;
+        window.location.href = `BASE_URL`;
       } else {
         alert("Usuario o contraseña incorrectos.");
       }
-
     } catch (e) {
       console.error("Error de conexión:", e);
       alert("Error de conexión con el servidor de Mascotitas.");
@@ -90,19 +73,12 @@ alert(`¡Bienvenido de nuevo, ${usuario.nombre}!`);
 
   return (
     <div className="card">
-
       <h1>Mascotitas</h1>
 
-      <p className="tagline">
-        Iniciar sesión
-      </p>
+      <p className="tagline">Iniciar sesión</p>
 
       <form onSubmit={LOGIN}>
-
-        <label htmlFor="email">
-          Email
-        </label>
-
+        <label htmlFor="email">Email</label>
         <input
           type="email"
           id="email"
@@ -110,10 +86,7 @@ alert(`¡Bienvenido de nuevo, ${usuario.nombre}!`);
           placeholder="Ingresa tu email"
         />
 
-        <label htmlFor="contraseña">
-          Contraseña
-        </label>
-
+        <label htmlFor="contraseña">Contraseña</label>
         <input
           type="password"
           id="contraseña"
@@ -124,12 +97,9 @@ alert(`¡Bienvenido de nuevo, ${usuario.nombre}!`);
         <button type="submit" className="btn-main">
           Iniciar sesión
         </button>
-
       </form>
 
-      <div className="divider">
-        ¿No tienes cuenta?
-      </div>
+      <div className="divider">¿No tienes cuenta?</div>
 
       <button
         type="button"
@@ -138,7 +108,6 @@ alert(`¡Bienvenido de nuevo, ${usuario.nombre}!`);
       >
         Registrarse
       </button>
-
     </div>
   );
 }

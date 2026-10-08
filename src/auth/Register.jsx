@@ -63,7 +63,7 @@ function Registro() {
 
         alert("Cuenta creada correctamente.");
 
-        window.location.href = BASE_URL;
+       window.location.href = `${BASE_URL}/Login/`;
 
       } else {
         alert("El servidor no confirmó la creación de la cuenta.");
@@ -75,7 +75,7 @@ function Registro() {
   };
 
   const irALogin = () => {
-    window.location.href = BASE_URL;
+    window.location.href = `${BASE_URL}/Login/`;
   };
 
   return (
