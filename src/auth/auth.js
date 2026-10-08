@@ -25,6 +25,13 @@ export function obtenerUsuarioSesion() {
 }
 
 export const cerrarSesion = () => {
-  sessionStorage.clear();
-  cambiarPantalla('HOME');
+  if (typeof window !== 'undefined') {
+    sessionStorage.clear();
+  }
+
+  // igualo una funcion a mi useStore para poder salir de la sesión y el .getState es para 
+  // poder usarlo fuera de un componente de tipo react
+  const store = useStore.getState();
+  
+  store.cambiarPantalla('HOME');
 };
