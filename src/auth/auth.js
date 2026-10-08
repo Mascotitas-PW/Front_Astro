@@ -33,5 +33,7 @@ export const cerrarSesion = () => {
   // poder usarlo fuera de un componente de tipo react
   const store = useStore.getState();
   
-  store.cambiarPantalla('HOME');
+  if (store.cambiarPantalla) {
+    store.cambiarPantalla('HOME');
+  }
 };
