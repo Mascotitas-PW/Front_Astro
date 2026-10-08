@@ -1,4 +1,4 @@
-import "./auth.css";
+import "../auth/auth.css";
 import { GRAPHQL_ENDPOINT } from "../graphql/client";
 
 const BASE_URL = import.meta.env.BASE_URL;
