@@ -34,7 +34,7 @@ const acciones = {
   cambiarPantalla(pantalla) {
     if (pantalla === 'CHECKOUT' && !state.usuario) {
       alert('Inicia sesión para continuar con tu compra.');
-      window.location.href = `${import.meta.env.BASE_URL}Login/`;
+  actualizarState({ pantalla: 'LOGIN' });
       return;
     }
     actualizarState({ pantalla });
@@ -44,7 +44,7 @@ const acciones = {
   agregarAlCarrito(producto, cantidad) {
     if (!state.usuario) {
       alert('Inicia sesión para agregar productos al carrito.');
-      window.location.href = `${import.meta.env.BASE_URL}Login/`;
+  actualizarState({ pantalla: 'LOGIN' });
       return;
     }
     const itemExistente = state.carrito.find((item) => item.id === producto.id);

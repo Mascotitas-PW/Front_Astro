@@ -35,3 +35,6 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+  env:
+    PUBLIC_MP_KEY: ${{ vars.PUBLIC_MP_KEY }} # O ${{ secrets.PUBLIC_MP_KEY }} si lo guardaste como Secret
+  run: npm run build
