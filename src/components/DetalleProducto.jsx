@@ -1,7 +1,9 @@
 import { useStore } from '../store/useStore';
+import { obtenerUsuarioSesion } from '../auth/auth';
 
 export function DetalleProducto({ productoId }) {
-  const { productos, cantidadSeleccionada, cambiarCantidad, agregarAlCarrito, cambiarPantalla, usuario } = useStore();
+  const { productos, cantidadSeleccionada, cambiarCantidad, agregarAlCarrito, cambiarPantalla } = useStore();
+  const usuario = obtenerUsuarioSesion();
   const producto = productos.find((item) => item.id === productoId);
 
   if (!producto) return <main style={{ padding: '2rem' }}>Producto no encontrado.</main>;
@@ -43,12 +45,17 @@ export function DetalleProducto({ productoId }) {
           />
         </label>
 
-        <button 
-          onClick={() => agregarAlCarrito(producto, cantidadSeleccionada)} 
-          style={{ display: 'block', width: '100%', marginTop: '1.5rem', backgroundColor: '#E8734A', color: '#FFF', border: 0, padding: '1rem', borderRadius: '8px', cursor: 'pointer' }}
-        >
-          {usuario ? 'Agregar al Carrito' : 'Inicia sesión para agregar'}
-        </button>
+      <button onClick={() => {
+   if (!usuario) {
+      cambiarPantalla('LOGIN');
+      return;
+    }
+    agregarAlCarrito(producto, cantidadSeleccionada);
+  }}
+  style={{ display: 'block', width: '100%', marginTop: '1.5rem', backgroundColor: '#E8734A', color: '#FFF', border: 0, padding: '1rem', borderRadius: '8px', cursor: 'pointer' }}
+>
+  {usuario ? 'Agregar al Carrito' : 'Inicia sesión para agregar'}
+</button>
 
         <button 
           onClick={() => cambiarPantalla('HOME')} 
