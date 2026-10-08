@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-
 import { useStore } from "../store/useStore";
 import { obtenerUsuarioSesion } from "../auth/auth";
 import { GRAPHQL_ENDPOINT } from "../graphql/client";
@@ -63,23 +62,24 @@ export const Checkout = ({ onBackToHome }) => {
   const costoEnvio = totalCarrito > 500 || totalCarrito === 0 ? 0 : 99;
   const totalFinal = totalCarrito + costoEnvio;
 
-  const registrarPedido = async () => {
-    const res = await fetch(GRAPHQL_ENDPOINT, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        query: CREAR_PEDIDO_MUTATION,
-        variables: {
-          input: {
-            usuarioId: Number(usuarioIdActual),
-            items: carrito.map((item) => ({
-              productoId: Number(item.id),
-              cantidad: Number(item.cantidad),
-            })),
-          },
+  const registrarPedido = async (paymentId) => {
+  const res = await fetch(GRAPHQL_ENDPOINT, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      query: CREAR_PEDIDO_MUTATION,
+      variables: {
+        input: {
+          usuarioId: Number(usuarioIdActual),
+          paymentId: Number(paymentId),
+          items: carrito.map((item) => ({
+            productoId: Number(item.id),
+            cantidad: Number(item.cantidad),
+          })),
         },
-      }),
-    });
+      },
+    }),
+  });
 
     const result = await res.json();
     if (!res.ok || result.errors?.length) {
@@ -152,7 +152,7 @@ export const Checkout = ({ onBackToHome }) => {
                 }
 
                 pagoAprobado = true;
-                const pedido = await registrarPedido();
+                const pedido = await registrarPedido(paymentData.id);
                 setPedidoCreado(pedido);
                 store.finalizarCompra();
                 return paymentData;
