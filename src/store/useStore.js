@@ -84,7 +84,8 @@ const acciones = {
     }
     actualizarState({ carrito: state.carrito.map((item) => item.id === id ? { ...item, cantidad } : item) });
   },
-  finalizarCompra() { alert('¡Pedido registrado exitosamente en el flujo!'); actualizarState({ carrito: [], pantalla: 'HOME', productoSeleccionadoId: null }); }
+  finalizarCompra() { alert('¡Pedido registrado exitosamente en el flujo!'); acciones.vaciarCarrito(); },
+  vaciarCarrito() { actualizarState({ carrito: [] }); }
 };
 
 export function useStore() {
