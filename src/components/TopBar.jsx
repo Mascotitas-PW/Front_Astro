@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useStore } from '../store/useStore';
 import { CartModal } from './CartModal';
 import { obtenerUsuarioSesion } from '../auth/auth';
+import { navigate } from 'astro:transitions/client';
 
 
 export function TopBar() {
@@ -38,7 +39,7 @@ export function TopBar() {
           🛒 Carrito ({totalItemsCarrito})
         </button>
         // Si tu archivo se llama src/pages/login.astro o src/pages/login/index.astro:
-<button onClick={() => window.location.href = "/login"} style={botonSecundario}>
+<button onClick={() => navigate("/Login")} style={botonSecundario}>
   Login
 </button>
       </div>
