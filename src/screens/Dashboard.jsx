@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import {
   ResponsiveContainer, LineChart, Line, BarChart, Bar,
   XAxis, YAxis, Tooltip, CartesianGrid,
-} from 'recharts';
+} from 'react';
 import { fetchGraphQL } from "../graphql/client";        
 import { obtenerUsuarioSesion } from '../auth/auth';    
 
