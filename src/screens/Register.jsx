@@ -1,7 +1,9 @@
 import "../auth/auth.css";
+import { useStore } from "../store/useStore";
 import { GRAPHQL_ENDPOINT } from "../graphql/client";
 
-export function Registro({ cambiarPantalla }) {
+export function Registro() {
+   const { cambiarPantalla} = useStore();
 
   const validarregistro = async (event) => {
     event.preventDefault();
