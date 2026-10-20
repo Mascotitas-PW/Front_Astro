@@ -3,8 +3,8 @@ import {
   ResponsiveContainer, LineChart, Line, BarChart, Bar,
   XAxis, YAxis, Tooltip, CartesianGrid,
 } from 'recharts';
-import { fetchGraphQL } from "../graphql/client";        
-import { obtenerUsuarioSesion } from '../auth/auth';    
+import { fetchGraphQL } from '../graphql/client';
+import { obtenerUsuarioSesion } from '../auth/auth';
 
 const Q_TODOS = `query TodosLosPedidos { pedidos { id fecha status total usuarioId } }`;
 
@@ -21,7 +21,10 @@ export function Dashboard() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!esAdmin) return;
+    if (!esAdmin) {
+      setCargando(false);
+      return;
+    }
     fetchGraphQL(Q_TODOS)
       .then((d) => setPedidos(d.pedidos))
       .catch((e) => setError(e.message))
@@ -57,6 +60,8 @@ export function Dashboard() {
     };
   }, [pedidos]);
 
+  const ticketPromedio = comprasTotales ? ingresosTotales / comprasTotales : 0;
+
   if (!esAdmin) return <p style={{ padding: '2rem' }}>Acceso restringido a administradores.</p>;
   if (cargando) return <p style={{ padding: '2rem' }}>Cargando dashboard...</p>;
   if (error) return <p style={{ padding: '2rem', color: '#A32D2D' }}>{error}</p>;
@@ -74,50 +79,58 @@ export function Dashboard() {
           <small>Compras (sin cancelados)</small>
           <h3 style={{ margin: '0.25rem 0 0' }}>{comprasTotales}</h3>
         </div>
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
-        <div style={tarjeta}>
-          <h4>Ingresos por día</h4>
-          <ResponsiveContainer width="100%" height={240}>
-            <LineChart data={porDia}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="dia" />
-              <YAxis />
-              <Tooltip formatter={(v) => dinero(v)} />
-              <Line type="monotone" dataKey="ingresos" stroke="#E8734A" strokeWidth={2} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-
-        <div style={tarjeta}>
-          <h4>Cantidad de compras por día</h4>
-          <ResponsiveContainer width="100%" height={240}>
-            <BarChart data={porDia}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="dia" />
-              <YAxis allowDecimals={false} />
-              <Tooltip />
-              <Bar dataKey="compras" fill="#E8B93E" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Tercera gráfica provisional con datos que ya existen.
-            Cuando agregues Usuario.FechaRegistro, se reemplaza por "Nuevos usuarios por día". */}
-        <div style={tarjeta}>
-          <h4>Pedidos por estatus</h4>
-          <ResponsiveContainer width="100%" height={240}>
-            <BarChart data={porEstatus}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="nombre" />
-              <YAxis allowDecimals={false} />
-              <Tooltip />
-              <Bar dataKey="cantidad" fill="#4A3623" />
-            </BarChart>
-          </ResponsiveContainer>
+        <div style={{ ...tarjeta, flex: 1, minWidth: 200 }}>
+          <small>Ticket promedio</small>
+          <h3 style={{ margin: '0.25rem 0 0' }}>{dinero(ticketPromedio)}</h3>
         </div>
       </div>
+
+      {pedidos.length === 0 ? (
+        <p>Todavía no hay pedidos para graficar.</p>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
+          <div style={tarjeta}>
+            <h4>Ingresos por día</h4>
+            <ResponsiveContainer width="100%" height={240}>
+              <LineChart data={porDia}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="dia" />
+                <YAxis />
+                <Tooltip formatter={(v) => dinero(v)} />
+                <Line type="monotone" dataKey="ingresos" stroke="#E8734A" strokeWidth={2} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div style={tarjeta}>
+            <h4>Cantidad de compras por día</h4>
+            <ResponsiveContainer width="100%" height={240}>
+              <BarChart data={porDia}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="dia" />
+                <YAxis allowDecimals={false} />
+                <Tooltip />
+                <Bar dataKey="compras" fill="#E8B93E" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Tercera gráfica provisional con datos que ya existen.
+              Cuando agregues Usuario.FechaRegistro, se reemplaza por "Nuevos usuarios por día". */}
+          <div style={tarjeta}>
+            <h4>Pedidos por estatus</h4>
+            <ResponsiveContainer width="100%" height={240}>
+              <BarChart data={porEstatus}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="nombre" />
+                <YAxis allowDecimals={false} />
+                <Tooltip />
+                <Bar dataKey="cantidad" fill="#4A3623" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
