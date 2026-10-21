@@ -7,7 +7,10 @@ import { obtenerUsuarioSesion } from "../auth/auth";
 
 const MUTATION_LOGIN = `
   mutation ($email: String!, $password: String!) {
-    login(email: $email, password: $password) { id nombre email rol }
+    login(email: $email, password: $password) {
+      token
+      usuario { id nombre email rol }
+    }
   }`;
 
 export function Login() {
@@ -43,12 +46,14 @@ export function Login() {
         return;
       }
 
-      const usuario = result.data?.login;
-      if (!usuario) {
+      const payload = result.data?.login;
+      if (!payload) {
         setError("Usuario o contraseña incorrectos.");
         return;
       }
 
+      const usuario = payload.usuario;
+      sessionStorage.setItem("token", payload.token);
       sessionStorage.setItem("usuarioId", usuario.id);
       sessionStorage.setItem("adminemail", usuario.email);
       sessionStorage.setItem("usuarioNombre", usuario.nombre);
