@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useStore } from "../store/useStore";
 import { obtenerUsuarioSesion } from "../auth/auth";
-import { GRAPHQL_ENDPOINT } from "../graphql/client";
+import { GRAPHQL_ENDPOINT, fetchGraphQL, obtenerToken } from "../graphql/client";
 
 const CREAR_PEDIDO_MUTATION = `
   mutation CrearPedido($input: CrearPedidoInput!) {
@@ -24,7 +24,7 @@ const CREAR_PEDIDO_SIN_PAGO_MUTATION = `
 `;
 
 const MERCADOPAGO_PUBLIC_KEY = import.meta.env.PUBLIC_MP_KEY;
-const MERCADOPAGO_PAYMENT_URL = "https://backastro-production.up.railway.app/process_order";
+const MERCADOPAGO_PAYMENT_URL = GRAPHQL_ENDPOINT.replace(/\/graphql\/?$/, "") + "/process_order";
 
 function cargarSdkMercadoPago() {
   if (window.MercadoPago) return Promise.resolve();
@@ -43,18 +43,17 @@ function cargarSdkMercadoPago() {
   });
 }
 
-// Llamada GraphQL que lanza error si el back responde con errores
-async function llamarGraphQL(query, input) {
-  const res = await fetch(GRAPHQL_ENDPOINT, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ query, variables: { input } }),
-  });
-  const result = await res.json();
-  if (!res.ok || result.errors?.length) {
-    throw new Error(result.errors?.[0]?.message || "No se pudo registrar el pedido.");
-  }
-  return result.data;
+// Llamada GraphQL con el token de la sesión (lanza error si el back responde con errores)
+function llamarGraphQL(query, input) {
+  return fetchGraphQL(query, { input });
+}
+
+// Misma validación que hace el back; así no se cobra una tarjeta con datos inválidos
+function validarEntrega({ nombre, direccion, telefono }) {
+  if (nombre.trim().length < 3) return "Escribe tu nombre completo.";
+  if (direccion.trim().length < 5) return "Escribe una dirección de entrega válida.";
+  if (telefono.replace(/\D/g, "").length !== 10) return "El teléfono debe tener 10 dígitos.";
+  return null;
 }
 
 export const Checkout = ({ onBackToHome }) => {
@@ -74,6 +73,10 @@ export const Checkout = ({ onBackToHome }) => {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
 
+  // El Brick de Mercado Pago guarda su callback al montarse; la ref evita leer datos viejos
+  const entregaRef = useRef({ nombre: "", direccion: "", telefono: "" });
+  entregaRef.current = { nombre, direccion, telefono };
+
   const costoEnvio = totalCarrito > 500 || totalCarrito === 0 ? 0 : 99;
   const totalFinal = totalCarrito + costoEnvio;
 
@@ -89,6 +92,9 @@ export const Checkout = ({ onBackToHome }) => {
       usuarioId: Number(usuarioIdActual),
       paymentId: Number(paymentId),
       items: itemsInput(),
+      nombreCompleto: entregaRef.current.nombre.trim(),
+      direccionEntrega: entregaRef.current.direccion.trim(),
+      telefono: entregaRef.current.telefono.trim(),
     });
     if (!data?.crearPedido) throw new Error("No se recibió confirmación del pedido.");
     return data.crearPedido;
@@ -100,6 +106,9 @@ export const Checkout = ({ onBackToHome }) => {
       usuarioId: Number(usuarioIdActual),
       metodoPago,
       items: itemsInput(),
+      nombreCompleto: nombre.trim(),
+      direccionEntrega: direccion.trim(),
+      telefono: telefono.trim(),
     });
     if (!data?.crearPedidoSinPago) throw new Error("No se recibió confirmación del pedido.");
     return data.crearPedidoSinPago;
@@ -128,6 +137,12 @@ export const Checkout = ({ onBackToHome }) => {
           callbacks: {
             onReady: () => setErrorMsg(null),
             onSubmit: async (formData) => {
+  const errEntrega = validarEntrega(entregaRef.current);
+  if (errEntrega) {
+    setErrorMsg(errEntrega);
+    throw new Error(errEntrega);
+  }
+
   setLoading(true);
   setErrorMsg(null);
 
@@ -139,6 +154,7 @@ export const Checkout = ({ onBackToHome }) => {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
+    Authorization: `Bearer ${obtenerToken()}`,
   },
   body: JSON.stringify({
     usuarioId: Number(usuarioIdActual),
@@ -155,7 +171,7 @@ export const Checkout = ({ onBackToHome }) => {
     installments: Number(formData.installments || 1),
 
     payer: {
-      email: formData.payer?.email || usuarioSesion?.email || "",
+      email: formData.payer?.email || usuario?.email || "",
     },
   }),
 });
@@ -258,6 +274,12 @@ if (paymentData.status !== "approved") {
     }
     if (!usuarioIdActual) {
       setErrorMsg("Inicia sesión para completar tu compra.");
+      return;
+    }
+
+    const errEntrega = validarEntrega({ nombre, direccion, telefono });
+    if (errEntrega) {
+      setErrorMsg(errEntrega);
       return;
     }
 
