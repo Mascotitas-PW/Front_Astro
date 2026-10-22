@@ -53,6 +53,7 @@ const acciones = {
     }
     actualizarState({ pantalla });
   },
+  recargarProductos() { return cargarProductos(); },
   cambiarBusqueda(busqueda) { actualizarState({ busqueda }); },
   cambiarCantidad(cantidad) { actualizarState({ cantidadSeleccionada: Math.max(1, cantidad || 1) }); },
   agregarAlCarrito(producto, cantidad) {
@@ -81,12 +82,14 @@ const acciones = {
   },
   eliminarDelCarrito(id) { actualizarState({ carrito: state.carrito.filter((item) => item.id !== id) }); },
   actualizarCantidad(id, cantidad) {
-    if (cantidad <= 0) {
-      acciones.eliminarDelCarrito(id);
-      return;
-    }
-    actualizarState({ carrito: state.carrito.map((item) => item.id === id ? { ...item, cantidad } : item) });
-  },
+  if (cantidad <= 0) {
+    acciones.eliminarDelCarrito(id);
+    return;
+  }
+  const stock = state.productos.find((p) => p.id === id)?.stock ?? Infinity;
+  const limitada = Math.min(cantidad, stock);
+  actualizarState({ carrito: state.carrito.map((item) => item.id === id ? { ...item, cantidad: limitada } : item) });
+},
   finalizarCompra() { alert('¡Pedido registrado exitosamente en el flujo!'); acciones.vaciarCarrito(); },
   vaciarCarrito() { actualizarState({ carrito: [] }); }
 };
