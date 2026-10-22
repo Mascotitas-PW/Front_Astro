@@ -401,7 +401,7 @@ if (paymentData.status !== "approved") {
         </div>
         <div>
           <label style={labelStyle}>Dirección de Entrega:</label>
-          <input required type="text" value={direccion} onChange={(e) => setDireccion(e.target.value)} placeholder="Calle, Número, Colonia, Ciudad" style={inputStyle} />
+          <input required type="text" value={direccion} onChange={(e) => setDireccion(e.target.value)} placeholder="Calle, Número, Colonia, Ciudad, Código Postal" style={inputStyle} />
         </div>
         <div>
           <label style={labelStyle}>Teléfono de Contacto:</label>
