@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { obtenerUsuarioSesion } from '../auth/auth';
-import {
-  listarProductosAdmin, listarCategorias,
-  crearProducto, actualizarProducto, eliminarProducto,
-} from '../services/productosAdmin';
+import {listarProductosAdmin, listarCategorias,
+crearProducto, actualizarProducto, eliminarProducto,}from '../services/productosAdmin';
 import { suscribirStock } from '../services/stockEnVivo';
 import { urlImagen } from '../services/imagenes';
 import { FormularioProducto } from './FormularioProducto';
@@ -42,7 +40,8 @@ export function Dashboard() {
   const [guardando, setGuardando] = useState(false);
   const [editando, setEditando] = useState(null);
   const [porEliminar, setPorEliminar] = useState(null);
-  const [aviso, setAviso] = useState(null); // { tipo: 'ok' | 'error', texto }
+  const [aviso, setAviso] = useState(null); 
+  const { recargarProductos } = useStore()
 
   const recargar = useCallback(async () => {
     try {
@@ -237,6 +236,7 @@ export function Dashboard() {
                   const producto = porEliminar;
                   setPorEliminar(null);
                   await ejecutar(() => eliminarProducto(producto.id), `"${producto.nombre}" eliminado.`);
+                  recargarProductos();
                 }}
               >
                 Sí, eliminar

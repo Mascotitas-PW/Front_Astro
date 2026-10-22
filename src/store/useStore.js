@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import { GRAPHQL_ENDPOINT } from '../graphql/client';
 import { obtenerUsuarioSesion } from '../auth/auth';
+import { suscribirStock } from '../services/stockEnVivo';
 
 const graphqlUrls = [GRAPHQL_ENDPOINT, 'http://localhost:5097/graphql'];
 let state = { productos: [], cargando: true, error: null, pantalla: 'HOME', categoriaSeleccionada: null, productoSeleccionadoId: null, cantidadSeleccionada: 1, busqueda: '', carrito: [], usuario: obtenerUsuarioSesion() };
@@ -26,21 +27,15 @@ async function cargarProductos() {
   actualizarState({ cargando: false, error: 'No se pudo conectar con el backend C# GraphQL. Revisa que esté corriendo en https://backastro-production.up.railway.app/graphql/ o http://localhost:5097/graphql.' });
 }
 
-if (typeof window !== 'undefined') cargarProductos();
-
-function sincronizarUsuarioDesdeSesion() {
-  const usuario = obtenerUsuarioSesion();
-
-  if (usuario) {
-    actualizarState({ usuario });
-    return usuario;
-  }
-
-  if (state.usuario) {
-    actualizarState({ usuario: null });
-  }
-
-  return null;
+if (typeof window !== 'undefined') {
+  cargarProductos();
+  suscribirStock(({ productoId, stock }) => {
+    actualizarState({
+      productos: state.productos.map((p) =>
+        p.id === productoId ? { ...p, stock } : p
+      ),
+    });
+  });
 }
 
 const acciones = {
@@ -61,18 +56,23 @@ const acciones = {
   cambiarBusqueda(busqueda) { actualizarState({ busqueda }); },
   cambiarCantidad(cantidad) { actualizarState({ cantidadSeleccionada: Math.max(1, cantidad || 1) }); },
   agregarAlCarrito(producto, cantidad) {
-    const usuarioActual = sincronizarUsuarioDesdeSesion();
-    if (!usuarioActual) {
-      alert('Inicia sesión para agregar productos al carrito.');
-      actualizarState({ pantalla: 'LOGIN' });
-      return;
-    }
-    const itemExistente = state.carrito.find((item) => item.id === producto.id);
-    const carrito = itemExistente
-      ? state.carrito.map((item) => item.id === producto.id ? { ...item, cantidad: item.cantidad + cantidad } : item)
-      : [...state.carrito, { ...producto, cantidad }];
-    actualizarState({ usuario: usuarioActual, carrito, pantalla: 'HOME' });
-  },
+  const usuarioActual = sincronizarUsuarioDesdeSesion();
+  if (!usuarioActual) {
+    alert('Inicia sesión para agregar productos al carrito.');
+    actualizarState({ pantalla: 'LOGIN' });
+    return;
+  }
+  const actual = state.productos.find((p) => p.id === producto.id) ?? producto;
+  const enCarrito = state.carrito.find((i) => i.id === producto.id)?.cantidad ?? 0;
+  if (enCarrito + cantidad > actual.stock) {
+    alert(`Solo hay ${actual.stock} disponibles (ya tienes ${enCarrito} en el carrito).`);
+    return;
+  }
+  const carrito = enCarrito
+    ? state.carrito.map((item) => item.id === producto.id ? { ...item, cantidad: item.cantidad + cantidad } : item)
+    : [...state.carrito, { ...producto, cantidad }];
+  actualizarState({ usuario: usuarioActual, carrito, pantalla: 'HOME' });
+},
   cerrarSesion() {
     if (typeof window !== 'undefined') {
       ['usuarioId', 'id', 'adminemail', 'email', 'usuarioNombre', 'usuarioRol', 'adminNombre'].forEach((key) => sessionStorage.removeItem(key));
