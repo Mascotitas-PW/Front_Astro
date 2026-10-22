@@ -1,18 +1,13 @@
 import { GRAPHQL_ENDPOINT, obtenerToken } from '../graphql/client';
-
-// https://servidor/graphql  ->  https://servidor
 const BASE = GRAPHQL_ENDPOINT.replace(/\/graphql\/?$/, '');
 
-// Las imágenes subidas desde el panel tienen nombre tipo "a1b2...(32 hex).png"
-// y viven en el backend. Las demás (croquetas.png, etc.) se sirven desde /public del front.
-// Si las tuyas están en otra ruta, cambia solo la línea marcada.
 const SUBIDA = /^[0-9a-f]{32}\.(jpe?g|png|webp)$/i;
 
 export function urlImagen(imagen) {
   if (!imagen) return '';
   if (/^(https?:)?\/\//.test(imagen) || imagen.startsWith('/')) return imagen;
   if (SUBIDA.test(imagen)) return `${BASE}/images/${imagen}`;
-  return `/images/${imagen}`; // <- ruta de las imágenes que ya tenías en el front
+  return `${import.meta.env.BASE_URL}productos/${imagen}`; // mismas que el catálogo
 }
 
 // Sube un archivo (solo Admin) y devuelve el nombre guardado en el servidor.

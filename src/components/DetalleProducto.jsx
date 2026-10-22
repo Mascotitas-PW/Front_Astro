@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useStore } from '../store/useStore';
+import { urlImagen } from '../services/imagenes';
 import { obtenerUsuarioSesion } from '../auth/auth';
 
 export function DetalleProducto({ productoId }) {
@@ -12,7 +13,7 @@ export function DetalleProducto({ productoId }) {
   const disponible = Math.max(0, stock - enCarrito); // lo que aún se puede agregar
   const agotado = disponible === 0;
 
-  // Si el stock baja en vivo, la cantidad elegida se ajusta sola
+
   useEffect(() => {
     if (disponible > 0 && cantidadSeleccionada > disponible) cambiarCantidad(disponible);
   }, [disponible, cantidadSeleccionada]);
@@ -20,7 +21,7 @@ export function DetalleProducto({ productoId }) {
   if (!producto) return <main style={{ padding: '2rem' }}>Producto no encontrado.</main>;
 
   const fallback = `${import.meta.env.BASE_URL}productos/cama.png`;
-  const src = producto?.imagen ? `${import.meta.env.BASE_URL}productos/${producto.imagen}` : fallback;
+  const src = producto?.imagen ? urlImagen(producto.imagen) : fallback;
 
   const manejarCantidad = (event) => {
     const n = parseInt(event.target.value, 10);
@@ -48,7 +49,7 @@ export function DetalleProducto({ productoId }) {
         <p style={{ fontWeight: 'bold', fontSize: '1.5rem' }}>${producto.precio} MXN</p>
 
         <p style={{ color: colorStock, fontWeight: 600, margin: '0 0 1rem' }}>
-          {stock <= 0 ? 'Agotado' : `Stock: ${stock} disponibles`} <small>● en vivo</small>
+          {stock <= 0 ? 'Agotado' : `Stock: ${stock} disponibles`}
         </p>
 
         <label>

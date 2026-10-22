@@ -1,8 +1,8 @@
+import { urlImagen } from '../services/imagenes';
+
 export default function ProductoCard({ producto, onVer }) {
   const fallback = `${import.meta.env.BASE_URL}productos/cama.png`;
-  const src = producto?.imagen
-    ? `${import.meta.env.BASE_URL}productos/${producto.imagen}`
-    : fallback;
+  const src = producto?.imagen ? urlImagen(producto.imagen) : fallback;
 
   return (
     <article className="producto-card" onClick={onVer}>

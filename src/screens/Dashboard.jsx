@@ -176,7 +176,7 @@ export function Dashboard() {
   } else if (opcion === 'stock') {
     contenido = (
       <>
-        <h2>Stock <small style={{ fontSize: '0.8rem', color: '#3B7A3B' }}>● en vivo</small></h2>
+        <h2>Stock <small style={{ fontSize: '0.8rem', color: '#3B7A3B' }}></small></h2>
         <p style={{ marginTop: 0 }}>El stock se descuenta cuando se confirma el pago de un pedido.</p>
         {tablaProductos(null, true)}
       </>
