@@ -12,6 +12,17 @@ function actualizarState(cambios) {
   listeners.forEach((listener) => listener());
 }
 
+// Lee el usuario de sessionStorage, lo sincroniza con el state y lo devuelve
+function sincronizarUsuarioDesdeSesion() {
+  const usuario = obtenerUsuarioSesion() || null;
+  const actual = state.usuario || null;
+  if (JSON.stringify(usuario) !== JSON.stringify(actual)) {
+    // Si cambió la sesión (logout o cambio de usuario), se vacía el carrito
+    actualizarState({ usuario, ...(usuario ? {} : { carrito: [] }) });
+  }
+  return usuario;
+}
+
 async function cargarProductos() {
   for (const url of graphqlUrls) {
     try {
@@ -57,23 +68,23 @@ const acciones = {
   cambiarBusqueda(busqueda) { actualizarState({ busqueda }); },
   cambiarCantidad(cantidad) { actualizarState({ cantidadSeleccionada: Math.max(1, cantidad || 1) }); },
   agregarAlCarrito(producto, cantidad) {
-  const usuarioActual = sincronizarUsuarioDesdeSesion();
-  if (!usuarioActual) {
-    alert('Inicia sesión para agregar productos al carrito.');
-    actualizarState({ pantalla: 'LOGIN' });
-    return;
-  }
-  const actual = state.productos.find((p) => p.id === producto.id) ?? producto;
-  const enCarrito = state.carrito.find((i) => i.id === producto.id)?.cantidad ?? 0;
-  if (enCarrito + cantidad > actual.stock) {
-    alert(`Solo hay ${actual.stock} disponibles (ya tienes ${enCarrito} en el carrito).`);
-    return;
-  }
-  const carrito = enCarrito
-    ? state.carrito.map((item) => item.id === producto.id ? { ...item, cantidad: item.cantidad + cantidad } : item)
-    : [...state.carrito, { ...producto, cantidad }];
-  actualizarState({ usuario: usuarioActual, carrito, pantalla: 'HOME' });
-},
+    const usuarioActual = sincronizarUsuarioDesdeSesion();
+    if (!usuarioActual) {
+      alert('Inicia sesión para agregar productos al carrito.');
+      actualizarState({ pantalla: 'LOGIN' });
+      return;
+    }
+    const actual = state.productos.find((p) => p.id === producto.id) ?? producto;
+    const enCarrito = state.carrito.find((i) => i.id === producto.id)?.cantidad ?? 0;
+    if (enCarrito + cantidad > actual.stock) {
+      alert(`Solo hay ${actual.stock} disponibles (ya tienes ${enCarrito} en el carrito).`);
+      return;
+    }
+    const carrito = enCarrito
+      ? state.carrito.map((item) => item.id === producto.id ? { ...item, cantidad: item.cantidad + cantidad } : item)
+      : [...state.carrito, { ...producto, cantidad }];
+    actualizarState({ usuario: usuarioActual, carrito, pantalla: 'HOME' });
+  },
   cerrarSesion() {
     if (typeof window !== 'undefined') {
       ['usuarioId', 'id', 'adminemail', 'email', 'usuarioNombre', 'usuarioRol', 'adminNombre'].forEach((key) => sessionStorage.removeItem(key));
@@ -82,14 +93,14 @@ const acciones = {
   },
   eliminarDelCarrito(id) { actualizarState({ carrito: state.carrito.filter((item) => item.id !== id) }); },
   actualizarCantidad(id, cantidad) {
-  if (cantidad <= 0) {
-    acciones.eliminarDelCarrito(id);
-    return;
-  }
-  const stock = state.productos.find((p) => p.id === id)?.stock ?? Infinity;
-  const limitada = Math.min(cantidad, stock);
-  actualizarState({ carrito: state.carrito.map((item) => item.id === id ? { ...item, cantidad: limitada } : item) });
-},
+    if (cantidad <= 0) {
+      acciones.eliminarDelCarrito(id);
+      return;
+    }
+    const stock = state.productos.find((p) => p.id === id)?.stock ?? Infinity;
+    const limitada = Math.min(cantidad, stock);
+    actualizarState({ carrito: state.carrito.map((item) => item.id === id ? { ...item, cantidad: limitada } : item) });
+  },
   finalizarCompra() { alert('¡Pedido registrado exitosamente en el flujo!'); acciones.vaciarCarrito(); },
   vaciarCarrito() { actualizarState({ carrito: [] }); }
 };

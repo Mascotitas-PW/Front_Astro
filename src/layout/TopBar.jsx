@@ -1,19 +1,13 @@
 import { useState } from 'react';
 import { useStore } from '../store/useStore';
 import { CartModal } from '../components/CartModal';
-import { obtenerUsuarioSesion } from '../auth/auth';
-import { cerrarSesion } from '../auth/auth';
-
 
 export function TopBar() {
-  const { busqueda, cambiarBusqueda, cambiarPantalla, totalItemsCarrito } = useStore();
+  const { busqueda, cambiarBusqueda, cambiarPantalla, totalItemsCarrito, usuario, cerrarSesion } = useStore();
   const [carritoAbierto, setCarritoAbierto] = useState(false);
 
-  // sessionStorage no es reactivo: se relee en cada render del TopBar
-  const usuario = obtenerUsuarioSesion();
   const esAdmin = usuario?.rol?.toLowerCase() === 'admin';
-const salir = () => { cerrarSesion(); cambiarPantalla('HOME'); };
-
+  const salir = () => cerrarSesion();
 
   const botonSecundario = {
     backgroundColor: 'transparent', color: '#4A3623', border: '2px solid #4A3623',
@@ -29,32 +23,26 @@ const salir = () => { cerrarSesion(); cambiarPantalla('HOME'); };
       <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
         {usuario && (
           <button onClick={() => cambiarPantalla('HISTORIAL')} style={botonSecundario}>
-             {esAdmin ? 'Todas las compras' : 'Mis compras'}
+            {esAdmin ? 'Todas las compras' : 'Mis compras'}
           </button>
         )}
         {esAdmin && (
           <button onClick={() => cambiarPantalla('DASHBOARD')} style={botonSecundario}>
-           Dashboard
+            Dashboard
           </button>
         )}
         <button onClick={() => setCarritoAbierto(true)} style={botonSecundario}>
           🛒 Carrito ({totalItemsCarrito})
         </button>
-        <button
-  type="button" onClick={() => {
-    if (usuario) {
-      alert(`Ya has iniciado sesión, ${usuario.nombre}.`);
-      return;
-    }
-    cambiarPantalla('LOGIN');
-  }}
-  style={botonSecundario}>
-  Login
-</button>
-  
-  <button type="button" onClick={salir} style={botonSecundario}>
-    Cerrar sesión
-  </button>
+        {usuario ? (
+          <button type="button" onClick={salir} style={botonSecundario}>
+            Cerrar sesión
+          </button>
+        ) : (
+          <button type="button" onClick={() => cambiarPantalla('LOGIN')} style={botonSecundario}>
+            Login
+          </button>
+        )}
       </div>
     </header>
     <CartModal isOpen={carritoAbierto} onClose={() => setCarritoAbierto(false)} onGoToCheckout={() => cambiarPantalla('CHECKOUT')} />
