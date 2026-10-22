@@ -6,6 +6,7 @@ import { suscribirStock } from '../services/stockEnVivo';
 import { urlImagen } from '../services/imagenes';
 import { FormularioProducto } from './FormularioProducto';
 import { Estadisticas } from './Estadisticas';
+import { useStore } from '../store/useStore';
 
 const OPCIONES = [
   { id: 'estadisticas', etiqueta: 'Estadísticas' },
