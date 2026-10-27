@@ -4,11 +4,11 @@ import { obtenerUsuarioSesion } from '../auth/auth';
 
 const Q_MIS_PEDIDOS = `
   query MisPedidos($usuarioId: Int!) {
-    pedidosPorUsuario(usuarioId: $usuarioId) { id fecha status total usuarioId }
+    pedidosPorUsuario(usuarioId: $usuarioId) { id fecha status total usuarioId nombreCompleto direccionEntrega telefono }
   }`;
 const Q_TODOS = `
   query TodosLosPedidos {
-    pedidos { id fecha status total usuarioId }
+    pedidos { id fecha status total usuarioId nombreCompleto direccionEntrega telefono }
   }`;
 const Q_DETALLE = `
   query Detalle($pedidoId: Int!) {
@@ -114,6 +114,16 @@ function FilaPedido({ p, esAdmin, abierto, renglones, nombres, onToggle }) {
       {abierto && (
         <tr>
           <td style={{ ...td, background: '#FDF6E3' }} colSpan={esAdmin ? 6 : 5}>
+            <div>
+              <strong>Nombre completo:</strong> {p.nombreCompleto || 'No registrado'}
+            </div>
+            <div>
+              <strong>Dirección de entrega:</strong> {p.direccionEntrega || 'No registrada'}
+            </div>
+            <div>
+              <strong>Teléfono:</strong> {p.telefono || 'No registrado'}
+            </div>
+            <hr />
             {!renglones ? 'Cargando detalle...' : renglones.map((r) => (
               <div key={r.productoId}>
                 {nombres[r.productoId] ?? `Producto ${r.productoId}`} × {r.cantidad} — {dinero(r.precioUnitario)} c/u
