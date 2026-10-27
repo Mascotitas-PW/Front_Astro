@@ -75,7 +75,7 @@ export function Historial() {
             <tr>
               <th style={th}>Pedido</th>
               <th style={th}>Fecha</th>
-              {esAdmin && <th style={th}>Cliente (id)</th>}
+              {esAdmin && <th style={th}>Cliente</th>}
               <th style={th}>Estatus</th>
               <th style={th}>Total</th>
               <th style={th}></th>
