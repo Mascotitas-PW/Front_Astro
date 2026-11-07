@@ -16,35 +16,16 @@ export function TopBar() {
 
   return <>
     <style>{`html, body, #root { margin: 0; padding: 0; min-height: 100vh; background: #FDF6E3; } *, *::before, *::after { box-sizing: border-box; }`}</style>
-    <header style={{ backgroundColor: '#E8B93E', padding: '1rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-      <h1 onClick={() => cambiarPantalla('HOME')} style={{ color: '#4A3623', margin: 0, cursor: 'pointer' }}>🐾 Mascotitas</h1>
-      <input type="text" placeholder=" Buscar productos..." value={busqueda} onChange={(event) => cambiarBusqueda(event.target.value)} style={{ padding: '0.5rem 1rem', borderRadius: '20px', border: '1px solid #CCC', width: '250px' }} />
-
-      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-        {usuario && (
-          <button onClick={() => cambiarPantalla('HISTORIAL')} style={botonSecundario}>
-            {esAdmin ? 'Todas las compras' : 'Mis compras'}
-          </button>
-        )}
-        {esAdmin && (
-          <button onClick={() => cambiarPantalla('DASHBOARD')} style={botonSecundario}>
-            Dashboard
-          </button>
-        )}
-        <button onClick={() => setCarritoAbierto(true)} style={botonSecundario}>
-          🛒 Carrito ({totalItemsCarrito})
-        </button>
-        {usuario ? (
-          <button type="button" onClick={salir} style={botonSecundario}>
-            Cerrar sesión
-          </button>
-        ) : (
-          <button type="button" onClick={() => cambiarPantalla('LOGIN')} style={botonSecundario}>
-            Login
-          </button>
-        )}
-      </div>
-    </header>
+    <header className="sticky top-0 z-30 flex flex-wrap items-center justify-between gap-4 bg-[#F5EBD1] px-4 py-3 shadow-[0_6px_14px_#D6C49A] lg:px-10">
+  <a href="#" onClick={(e) => { e.preventDefault(); cambiarPantalla('HOME'); }} className="flex items-center gap-3">
+    <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Mascotitas" className="h-12 w-auto" />
+    <span className="logo text-2xl text-[#4A3623]">Mascotitas</span>
+  </a>
+  <input className="neu-inset order-last w-full max-w-sm rounded-full px-5 py-2 sm:order-none" /* value/onChange como ya los tienes */ />
+  <nav className="flex flex-wrap gap-3">
+    {/* tus botones, cada uno con className="neu-btn" */}
+  </nav>
+</header>
     <CartModal isOpen={carritoAbierto} onClose={() => setCarritoAbierto(false)} onGoToCheckout={() => cambiarPantalla('CHECKOUT')} />
   </>;
 }

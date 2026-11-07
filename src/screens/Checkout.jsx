@@ -3,6 +3,7 @@ import { useStore } from "../store/useStore";
 import { obtenerUsuarioSesion } from "../auth/auth";
 import { GRAPHQL_ENDPOINT, fetchGraphQL, obtenerToken } from "../graphql/client";
 import PayPalButton from "../components/PayPalButton";
+import { MapaEntrega } from '../components/MapaEntrega';
 
 const CREAR_PEDIDO_MUTATION = `
   mutation CrearPedido($input: CrearPedidoInput!) {
@@ -131,7 +132,10 @@ export const Checkout = ({ onBackToHome }) => {
     if (error?.message === "Pago cancelado.") return;
     setErrorMsg(error?.message || "No se pudo procesar el pago con PayPal.");
   };
-
+const dinero = (n) => Number(n).toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
+const Campo = ({ etiqueta, ancho, children }) => (
+  <label className={`grid gap-2 font-semibold ${ancho ? 'sm:col-span-2' : ''}`}>{etiqueta}{children}</label>
+);
   // Brick de Mercado Pago (solo con tarjeta)
   useEffect(() => {
     if (metodoPago !== "Tarjeta" || !totalFinal || pedidoCreado) return;
@@ -330,39 +334,25 @@ if (paymentData.status !== "approved") {
     );
   }
 
-  if (pedidoCreado) {
-    const pagado = metodoPago === "Tarjeta";
-    return (
-      <div style={{ padding: "40px", textAlign: "center", maxWidth: "500px", margin: "40px auto", fontFamily: "sans-serif" }}>
-        <h2 style={{ color: "#27ae60" }}>¡Gracias por tu compra! 🐾</h2>
-        <p>
-          Tu pedido <strong>#{pedidoCreado.id}</strong> ha sido registrado correctamente.
-        </p>
-        <p>
-          {pagado ? "Total cobrado" : "Total a pagar"}: <strong>${Number(pedidoCreado.total).toFixed(2)}</strong>
-        </p>
-        <p>
-          Estado: <strong>{pedidoCreado.status}</strong>
-        </p>
-        <button
-          onClick={handleVolverAlHome}
-          style={{
-            marginTop: "20px",
-            padding: "10px 20px",
-            backgroundColor: "#E8734A",
-            color: "#fff",
-            border: "none",
-            borderRadius: "5px",
-            cursor: "pointer",
-            fontWeight: "bold",
-          }}
-        >
-          Volver a la Tienda
+if (pedidoCreado) {
+  const pagado = metodoPago === "Tarjeta";
+  return (
+    <main className="mx-auto flex min-h-[70vh] w-full max-w-3xl items-center px-4 py-10">
+      <section className="neu-card w-full p-8 text-center sm:p-14">
+        <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Mascotitas" className="mx-auto mb-6 h-28 w-28 object-contain sm:h-36 sm:w-36" />
+        <h2 className="text-3xl font-bold text-green-700 sm:text-5xl">¡Gracias por tu compra!</h2>
+        <p className="mt-4 text-lg sm:text-xl">Tu pedido <strong>#{pedidoCreado.id}</strong> fue registrado correctamente.</p>
+        <div className="neu-inset mx-auto mt-8 grid max-w-md gap-2 p-5 text-lg">
+          <p>{pagado ? "Total cobrado" : "Total a pagar"}: <strong>{dinero(pedidoCreado.total)}</strong></p>
+          <p>Estado: <strong>{pedidoCreado.status}</strong></p>
+        </div>
+        <button onClick={handleVolverAlHome} className="neu-btn neu-btn-primary mt-8 px-8 py-3 text-lg">
+          Volver a la tienda
         </button>
-      </div>
-    );
-  }
-
+      </section>
+    </main>
+  );
+}
   const inputStyle = {
     width: "100%",
     padding: "10px",
@@ -373,105 +363,57 @@ if (paymentData.status !== "approved") {
   const labelStyle = { display: "block", marginBottom: "5px", fontWeight: "bold" };
   const deshabilitado = loading || carrito.length === 0;
 
-  return (
-    <div style={{ padding: "20px", maxWidth: "600px", margin: "20px auto", fontFamily: "sans-serif" }}>
-      <h2>Confirmar Compra (Checkout)</h2>
+return (
+  <main className="mx-auto w-full max-w-7xl px-4 py-8 lg:px-10">
+    <h2 className="mb-6 text-3xl font-bold">Confirmar compra</h2>
 
-      <div style={{ backgroundColor: "#f9f9f9", padding: "15px", borderRadius: "8px", marginBottom: "20px" }}>
-        <h3>Resumen del Pedido</h3>
-        {carrito.length === 0 ? (
-          <p>Tu carrito está vacío.</p>
-        ) : (
-          carrito.map((item) => (
-            <div key={item.id} style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-              <span>
-                {item.nombre} (x{item.cantidad})
-              </span>
-              <span>${(item.precio * item.cantidad).toFixed(2)}</span>
-            </div>
-          ))
-        )}
-        <hr />
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <span>Subtotal:</span>
-          <span>${totalCarrito.toFixed(2)}</span>
-        </div>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <span>Envío:</span>
-          <span>{costoEnvio === 0 ? "¡Gratis!" : `$${costoEnvio}`}</span>
-        </div>
-        <div style={{ display: "flex", justifyContent: "space-between", fontWeight: "bold", fontSize: "18px", marginTop: "10px" }}>
-          <span>Total Final:</span>
-          <span style={{ color: "#27ae60" }}>${totalFinal.toFixed(2)}</span>
-        </div>
+    {errorMsg && <div role="alert" className="neu-inset mb-6 p-4 font-semibold text-red-700">{errorMsg}</div>}
+
+    <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_420px]">
+      <div className="grid gap-8">
+        <form onSubmit={handleSubmit} className="neu-card grid gap-5 p-6 sm:grid-cols-2 sm:p-8">
+          <Campo etiqueta="Nombre completo" ancho>
+            <input required type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej. Juan Pérez" className="neu-inset w-full px-4 py-3" />
+          </Campo>
+          <Campo etiqueta="Dirección de entrega" ancho>
+            <input required type="text" value={direccion} onChange={(e) => setDireccion(e.target.value)} placeholder="Calle, número, colonia, ciudad" className="neu-inset w-full px-4 py-3" />
+          </Campo>
+          <MapaEntrega direccion={direccion} />
+          <Campo etiqueta="Teléfono de contacto">
+            <input required type="tel" value={telefono} onChange={(e) => setTelefono(e.target.value)} placeholder="10 dígitos" className="neu-inset w-full px-4 py-3" />
+          </Campo>
+          <Campo etiqueta="Método de pago">
+            <select value={metodoPago} onChange={(e) => { setErrorMsg(null); setMetodoPago(e.target.value); }} className="neu-inset w-full px-4 py-3">
+              <option value="Tarjeta">Tarjeta de crédito / débito</option>
+              <option value="Efectivo">Efectivo contra entrega</option>
+              <option value="Transferencia">Transferencia SPEI</option>
+            </select>
+          </Campo>
+          {metodoPago !== "Tarjeta" && (
+            <button type="submit" disabled={deshabilitado} className="neu-btn neu-btn-primary py-4 text-lg sm:col-span-2">
+              {loading ? "Procesando pedido..." : "Confirmar y enviar pedido"}
+            </button>
+          )}
+        </form>
+
+        {metodoPago === "Tarjeta" && <div id="cardPaymentBrick_container" className="neu-card p-4 sm:p-6" />}
       </div>
 
-      {errorMsg && (
-        <div style={{ color: "#c0392b", backgroundColor: "#f9d6d5", padding: "10px", borderRadius: "4px", marginBottom: "15px" }}>
-          {errorMsg}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-        <div>
-          <label style={labelStyle}>Nombre Completo:</label>
-          <input required type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej. Juan Pérez" style={inputStyle} />
-        </div>
-        <div>
-          <label style={labelStyle}>Dirección de Entrega:</label>
-          <input required type="text" value={direccion} onChange={(e) => setDireccion(e.target.value)} placeholder="Calle, Número, Colonia, Ciudad, Código Postal" style={inputStyle} />
-        </div>
-        <div>
-          <label style={labelStyle}>Teléfono de Contacto:</label>
-          <input required type="tel" value={telefono} onChange={(e) => setTelefono(e.target.value)} placeholder="10 dígitos" style={inputStyle} />
-        </div>
-        <div>
-          <label style={labelStyle}>Método de Pago:</label>
-          <select value={metodoPago} onChange={(e) => { setErrorMsg(null); setMetodoPago(e.target.value); }} style={inputStyle}>
-            <option value="Tarjeta">Tarjeta de Crédito / Débito</option>
-            <option value="PayPal">PayPal</option>
-            <option value="Efectivo">Efectivo contra entrega</option>
-            <option value="Transferencia">Transferencia SPEI</option>
-          </select>
-        </div>
-
-        {(metodoPago === "Efectivo" || metodoPago === "Transferencia") && (
-          <button
-            type="submit"
-            disabled={deshabilitado}
-            style={{
-              padding: "14px",
-              backgroundColor: deshabilitado ? "#95a5a6" : "#27ae60",
-              color: "#fff",
-              border: "none",
-              borderRadius: "5px",
-              cursor: deshabilitado ? "not-allowed" : "pointer",
-              fontWeight: "bold",
-              fontSize: "16px",
-              marginTop: "10px",
-            }}
-          >
-            {loading ? "Procesando Pedido..." : "Confirmar y Enviar Pedido"}
-          </button>
-        )}
-      </form>
-
-      {metodoPago === "Tarjeta" && <div id="cardPaymentBrick_container" />}
-
-      {metodoPago === "PayPal" && (
-        <PayPalButton
-          items={itemsInput()}
-          usuarioId={usuarioIdActual}
-          nombreCompleto={nombre.trim()}
-          direccionEntrega={direccion.trim()}
-          telefono={telefono.trim()}
-          disabled={loading || carrito.length === 0}
-          onApproved={registrarPedidoPayPal}
-          onError={manejarErrorPayPal}
-        />
-      )}
+      <aside className="neu-card grid gap-3 p-6 lg:sticky lg:top-24">
+        <h3 className="text-xl font-bold">Resumen del pedido</h3>
+        {carrito.length === 0 ? <p>Tu carrito está vacío.</p> : carrito.map((item) => (
+          <div key={item.id} className="flex justify-between gap-3">
+            <span>{item.nombre} (x{item.cantidad})</span>
+            <span>{dinero(item.precio * item.cantidad)}</span>
+          </div>
+        ))}
+        <hr className="border-[#D6C49A]" />
+        <div className="flex justify-between"><span>Subtotal</span><span>{dinero(totalCarrito)}</span></div>
+        <div className="flex justify-between"><span>Envío</span><span>{costoEnvio === 0 ? "¡Gratis!" : dinero(costoEnvio)}</span></div>
+        <div className="flex justify-between text-xl font-bold text-green-700"><span>Total</span><span>{dinero(totalFinal)}</span></div>
+      </aside>
     </div>
-  );
-};
-
+  </main>
+)
+}
 export default Checkout;

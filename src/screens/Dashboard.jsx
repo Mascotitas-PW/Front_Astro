@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { obtenerUsuarioSesion } from '../auth/auth';
 import {listarProductosAdmin, listarCategorias,
 crearProducto, actualizarProducto, eliminarProducto,}from '../services/productosAdmin';
-import { suscribirStock } from '../services/stockEnVivo';
+import { suscribirStock, suscribirProductos } from '../services/stockEnVivo';
 import { urlImagen } from '../services/imagenes';
 import { FormularioProducto } from './FormularioProducto';
 import { Estadisticas } from './Estadisticas';
@@ -63,10 +63,9 @@ export function Dashboard() {
 
   // Mismo canal de stock que usa el detalle de producto; aquí se ve como tabla.
   useEffect(() => {
-    if (!admin) return undefined;
-    return suscribirStock(({ productoId, stock }) =>
-      setProductos((prev) => prev.map((p) => (p.id === productoId ? { ...p, stock } : p))));
-  }, [admin]);
+  if (!admin) return undefined;
+  return suscribirProductos(() => recargar());
+}, [admin, recargar]);
 
   async function ejecutar(accion, mensajeOk) {
     setGuardando(true);

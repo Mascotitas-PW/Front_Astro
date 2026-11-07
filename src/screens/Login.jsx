@@ -4,6 +4,7 @@ import { GRAPHQL_ENDPOINT } from "../graphql/client";
 import { useStore } from "../store/useStore";
 import { useEffect } from "react";
 import { obtenerUsuarioSesion } from "../auth/auth";
+import { BotonGoogle } from "../auth/BotonGoogle";
 
 const MUTATION_LOGIN = `
   mutation ($email: String!, $password: String!) {
@@ -52,14 +53,15 @@ export function Login() {
         return;
       }
 
-      const usuario = payload.usuario;
+      const Usuario = (payload) => {
+      const u = payload.usuario;
       sessionStorage.setItem("token", payload.token);
-      sessionStorage.setItem("usuarioId", usuario.id);
-      sessionStorage.setItem("adminemail", usuario.email);
-      sessionStorage.setItem("usuarioNombre", usuario.nombre);
-      sessionStorage.setItem("usuarioRol", usuario.rol);
-
-      refrescarUsuario();
+      sessionStorage.setItem("usuarioId", u.id);
+      sessionStorage.setItem("adminemail", u.email);
+      sessionStorage.setItem("usuarioNombre", u.nombre);
+      sessionStorage.setItem("usuarioRol", u.rol);
+    };
+    refrescarUsuario();
       cambiarPantalla("HOME");
     } catch (e) {
       console.error("Error de conexión:", e);

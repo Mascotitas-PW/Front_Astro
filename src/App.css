@@ -96,7 +96,10 @@
   font-weight: 600;
   color: var(--color-texto-acento);
 }
-
+.layout-body { max-width: 1760px; padding: 0 clamp(12px, 2vw, 32px); }
+.sidebar { width: 280px; position: sticky; top: 16px; }
+.grid-productos { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 28px; }
+.producto-card { max-width: none; }
 /* Productos */
 .grid-productos {
   display: grid;

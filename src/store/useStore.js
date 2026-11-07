@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import { GRAPHQL_ENDPOINT } from '../graphql/client';
 import { obtenerUsuarioSesion } from '../auth/auth';
-import { suscribirStock } from '../services/stockEnVivo';
+import { suscribirStock, suscribirProductos } from '../services/stockEnVivo';
 
 const graphqlUrls = [GRAPHQL_ENDPOINT, 'http://localhost:5097/graphql'];
 let state = { productos: [], cargando: true, error: null, pantalla: 'HOME', categoriaSeleccionada: null, productoSeleccionadoId: null, cantidadSeleccionada: 1, busqueda: '', carrito: [], usuario: obtenerUsuarioSesion() };
@@ -40,7 +40,9 @@ async function cargarProductos() {
 
 if (typeof window !== 'undefined') {
   cargarProductos();
-  suscribirStock(({ productoId, stock }) => {
+  suscribirStock(({ productoId, stock })
+    suscribirProductos(() => cargarProductos())
+ {
     actualizarState({
       productos: state.productos.map((p) =>
         p.id === productoId ? { ...p, stock } : p

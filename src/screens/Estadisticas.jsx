@@ -4,6 +4,8 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 } from 'recharts';
 import { fetchGraphQL } from '../graphql/client';
+import { useCallback, useEffect, useState } from 'react';
+import { suscribirPedidos } from '../services/stockEnVivo';
 
 const QUERY = `
   query {
@@ -16,7 +18,16 @@ const QUERY = `
   }`;
 
 const COLORES = ['#E8734A', '#E8B93E', '#3B7A3B', '#4A3623', '#7A9E9F', '#B5651D'];
+const cargar = useCallback(() =>
+  fetchGraphQL(QUERY).then((d) => setDatos(d.estadisticas)).catch((e) => setError(e.message)), []);
 
+useEffect(() => {
+  cargar();
+  return suscribirPedidos(() => cargar());
+}, [cargar]);
+
+// Eje Y legible y sin recortar:
+<YAxis width={80} tickFormatter={(v) => `$${Number(v).toLocaleString('es-MX', { notation: 'compact' })}`} />
 const dinero = (n) => Number(n).toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
 const diaCorto = (f) => { const [, m, d] = f.split('-'); return `${d}/${m}`; };
 

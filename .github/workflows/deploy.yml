@@ -1,42 +1,33 @@
-name: Deploy to GitHub Pages
-
+name: Front CI/CD
 on:
-  push:
-    branches: [ main ]
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: 'pages'
-  cancel-in-progress: true
+  push: { branches: [main] }
+  pull_request: { branches: [main] }
+permissions: { contents: read, pages: write, id-token: write }
 
 jobs:
-  build:
+  build-test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Install, build, and upload site
-        uses: withastro/action@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npm run lint          # calidad de código (ESLint)
+      - run: npm test              # pruebas (Vitest)
+      - run: npm run build         # build de producción
         env:
+          PUBLIC_GRAPHQL_URL: ${{ vars.PUBLIC_GRAPHQL_URL }}
           PUBLIC_MP_KEY: ${{ vars.PUBLIC_MP_KEY }}
-          PUBLIC_PAYPAL_CLIENT_ID: ${{ vars.PUBLIC_PAYPAL_CLIENT_ID }}
-          PUBLIC_PAYPAL_API_URL: ${{ vars.PUBLIC_PAYPAL_API_URL }}
-          PUBLIC_PAYPAL_ENVIRONMENT: ${{ vars.PUBLIC_PAYPAL_ENVIRONMENT }}
-        with:
-          node-version: 22
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: dist }
 
   deploy:
-    needs: build
+    needs: build-test
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
+      - id: deployment
         uses: actions/deploy-pages@v4

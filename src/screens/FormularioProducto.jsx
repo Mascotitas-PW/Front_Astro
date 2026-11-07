@@ -72,53 +72,44 @@ export function FormularioProducto({
   const previa = vista || (datos.imagen ? urlImagen(datos.imagen) : null);
 
   return (
-    <form onSubmit={enviar} style={{ background: '#fff', borderRadius: 16, padding: '1.5rem', maxWidth: 520 }}>
-      <label style={campo}>
-        Nombre
-        <input style={entrada} name="nombre" value={datos.nombre} onChange={cambiar} />
+  <form onSubmit={enviar} className="neu-card grid w-full max-w-6xl gap-6 p-6 sm:p-8 lg:grid-cols-[1fr_300px]">
+    <div className="grid gap-4 sm:grid-cols-2">
+      <label className="grid gap-2 font-semibold sm:col-span-2">Nombre
+        <input className="neu-inset px-4 py-3" name="nombre" value={datos.nombre} onChange={cambiar} />
       </label>
-
-      <label style={campo}>
-        Precio (MXN)
-        <input style={entrada} name="precio" type="number" step="0.01" min="0" value={datos.precio} onChange={cambiar} />
+      <label className="grid gap-2 font-semibold">Precio (MXN)
+        <input className="neu-inset px-4 py-3" name="precio" type="number" step="0.01" min="0" value={datos.precio} onChange={cambiar} />
       </label>
-
-      <label style={campo}>
-        Stock
-        <input style={entrada} name="stock" type="number" step="1" min="0" value={datos.stock} onChange={cambiar} />
+      <label className="grid gap-2 font-semibold">Stock
+        <input className="neu-inset px-4 py-3" name="stock" type="number" step="1" min="0" value={datos.stock} onChange={cambiar} />
       </label>
-
-      <label style={campo}>
-        Categoría
-        <select style={entrada} name="categoriaId" value={datos.categoriaId} onChange={cambiar}>
+      <label className="grid gap-2 font-semibold sm:col-span-2">Categoría
+        <select className="neu-inset px-4 py-3" name="categoriaId" value={datos.categoriaId} onChange={cambiar}>
           <option value="">Selecciona…</option>
-          {categorias.map((c) => (
-            <option key={c.id} value={c.id}>{c.nombre}</option>
-          ))}
+          {categorias.map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}
         </select>
       </label>
+    </div>
 
-      <label style={campo}>
-        Imagen (JPG, PNG o WEBP, máx. 5 MB)
-        <input type="file" accept="image/jpeg,image/png,image/webp" onChange={elegirArchivo} />
+    <div className="grid content-start gap-4">
+      <label className="grid gap-2 font-semibold">Imagen (JPG, PNG o WEBP, máx. 5 MB)
+        <input type="file" accept="image/jpeg,image/png,image/webp" onChange={elegirArchivo} className="neu-inset p-3 text-sm" />
       </label>
+      <div className="neu-inset grid h-56 place-items-center overflow-hidden p-3">
+        {previa ? <img src={previa} alt="Vista previa" className="h-full w-full object-contain" /> : <span className="text-sm opacity-60">Vista previa</span>}
+      </div>
+    </div>
 
-      {previa && (
-        <img src={previa} alt="Vista previa" style={{ width: 120, height: 120, objectFit: 'contain', marginBottom: '0.9rem' }} />
-      )}
-
-      {error && <p style={{ color: '#A32D2D', margin: '0 0 0.9rem' }}>{error}</p>}
-
-      <div style={{ display: 'flex', gap: '0.6rem' }}>
-        <button type="submit" disabled={ocupado} style={{ ...boton, background: '#E8734A', opacity: ocupado ? 0.6 : 1 }}>
+    <div className="grid gap-3 lg:col-span-2">
+      {error && <p className="font-semibold text-red-700">{error}</p>}
+      <div className="flex gap-3">
+        <button type="submit" disabled={ocupado} className="neu-btn neu-btn-primary">
           {subiendo ? 'Subiendo imagen…' : guardando ? 'Guardando…' : textoBoton}
         </button>
-        {onCancelar && (
-          <button type="button" onClick={onCancelar} style={{ ...boton, background: '#888' }}>Cancelar</button>
-        )}
+        {onCancelar && <button type="button" onClick={onCancelar} className="neu-btn">Cancelar</button>}
       </div>
-    </form>
-  );
+    </div>
+  </form>
+);
 }
-
 export default FormularioProducto;

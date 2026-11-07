@@ -1,0 +1,64 @@
+@layer base {
+  :root {
+    --neu-bg: #F5EBD1;      /* crema un poco más oscuro, para que se noten las luces */
+    --neu-luz: #FFFDF5;
+    --neu-sombra: #D6C49A;
+    --neu-texto: #3A2E22;
+    --neu-acento: #E8734A;
+    --neu-dorado: #E8B93E;
+  }
+  body { background: var(--neu-bg); color: var(--neu-texto); margin: 0; }
+}
+
+@layer components {
+  /* Tarjeta elevada */
+  .neu-card {
+    background: var(--neu-bg);
+    border-radius: 24px;
+    box-shadow: 9px 9px 18px var(--neu-sombra), -9px -9px 18px var(--neu-luz);
+  }
+  /* Campo hundido (inputs, selects, contenedores de vista previa) */
+  .neu-inset {
+    background: var(--neu-bg);
+    border: 0;
+    border-radius: 14px;
+    outline: none;
+    box-shadow: inset 5px 5px 10px var(--neu-sombra), inset -5px -5px 10px var(--neu-luz);
+  }
+  .neu-inset:focus {
+    box-shadow: inset 5px 5px 10px var(--neu-sombra), inset -5px -5px 10px var(--neu-luz),
+                0 0 0 2px var(--neu-dorado);
+  }
+  /* Botón convexo; al presionarlo (o aria-pressed) se hunde */
+  .neu-btn {
+    background: linear-gradient(145deg, #FBF1D8, #ECDFBF);
+    color: var(--neu-texto);
+    border-radius: 999px;
+    padding: .6rem 1.2rem;
+    font-weight: 700;
+    box-shadow: 6px 6px 12px var(--neu-sombra), -6px -6px 12px var(--neu-luz);
+    transition: box-shadow .15s, transform .15s;
+  }
+  .neu-btn:hover { transform: translateY(-1px); }
+  .neu-btn:active, .neu-btn[aria-pressed="true"] {
+    transform: none;
+    box-shadow: inset 4px 4px 8px var(--neu-sombra), inset -4px -4px 8px var(--neu-luz);
+  }
+  .neu-btn:disabled { opacity: .55; cursor: not-allowed; }
+  .neu-btn-primary { background: linear-gradient(145deg, #EF8460, #D8643C); color: #fff; }
+  /* Icono en relieve */
+  .neu-icon {
+    display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%;
+    background: var(--neu-bg);
+    box-shadow: 5px 5px 10px var(--neu-sombra), -5px -5px 10px var(--neu-luz);
+  }
+  /* Barra de progreso (útil para el stock) */
+  .neu-progress {
+    height: 12px; border-radius: 999px; background: var(--neu-bg);
+    box-shadow: inset 3px 3px 6px var(--neu-sombra), inset -3px -3px 6px var(--neu-luz);
+  }
+  .neu-progress > span {
+    display: block; height: 100%; border-radius: inherit;
+    background: linear-gradient(90deg, var(--neu-dorado), var(--neu-acento));
+  }
+}
