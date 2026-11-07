@@ -1,7 +1,5 @@
-import { MapaEntrega } from '../Mapa';
+import { MapaEntrega } from '../components/Mapa';
 
-// Va fuera del componente: si se define dentro, React lo recrea en cada tecla
-// y el input pierde el foco.
 const Campo = ({ etiqueta, ancho, children }) => (
   <label className={`grid gap-2 font-semibold ${ancho ? 'sm:col-span-2' : ''}`}>
     {etiqueta}
