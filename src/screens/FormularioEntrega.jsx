@@ -37,11 +37,10 @@ export default function FormularioEntrega({
           <option value="Tarjeta">Tarjeta de crédito / débito</option>
           <option value="PayPal">PayPal</option>
           <option value="Efectivo">Efectivo contra entrega</option>
-          <option value="Transferencia">Transferencia SPEI</option>
         </select>
       </label>
 
-      {(metodoPago === 'Efectivo' || metodoPago === 'Transferencia') && (
+      {(metodoPago === 'Efectivo') && (
         <button type="submit" disabled={deshabilitado} className="neu-btn neu-btn-primary span-2">
           {loading ? 'Procesando pedido...' : 'Confirmar y enviar pedido'}
         </button>
