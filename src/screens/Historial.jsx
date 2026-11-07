@@ -1,7 +1,6 @@
 import { fetchGraphQL } from "../graphql/client";        
 import { obtenerUsuarioSesion } from '../auth/auth'; 
-import { useCallback, useEffect, useState } from 'react';
-import { suscribirPedidos } from '../services/stockEnVivo'; 
+import { useEffect, useState } from 'react';
 
 const Q_MIS_PEDIDOS = `
   query MisPedidos($usuarioId: Int!) {
@@ -20,26 +19,6 @@ const Q_PRODUCTOS = `query { productos { id nombre } }`;
 const dinero = (n) => Number(n).toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
 const th = { textAlign: 'left', padding: '0.75rem', borderBottom: '2px solid #E8B93E', color: '#4A3623' };
 const td = { padding: '0.75rem', borderBottom: '1px solid #EEE' };
-const cargar = useCallback(async () => {
-  try {
-    const [dPedidos, dProductos] = await Promise.all([
-      esAdmin ? fetchGraphQL(Q_TODOS) : fetchGraphQL(Q_MIS_PEDIDOS, { usuarioId: usuario.id }),
-      fetchGraphQL(Q_PRODUCTOS),
-    ]);
-    setPedidos(esAdmin ? dPedidos.pedidos : dPedidos.pedidosPorUsuario);
-    setNombres(Object.fromEntries(dProductos.productos.map((p) => [p.id, p.nombre])));
-  } catch (e) { setError(e.message); }
-  finally { setCargando(false); }
-}, [esAdmin, usuario?.id]);
-
-useEffect(() => {
-  if (!usuario) return undefined;
-  cargar();
-  // El admin ve todo; el cliente solo recarga si el pedido es suyo
-  return suscribirPedidos(({ usuarioId }) => {
-    if (esAdmin || usuarioId === usuario.id) cargar();
-  });
-}, [cargar]);
 export function Historial() {
   const usuario = obtenerUsuarioSesion();
   const esAdmin = usuario?.rol?.toLowerCase() === 'admin';
