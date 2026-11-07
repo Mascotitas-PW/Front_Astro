@@ -32,18 +32,33 @@ export function Home() {
           categoriaSeleccionada={categoriaSeleccionada}
           onElegirCategoria={seleccionarCategoria}
         />
-        <main>
+        <main id="contenido">
           <Hero />
-          {error && <p className="error">Ocurrió un error: {error}</p>}
-          <section className="grid-productos">
+
+          {error && (
+            <p className="error" role="alert">
+              Ocurrió un error: {error}
+            </p>
+          )}
+
+          <h2 className="sr-only">
+            {categoriaSeleccionada ? `Productos de ${categoriaSeleccionada}` : "Todos los productos"}
+          </h2>
+
+          <p className="sr-only" role="status" aria-live="polite">
+            {cargando ? "Cargando productos" : `${productosVisibles.length} productos encontrados`}
+          </p>
+
+          <section className="grid-productos" aria-busy={cargando} aria-label="Catálogo de productos">
             {cargando
               ? Array.from({ length: 6 }).map((_, index) => <Skeleton key={index} />)
               : productosVisibles.length === 0
                 ? <p>No se encontraron productos.</p>
-                : productosVisibles.map((producto) => (
+                : productosVisibles.map((producto, index) => (
                     <ProductoCard
                       key={producto.id}
                       producto={producto}
+                      prioridad={index < 2}
                       onVer={() => seleccionarProducto(producto)}
                     />
                   ))}
