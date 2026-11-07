@@ -1,3 +1,5 @@
+import './styles/global.css';
+import './styles/Neumorfismo.css';
 import { useStore } from './hooks/useStore';
 import { TopBar } from './layout/TopBar';
 import { Home } from './screens/Home';

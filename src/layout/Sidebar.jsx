@@ -1,5 +1,3 @@
-import "./styles/Neumorfismo.css";
-import "./styles/global.css";
 export default function Sidebar({ categorias, categoriaSeleccionada, onElegirCategoria }) {
   return (
     <aside className="sidebar">

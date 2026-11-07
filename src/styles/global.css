@@ -1,75 +1,68 @@
-@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap');
 
-@layer theme, base, components, utilities;
+:root {
+  --neu-bg: #F5EBD1;
+  --neu-luz: #FFFDF5;
+  --neu-sombra: #D6C49A;
+  --neu-texto: #3A2E22;
+  --neu-acento: #E8734A;
+  --neu-dorado: #E8B93E;
+  --neu-verde: #3B7A3B;
+  --neu-rojo: #A32D2D;
+  --color-texto-acento: #4A3623;
+  --sombra-card: 10px 10px 22px var(--neu-sombra), -10px -10px 22px var(--neu-luz);
+  --sombra-suave: 6px 6px 14px var(--neu-sombra), -6px -6px 14px var(--neu-luz);
+  --sombra-inset: inset 6px 6px 12px var(--neu-sombra), inset -6px -6px 12px var(--neu-luz);
+  --radio: 28px;
+}
 
-@layer base {
-  :root {
-    /* Neumorfismo */
-    --neu-bg: #F5EBD1;
-    --neu-luz: #FFFDF5;
-    --neu-sombra: #D6C49A;
-    --neu-texto: #3A2E22;
-    --neu-acento: #E8734A;
-    --neu-dorado: #E8B93E;
+* { box-sizing: border-box; }
 
-    /* Nombres anteriores, mapeados para que el layout siga funcionando */
-    --color-fondo: var(--neu-bg);
-    --color-acento: var(--neu-bg);
-    --color-texto-acento: #4A3623;
-    --color-boton: var(--neu-acento);
-    --color-boton-hover: #D65F37;
-    --color-texto: var(--neu-texto);
-    --color-superficie: var(--neu-bg);
-    --sombra-card: 9px 9px 18px var(--neu-sombra), -9px -9px 18px var(--neu-luz);
-    --sombra-inset: inset 5px 5px 10px var(--neu-sombra), inset -5px -5px 10px var(--neu-luz);
-    --radio: 24px;
-  }
+html { font-size: 112.5%; -webkit-text-size-adjust: 100%; }
 
-  * { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--neu-bg);
+  color: var(--neu-texto);
+  font-family: 'Inter', system-ui, sans-serif;
+  line-height: 1.5;
+}
+#root { min-height: 100vh; }
 
-  body {
-    background: var(--neu-bg);
-    color: var(--neu-texto);
-    font-family: 'Inter', system-ui, sans-serif;
-    margin: 0;
-  }
+h1, h2, h3, h4 {
+  font-family: 'Baloo 2', system-ui, sans-serif;
+  color: var(--color-texto-acento);
+  margin: 0 0 .5em;
+  line-height: 1.2;
+}
+h1 { font-size: 2.6rem; }
+h2 { font-size: 2rem; }
+h3 { font-size: 1.4rem; }
 
-  h1, h2, h3, .logo, .footer-brand {
-    font-family: 'Baloo 2', system-ui, sans-serif;
-  }
+button { font: inherit; }
 
-  button {
-    background: linear-gradient(145deg, #EF8460, #D8643C);
-    color: #fff;
-    border: none;
-    border-radius: 999px;
-    padding: .6rem 1.2rem;
-    font-family: 'Inter', sans-serif;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: 6px 6px 12px var(--neu-sombra), -6px -6px 12px var(--neu-luz);
-    transition: box-shadow .15s, transform .15s;
-  }
-  button:hover { transform: translateY(-1px); }
-  button:active {
-    transform: none;
-    box-shadow: inset 4px 4px 8px #B84F2B, inset -4px -4px 8px #F59A7A;
-  }
-  button:disabled { opacity: .55; cursor: not-allowed; }
+input, select, textarea {
+  width: 100%;
+  min-height: 3.2rem;
+  padding: .85rem 1.2rem;
+  background: var(--neu-bg);
+  color: var(--neu-texto);
+  border: 0;
+  border-radius: 16px;
+  outline: none;
+  font-family: inherit;
+  font-size: 1rem;
+  box-shadow: var(--sombra-inset);
+}
+input::placeholder { color: #A99986; }
+input:focus, select:focus, textarea:focus {
+  box-shadow: var(--sombra-inset), 0 0 0 3px var(--neu-dorado);
+}
+input[type="file"] { padding: .8rem 1rem; font-size: .9rem; }
 
-  input, select, textarea {
-    background: var(--neu-bg);
-    color: var(--neu-texto);
-    border: 0;
-    border-radius: 14px;
-    outline: none;
-    padding: .6rem 1rem;
-    font-family: 'Inter', sans-serif;
-    box-shadow: var(--sombra-inset);
-  }
-  input:focus, select:focus, textarea:focus {
-    box-shadow: var(--sombra-inset), 0 0 0 2px var(--neu-dorado);
-  }
+.error { color: var(--neu-rojo); }
 
-  .error { color: #A32D2D; }
+@media (max-width: 640px) {
+  html { font-size: 100%; }
 }

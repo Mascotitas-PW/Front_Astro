@@ -1,7 +1,5 @@
 import { useEffect, useRef } from "react";
 import { GRAPHQL_ENDPOINT, obtenerToken } from "../graphql/client";
-import "./styles/Neumorfismo.css";
-import "./styles/global.css";
 
 const PAYPAL_CLIENT_ID = import.meta.env.PUBLIC_PAYPAL_CLIENT_ID;
 const PAYPAL_ENVIRONMENT = import.meta.env.PUBLIC_PAYPAL_ENVIRONMENT || "sandbox";
@@ -65,6 +63,8 @@ export function PayPalButton({
   nombreCompleto,
   direccionEntrega,
   telefono,
+  latitud,
+  longitud,
   onApproved,
   onError,
   disabled,
@@ -77,6 +77,8 @@ export function PayPalButton({
     nombreCompleto,
     direccionEntrega,
     telefono,
+    latitud,
+    longitud,
     onApproved,
     onError,
   });
@@ -86,6 +88,8 @@ export function PayPalButton({
     nombreCompleto,
     direccionEntrega,
     telefono,
+    latitud,
+    longitud,
     onApproved,
     onError,
   };
@@ -115,6 +119,8 @@ export function PayPalButton({
           nombreCompleto: current.nombreCompleto,
           direccionEntrega: current.direccionEntrega,
           telefono: current.telefono,
+          latitud: current.latitud ?? null,
+          longitud: current.longitud ?? null,
         }),
       });
       const data = await leerRespuesta(response);
@@ -143,6 +149,8 @@ export function PayPalButton({
             nombreCompleto: current.nombreCompleto,
             direccionEntrega: current.direccionEntrega,
             telefono: current.telefono,
+          latitud: current.latitud ?? null,
+          longitud: current.longitud ?? null,
           }),
         });
         const data = await leerRespuesta(response);

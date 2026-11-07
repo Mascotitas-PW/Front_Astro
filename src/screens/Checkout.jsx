@@ -1,72 +1,15 @@
-import { useState, useRef } from "react";
-import { useStore } from "../hooks/useStore";
-import { obtenerUsuarioSesion } from "../auth/auth";
+import { useState, useRef } from 'react';
+import { useStore } from '../hooks/useStore';
+import { obtenerUsuarioSesion } from '../auth/auth';
 import {
-  calcularEnvio,
-  procesarPagoMercadoPago,
-  crearPedidoConPago,
-  crearPedidoSinPago,
-} from "../services/pedidos";
-import { useBrickMercadoPago, BRICK_CONTAINER_ID } from "../hooks/useBrickMercadoPago";
-import { FormularioEntrega } from "./FormularioEntrega";
-import { ResumenPedido } from "./ResumenPedido";
-import { PedidoConfirmado } from "./PedidoConfirmado";
-import { fetchGraphQL, GRAPHQL_ENDPOINT } from "../services/graphql";
-import "./styles/Neumorfismo.css";
-import "./styles/global.css";
-
-const CREAR_PEDIDO_MUTATION = `
-  mutation CrearPedido($input: CrearPedidoInput!) {
-    crearPedido(input: $input) {
-      id
-      status
-      total
-    }
-  }
-`;
-
-const CREAR_PEDIDO_SIN_PAGO_MUTATION = `
-  mutation CrearPedidoSinPago($input: CrearPedidoSinPagoInput!) {
-    crearPedidoSinPago(input: $input) {
-      id
-      status
-      total
-    }
-  }
-`;
-
-const MERCADOPAGO_PUBLIC_KEY = import.meta.env.PUBLIC_MP_KEY;
-const MERCADOPAGO_PAYMENT_URL = GRAPHQL_ENDPOINT.replace(/\/graphql\/?$/, "") + "/process_order";
-
-function cargarSdkMercadoPago() {
-  if (window.MercadoPago) return Promise.resolve();
-
-  return new Promise((resolve, reject) => {
-    let script = document.querySelector('script[data-mercadopago-sdk="true"]');
-    if (!script) {
-      script = document.createElement("script");
-      script.src = "https://sdk.mercadopago.com/js/v2";
-      script.dataset.mercadopagoSdk = "true";
-      document.head.appendChild(script);
-    }
-
-    script.addEventListener("load", resolve, { once: true });
-    script.addEventListener("error", () => reject(new Error("No se pudo cargar Mercado Pago.")), { once: true });
-  });
-}
-
-// Llamada GraphQL con el token de la sesión (lanza error si el back responde con errores)
-function llamarGraphQL(query, input) {
-  return fetchGraphQL(query, { input });
-}
-
-// Misma validación que hace el back; así no se cobra una tarjeta con datos inválidos
-function validarEntrega({ nombre, direccion, telefono }) {
-  if (nombre.trim().length < 3) return "Escribe tu nombre completo.";
-  if (direccion.trim().length < 5) return "Escribe una dirección de entrega válida.";
-  if (telefono.replace(/\D/g, "").length !== 10) return "El teléfono debe tener 10 dígitos.";
-  return null;
-}
+  calcularEnvio, validarEntrega, itemsInput,
+  procesarPagoMercadoPago, crearPedidoConPago, crearPedidoSinPago,
+} from '../services/pedidos';
+import { useBrickMercadoPago, BRICK_CONTAINER_ID } from '../hooks/useBrickMercadoPago';
+import FormularioEntrega from './FormularioEntrega';
+import ResumenPedido from './ResumenPedido';
+import PedidoConfirmado from './PedidoConfirmado';
+import PayPalButton from '../components/PayPalButton';
 
 export const Checkout = ({ onBackToHome }) => {
   const store = useStore();
@@ -75,11 +18,10 @@ export const Checkout = ({ onBackToHome }) => {
   const envio = calcularEnvio(subtotal);
   const total = subtotal + envio;
 
-  // La sesión vive en sessionStorage; se relee en cada render
   const usuario = obtenerUsuarioSesion();
   const usuarioId = usuario?.id ?? null;
 
-  const [entrega, setEntrega] = useState({ nombre: '', direccion: '', telefono: '' });
+  const [entrega, setEntrega] = useState({ nombre: '', direccion: '', telefono: '', lat: null, lng: null });
   const [metodoPago, setMetodoPago] = useState('Tarjeta');
   const [pedidoCreado, setPedidoCreado] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -90,24 +32,19 @@ export const Checkout = ({ onBackToHome }) => {
   entregaRef.current = entrega;
 
   const cambiarEntrega = (campo, valor) => setEntrega((e) => ({ ...e, [campo]: valor }));
+  const cambiarUbicacion = ({ lat, lng }) => setEntrega((e) => ({ ...e, lat, lng }));
 
-  const cambiarMetodo = (metodo) => {
-    setErrorMsg(null);
-    setMetodoPago(metodo);
-  };
+  const cambiarMetodo = (metodo) => { setErrorMsg(null); setMetodoPago(metodo); };
 
   const finalizar = (pedido) => {
     setPedidoCreado(pedido);
     store.vaciarCarrito();
   };
 
-  // Pago con tarjeta: lo dispara el Brick de Mercado Pago
+  // Tarjeta: lo dispara el Brick de Mercado Pago
   const pagarConTarjeta = async (formData) => {
     const errEntrega = validarEntrega(entregaRef.current);
-    if (errEntrega) {
-      setErrorMsg(errEntrega);
-      throw new Error(errEntrega);
-    }
+    if (errEntrega) { setErrorMsg(errEntrega); throw new Error(errEntrega); }
 
     setLoading(true);
     setErrorMsg(null);
@@ -116,10 +53,7 @@ export const Checkout = ({ onBackToHome }) => {
     try {
       pago = await procesarPagoMercadoPago({ usuarioId, carrito, formData, email: usuario?.email });
       const pedido = await crearPedidoConPago({
-        usuarioId,
-        paymentId: pago.id,
-        carrito,
-        entrega: entregaRef.current,
+        usuarioId, paymentId: pago.id, carrito, entrega: entregaRef.current,
       });
       finalizar(pedido);
       return pago;
@@ -130,8 +64,7 @@ export const Checkout = ({ onBackToHome }) => {
           ? `El pago fue aprobado, pero no se pudo guardar el pedido: ${error.message}`
           : error.message || 'No se pudo procesar el pago.',
       );
-      // Con el pago ya aprobado, no se hace fallar al Brick para que no reintente el cobro
-      if (pago) return pago;
+      if (pago) return pago; // ya cobrado: no hacer fallar al Brick para que no reintente el cobro
       throw error;
     } finally {
       setLoading(false);
@@ -139,20 +72,24 @@ export const Checkout = ({ onBackToHome }) => {
   };
 
   useBrickMercadoPago({
-    activo: metodoPago === 'Tarjeta' && !pedidoCreado && !!usuarioId,
+    activo: metodoPago === 'Tarjeta' && !pedidoCreado && !!usuarioId && carrito.length > 0,
     total,
     onSubmit: pagarConTarjeta,
     onReady: () => setErrorMsg(null),
     onError: setErrorMsg,
   });
 
-  // Efectivo / transferencia: se envía desde el formulario
+  // PayPal: el back captura el pago y crea el pedido; aquí solo lo mostramos
+  const pagoPayPalAprobado = async (resultado) => {
+    finalizar(resultado.pedido);
+  };
+
+  // Efectivo / transferencia
   const confirmarSinPago = async (e) => {
     e.preventDefault();
-    if (metodoPago === 'Tarjeta') return; // la tarjeta se envía desde el Brick
+    if (metodoPago !== 'Efectivo' && metodoPago !== 'Transferencia') return;
 
     setErrorMsg(null);
-
     if (carrito.length === 0) return setErrorMsg('El carrito está vacío.');
     if (!usuarioId) return setErrorMsg('Inicia sesión para completar tu compra.');
 
@@ -172,11 +109,10 @@ export const Checkout = ({ onBackToHome }) => {
 
   const volverAlHome = () => (onBackToHome ? onBackToHome() : store.cambiarPantalla('HOME'));
 
-  // Sin sesión no se puede comprar
   if (!usuario) {
     return (
-      <main className="mx-auto grid max-w-md gap-4 px-4 py-16 text-center">
-        <h2 className="text-2xl font-bold">Inicia sesión para pagar</h2>
+      <main className="page" style={{ maxWidth: 560, textAlign: 'center' }}>
+        <h2>Inicia sesión para pagar</h2>
         <p>Necesitas una cuenta para completar tu compra.</p>
         <button onClick={() => store.cambiarPantalla('LOGIN')} className="neu-btn neu-btn-primary">
           Ir a iniciar sesión
@@ -189,27 +125,24 @@ export const Checkout = ({ onBackToHome }) => {
     return (
       <PedidoConfirmado
         pedido={pedidoCreado}
-        pagado={metodoPago === 'Tarjeta'}
+        pagado={metodoPago === 'Tarjeta' || metodoPago === 'PayPal'}
         onVolver={volverAlHome}
       />
     );
   }
 
   return (
-    <main className="mx-auto w-full max-w-7xl px-4 py-8 lg:px-10">
-      <h2 className="mb-6 text-3xl font-bold">Confirmar compra</h2>
+    <main className="page">
+      <h2>Confirmar compra</h2>
 
-      {errorMsg && (
-        <div role="alert" className="neu-inset mb-6 p-4 font-semibold text-red-700">
-          {errorMsg}
-        </div>
-      )}
+      {errorMsg && <div role="alert" className="alerta alerta-error">{errorMsg}</div>}
 
-      <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_420px]">
-        <div className="grid gap-8">
+      <div className="checkout-layout">
+        <div className="checkout-col">
           <FormularioEntrega
             entrega={entrega}
             onCambiar={cambiarEntrega}
+            onUbicacion={cambiarUbicacion}
             metodoPago={metodoPago}
             onMetodoPago={cambiarMetodo}
             onSubmit={confirmarSinPago}
@@ -217,8 +150,24 @@ export const Checkout = ({ onBackToHome }) => {
             loading={loading}
           />
 
-          {metodoPago === 'Tarjeta' && (
-            <div id={BRICK_CONTAINER_ID} className="neu-card p-4 sm:p-6" />
+          {metodoPago === 'Tarjeta' && <div id={BRICK_CONTAINER_ID} className="neu-card pago-bloque" />}
+
+          {metodoPago === 'PayPal' && (
+            <div className="neu-card pago-bloque">
+              <h3>Pagar con PayPal</h3>
+              <PayPalButton
+                items={itemsInput(carrito)}
+                usuarioId={usuarioId}
+                nombreCompleto={entrega.nombre}
+                direccionEntrega={entrega.direccion}
+                telefono={entrega.telefono}
+                latitud={entrega.lat}
+                longitud={entrega.lng}
+                onApproved={pagoPayPalAprobado}
+                onError={(err) => setErrorMsg(err?.message || 'No se pudo completar el pago con PayPal.')}
+                disabled={carrito.length === 0}
+              />
+            </div>
           )}
         </div>
 

@@ -19,7 +19,7 @@ export const dinero = (n) =>
 // Misma regla que el back (Envio.cs): gratis arriba de $500, si no $99.
 export const calcularEnvio = (subtotal) => (subtotal > 500 || subtotal === 0 ? 0 : 99);
 
-// Misma validación que hace el back; así no se cobra una tarjeta con datos inválidos.
+// Misma validación que hace el back; así no se cobra con datos inválidos.
 export function validarEntrega({ nombre, direccion, telefono }) {
   if (nombre.trim().length < 3) return 'Escribe tu nombre completo.';
   if (direccion.trim().length < 5) return 'Escribe una dirección de entrega válida.';
@@ -27,16 +27,18 @@ export function validarEntrega({ nombre, direccion, telefono }) {
   return null;
 }
 
-const itemsInput = (carrito) =>
+export const itemsInput = (carrito) =>
   carrito.map((item) => ({
     productoId: Number(item.id),
     cantidad: Number(item.cantidad),
   }));
 
-const datosEntrega = ({ nombre, direccion, telefono }) => ({
+export const datosEntrega = ({ nombre, direccion, telefono, lat, lng }) => ({
   nombreCompleto: nombre.trim(),
   direccionEntrega: direccion.trim(),
-  telefono: telefono.trim(),
+  telefono: telefono.replace(/\D/g, ''),
+  latitud: lat ?? null,
+  longitud: lng ?? null,
 });
 
 // Cobra la tarjeta en el back (/process_order). Lanza Error si el pago no se aprueba.
@@ -52,8 +54,12 @@ export async function procesarPagoMercadoPago({ usuarioId, carrito, formData, em
       items: itemsInput(carrito),
       token: formData.token,
       paymentMethodId: formData.payment_method_id,
+      issuerId: formData.issuer_id ?? null,
       installments: Number(formData.installments || 1),
-      payer: { email: formData.payer?.email || email || '' },
+      payer: {
+        email: formData.payer?.email || email || '',
+        identification: formData.payer?.identification ?? null,
+      },
     }),
   });
 

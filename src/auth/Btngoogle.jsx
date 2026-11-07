@@ -1,8 +1,5 @@
 import { useEffect, useRef } from 'react';
 import { fetchGraphQL } from '../graphql/client';
-import "./styles/Neumorfismo.css";
-import "./styles/global.css";
-
 
 const CLIENT_ID = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID;
 const MUTATION = `
@@ -10,35 +7,53 @@ const MUTATION = `
     loginGoogle(idToken: $idToken) { token usuario { id nombre email rol } }
   }`;
 
-export function Botongoogle({ onLogin, onError }) {
+// Sirve igual para iniciar sesión y para registrarse (el back crea la cuenta si no existe)
+export function BotonGoogle({ onLogin, onError }) {
   const ref = useRef(null);
+  const cb = useRef({});
+  cb.current = { onLogin, onError };
 
   useEffect(() => {
-    if (!CLIENT_ID) return;
+    if (!CLIENT_ID || !ref.current) return undefined;
+    let cancelado = false;
+
     const iniciar = () => {
+      if (cancelado || !window.google?.accounts?.id) return;
       window.google.accounts.id.initialize({
         client_id: CLIENT_ID,
         callback: async ({ credential }) => {
           try {
             const d = await fetchGraphQL(MUTATION, { idToken: credential });
-            onLogin(d.loginGoogle);
+            cb.current.onLogin(d.loginGoogle);
           } catch (e) {
-            onError(e.message);
+            cb.current.onError(e.message);
           }
         },
       });
       window.google.accounts.id.renderButton(ref.current, {
-        theme: 'outline', size: 'large', text: 'continue_with', width: 320,
+        theme: 'outline', size: 'large', text: 'continue_with', shape: 'pill', width: 340,
       });
     };
 
-    if (window.google?.accounts) return iniciar();
-    const s = document.createElement('script');
-    s.src = 'https://accounts.google.com/gsi/client';
-    s.async = true;
-    s.onload = iniciar;
-    document.head.appendChild(s);
+    if (window.google?.accounts?.id) {
+      iniciar();
+    } else {
+      let s = document.querySelector('script[data-google-gsi="true"]');
+      if (!s) {
+        s = document.createElement('script');
+        s.src = 'https://accounts.google.com/gsi/client';
+        s.async = true;
+        s.dataset.googleGsi = 'true';
+        document.head.appendChild(s);
+      }
+      s.addEventListener('load', iniciar, { once: true });
+    }
+    return () => { cancelado = true; };
   }, []);
 
-  return <div ref={ref} className="flex justify-center" />;
+  if (!CLIENT_ID) return <p className="nota">Configura PUBLIC_GOOGLE_CLIENT_ID para habilitar Google.</p>;
+  return <div ref={ref} className="google-btn" />;
 }
+
+export const Botongoogle = BotonGoogle;
+export default BotonGoogle;

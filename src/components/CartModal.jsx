@@ -1,47 +1,38 @@
 import { useStore } from '../hooks/useStore';
-import "./styles/Neumorfismo.css";
-import "./styles/global.css";
+import { calcularEnvio, dinero } from '../services/pedidos';
 
 export function CartModal({ isOpen, onClose, onGoToCheckout }) {
   const { carrito, eliminarDelCarrito, actualizarCantidad, totalCarrito } = useStore();
 
   if (!isOpen) return null;
 
-  const costoEnvio = totalCarrito > 500 || totalCarrito === 0 ? 0 : 99;
-  const envioTexto = costoEnvio === 0 ? '¡Envío Gratis!' : `$${costoEnvio} MXN`;
-  const totalFinal = totalCarrito + costoEnvio;
+  const envio = calcularEnvio(totalCarrito);
+  const total = totalCarrito + envio;
 
   return (
-    <div
-      style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'flex-end', zIndex: 1000 }}
-      onClick={onClose}
-    >
-      <div
-        style={{ width: 'min(400px, 100vw)', backgroundColor: '#fff', height: '100%', padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}
-        onClick={(event) => event.stopPropagation()}
-      >
+    <div className="cart-fondo" onClick={onClose}>
+      <div className="cart-panel" onClick={(e) => e.stopPropagation()}>
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h2 style={{ margin: 0 }}>Tu Carrito</h2>
-            <button onClick={onClose} aria-label="Cerrar carrito" style={{ cursor: 'pointer', fontSize: '18px', border: 'none', background: 'transparent', color: '#4A3623' }}>✕</button>
+          <div className="cart-cab">
+            <h2>Tu carrito</h2>
+            <button className="neu-btn neu-btn-sm" onClick={onClose} aria-label="Cerrar carrito">✕</button>
           </div>
-          <hr />
 
           {carrito.length === 0 ? (
-            <p style={{ marginTop: '20px' }}>El carrito está vacío.</p>
+            <p style={{ marginTop: '1.5rem' }}>El carrito está vacío.</p>
           ) : (
-            <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+            <div className="cart-lista">
               {carrito.map((item) => (
-                <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', marginBottom: '15px', alignItems: 'center' }}>
+                <div key={item.id} className="cart-item">
                   <div>
                     <strong style={{ display: 'block' }}>{item.nombre}</strong>
-                    <small>${item.precio} c/u</small>
+                    <small>{dinero(item.precio)} c/u</small>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    <button onClick={() => actualizarCantidad(item.id, item.cantidad - 1)} aria-label={`Reducir cantidad de ${item.nombre}`}>-</button>
-                    <span>{item.cantidad}</span>
-                    <button onClick={() => actualizarCantidad(item.id, item.cantidad + 1)} aria-label={`Aumentar cantidad de ${item.nombre}`}>+</button>
-                    <button onClick={() => eliminarDelCarrito(item.id)} aria-label={`Eliminar ${item.nombre}`} style={{ background: 'transparent', marginLeft: '10px', padding: 0 }}>🗑</button>
+                  <div className="cart-cantidad">
+                    <button className="neu-btn" onClick={() => actualizarCantidad(item.id, item.cantidad - 1)} aria-label={`Reducir ${item.nombre}`}>−</button>
+                    <strong>{item.cantidad}</strong>
+                    <button className="neu-btn" onClick={() => actualizarCantidad(item.id, item.cantidad + 1)} aria-label={`Aumentar ${item.nombre}`}>+</button>
+                    <button className="neu-btn" onClick={() => eliminarDelCarrito(item.id)} aria-label={`Eliminar ${item.nombre}`}>🗑</button>
                   </div>
                 </div>
               ))}
@@ -50,16 +41,16 @@ export function CartModal({ isOpen, onClose, onGoToCheckout }) {
         </div>
 
         {carrito.length > 0 && (
-          <div>
-            <hr />
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Subtotal:</span><span>${totalCarrito.toFixed(2)}</span></div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Envío:</span><span>{envioTexto}</span></div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '18px', marginTop: '10px' }}><span>Total:</span><span>${totalFinal.toFixed(2)}</span></div>
+          <div style={{ marginTop: '1.5rem' }}>
+            <div className="cart-linea"><span>Subtotal</span><span>{dinero(totalCarrito)}</span></div>
+            <div className="cart-linea"><span>Envío</span><span>{envio === 0 ? '¡Envío gratis!' : dinero(envio)}</span></div>
+            <div className="cart-linea cart-total"><span>Total</span><span>{dinero(total)}</span></div>
             <button
+              className="neu-btn neu-btn-primary neu-btn-block"
+              style={{ marginTop: '1.2rem' }}
               onClick={() => { onClose(); onGoToCheckout(); }}
-              style={{ width: '100%', padding: '12px', backgroundColor: '#E8734A', color: '#fff', border: 'none', borderRadius: '5px', marginTop: '15px', cursor: 'pointer', fontWeight: 'bold' }}
             >
-              Proceder al Pago
+              Proceder al pago
             </button>
           </div>
         )}
