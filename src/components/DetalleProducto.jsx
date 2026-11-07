@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useStore } from '../store/useStore';
+import { useStore } from '../hooks/useStore';
 import { urlImagen } from '../services/imagenes';
 import { obtenerUsuarioSesion } from '../auth/auth';
 

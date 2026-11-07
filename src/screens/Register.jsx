@@ -1,5 +1,5 @@
 import "../auth/auth.css";
-import { useStore } from "../store/useStore";
+import { useStore } from "../hooks/useStore";
 import { GRAPHQL_ENDPOINT } from "../graphql/client";
 
 export function Registro() {

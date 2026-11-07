@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import "../auth/auth.css";
 import { GRAPHQL_ENDPOINT } from "../graphql/client";
-import { useStore } from "../store/useStore";
+import { useStore } from "../hooks/useStore";
 import { obtenerUsuarioSesion } from "../auth/auth";
 import { BotonGoogle } from "../auth/Btngoogle";
 

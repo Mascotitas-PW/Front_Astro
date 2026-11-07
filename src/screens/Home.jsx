@@ -1,4 +1,4 @@
-import { useStore } from "../store/useStore";
+import { useStore } from "../hooks/useStore";
 import Sidebar from "../layout/Sidebar";
 import Hero from "../layout/Hero";
 import ContextSection from "../layout/ContextSection";

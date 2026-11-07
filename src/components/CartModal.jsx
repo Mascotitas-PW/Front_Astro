@@ -1,4 +1,4 @@
-import { useStore } from '../store/useStore';
+import { useStore } from '../hooks/useStore';
 
 export function CartModal({ isOpen, onClose, onGoToCheckout }) {
   const { carrito, eliminarDelCarrito, actualizarCantidad, totalCarrito } = useStore();

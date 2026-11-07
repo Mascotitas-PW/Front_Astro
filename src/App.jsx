@@ -1,4 +1,4 @@
-import { useStore } from './store/useStore';
+import { useStore } from './hooks/useStore';
 import { TopBar } from './layout/TopBar';
 import { Home } from './screens/Home';
 import { DetalleProducto } from './components/DetalleProducto';
