@@ -6,6 +6,10 @@ import PayPalButton from "../components/PayPalButton";
 import { MapaEntrega } from '../components/Mapa';
 import {calcularEnvio} from '../services/pedidos';
 import { useBrickMercadoPago } from '../hooks/useBrickMercadoPago';
+import { FormularioEntrega } from './FormularioEntrega';
+import { ResumenPedido } from './ResumenPedido';
+import { PedidoConfirmado } from './PedidoConfirmado';
+import "../styles/Neumorfismo.css";
 
 const CREAR_PEDIDO_MUTATION = `
   mutation CrearPedido($input: CrearPedidoInput!) {
