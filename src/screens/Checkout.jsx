@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useStore } from "../store/useStore";
+import { useStore } from "../hooks/useStore";
 import { obtenerUsuarioSesion } from "../auth/auth";
 import { GRAPHQL_ENDPOINT, fetchGraphQL, obtenerToken } from "../graphql/client";
 import PayPalButton from "../components/PayPalButton";
