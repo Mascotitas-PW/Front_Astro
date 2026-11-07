@@ -1,17 +1,62 @@
-import { useRef, useState } from 'react';
-import { useStore } from '../hooks/useStore';
-import { obtenerUsuarioSesion } from '../auth/auth';
-import { BRICK_CONTAINER_ID, useBrickMercadoPago } from '../hooks/useBrickMercadoPago';
-import {
-  calcularEnvio,
-  crearPedidoConPago,
-  crearPedidoSinPago,
-  procesarPagoMercadoPago,
-  validarEntrega,
-} from '../services/pedidos';
-import FormularioEntrega from '../components/checkout/FormularioEntrega';
-import ResumenPedido from '../components/checkout/ResumenPedido';
-import PedidoConfirmado from '../components/checkout/PedidoConfirmado';
+import { useState, useEffect, useRef } from "react";
+import { useStore } from "../store/useStore";
+import { obtenerUsuarioSesion } from "../auth/auth";
+import { GRAPHQL_ENDPOINT, fetchGraphQL, obtenerToken } from "../graphql/client";
+import PayPalButton from "../components/PayPalButton";
+import { MapaEntrega } from '../components/MapaEntrega';
+
+const CREAR_PEDIDO_MUTATION = `
+  mutation CrearPedido($input: CrearPedidoInput!) {
+    crearPedido(input: $input) {
+      id
+      status
+      total
+    }
+  }
+`;
+
+const CREAR_PEDIDO_SIN_PAGO_MUTATION = `
+  mutation CrearPedidoSinPago($input: CrearPedidoSinPagoInput!) {
+    crearPedidoSinPago(input: $input) {
+      id
+      status
+      total
+    }
+  }
+`;
+
+const MERCADOPAGO_PUBLIC_KEY = import.meta.env.PUBLIC_MP_KEY;
+const MERCADOPAGO_PAYMENT_URL = GRAPHQL_ENDPOINT.replace(/\/graphql\/?$/, "") + "/process_order";
+
+function cargarSdkMercadoPago() {
+  if (window.MercadoPago) return Promise.resolve();
+
+  return new Promise((resolve, reject) => {
+    let script = document.querySelector('script[data-mercadopago-sdk="true"]');
+    if (!script) {
+      script = document.createElement("script");
+      script.src = "https://sdk.mercadopago.com/js/v2";
+      script.dataset.mercadopagoSdk = "true";
+      document.head.appendChild(script);
+    }
+
+    script.addEventListener("load", resolve, { once: true });
+    script.addEventListener("error", () => reject(new Error("No se pudo cargar Mercado Pago.")), { once: true });
+  });
+}
+
+// Llamada GraphQL con el token de la sesión (lanza error si el back responde con errores)
+function llamarGraphQL(query, input) {
+  return fetchGraphQL(query, { input });
+}
+
+// Misma validación que hace el back; así no se cobra una tarjeta con datos inválidos
+function validarEntrega({ nombre, direccion, telefono }) {
+  if (nombre.trim().length < 3) return "Escribe tu nombre completo.";
+  if (direccion.trim().length < 5) return "Escribe una dirección de entrega válida.";
+  if (telefono.replace(/\D/g, "").length !== 10) return "El teléfono debe tener 10 dígitos.";
+  return null;
+}
 
 export const Checkout = ({ onBackToHome }) => {
   const store = useStore();
