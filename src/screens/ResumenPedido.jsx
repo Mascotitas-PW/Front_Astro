@@ -1,4 +1,4 @@
-import { dinero } from '../../services/pedidos';
+import { dinero } from '../services/pedidos';
 
 export default function ResumenPedido({ carrito, subtotal, envio, total }) {
   return (

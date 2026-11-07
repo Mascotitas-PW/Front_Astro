@@ -4,6 +4,7 @@ import { obtenerUsuarioSesion } from "../auth/auth";
 import { GRAPHQL_ENDPOINT, fetchGraphQL, obtenerToken } from "../graphql/client";
 import PayPalButton from "../components/PayPalButton";
 import { MapaEntrega } from '../components/Mapa';
+import {calcularEnvio} from '../services/pedidos';
 import { useBrickMercadoPago } from '../hooks/useBrickMercadoPago';
 import { FormularioEntrega } from './FormularioEntrega';
 import { ResumenPedido } from './ResumenPedido';
