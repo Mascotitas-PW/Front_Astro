@@ -3,7 +3,7 @@ import { useStore } from "../hooks/useStore";
 import { obtenerUsuarioSesion } from "../auth/auth";
 import { GRAPHQL_ENDPOINT, fetchGraphQL, obtenerToken } from "../graphql/client";
 import PayPalButton from "../components/PayPalButton";
-import { MapaEntrega } from '../components/MapaEntrega';
+import { MapaEntrega } from '../components/Mapa';
 
 const CREAR_PEDIDO_MUTATION = `
   mutation CrearPedido($input: CrearPedidoInput!) {
