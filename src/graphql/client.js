@@ -4,7 +4,7 @@ export const GRAPHQL_ENDPOINT =
 
 export function obtenerToken() {
   if (typeof window === "undefined") return null;
-  return sessionStorage.getItem("token");
+  return localStorage.getItem("token") || sessionStorage.getItem("token");
 }
 
 export async function fetchGraphQL(query, variables = {}) {

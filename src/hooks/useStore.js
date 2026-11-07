@@ -87,6 +87,12 @@ function cargarProductos() {
 }
 
 if (enNavegador) {
+  window.addEventListener('storage', (evento) => {
+    if (evento.storageArea !== window.localStorage) return;
+    if (evento.key === null || evento.key === 'token' || evento.key?.startsWith('usuario')) {
+      sincronizarUsuarioDesdeSesion();
+    }
+  });
   cargarProductos();
   suscribirStock(({ productoId, stock }) => {
     const productos = state.productos.map((p) => (p.id === productoId ? { ...p, stock } : p));
