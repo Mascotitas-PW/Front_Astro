@@ -3,7 +3,7 @@ import "../auth/auth.css";
 import { GRAPHQL_ENDPOINT } from "../graphql/client";
 import { useStore } from "../hooks/useStore";
 import { obtenerUsuarioSesion } from "../auth/auth";
-import { BotonGoogle } from "../auth/Btngoogle";
+import { Botongoogle } from "../auth/Btngoogle";
 
 const MUTATION_LOGIN = `
   mutation ($email: String!, $password: String!) {

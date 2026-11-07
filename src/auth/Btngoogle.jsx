@@ -7,7 +7,7 @@ const MUTATION = `
     loginGoogle(idToken: $idToken) { token usuario { id nombre email rol } }
   }`;
 
-export function Btngoogle({ onLogin, onError }) {
+export function Botongoogle({ onLogin, onError }) {
   const ref = useRef(null);
 
   useEffect(() => {
