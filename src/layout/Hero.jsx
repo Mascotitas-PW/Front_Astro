@@ -1,3 +1,5 @@
+import "./styles/Neumorfismo.css";
+import "./styles/global.css";
 export default function Hero() {
   return (
     <section className="hero">

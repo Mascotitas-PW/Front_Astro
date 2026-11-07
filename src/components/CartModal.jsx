@@ -1,4 +1,6 @@
 import { useStore } from '../hooks/useStore';
+import "./styles/Neumorfismo.css";
+import "./styles/global.css";
 
 export function CartModal({ isOpen, onClose, onGoToCheckout }) {
   const { carrito, eliminarDelCarrito, actualizarCantidad, totalCarrito } = useStore();

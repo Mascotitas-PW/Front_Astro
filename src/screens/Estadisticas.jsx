@@ -5,6 +5,8 @@ import {
 import { fetchGraphQL } from '../graphql/client';
 import { useCallback, useEffect, useState } from 'react';
 import { suscribirPedidos } from '../services/stockEnVivo';
+import "./styles/Neumorfismo.css";
+import "./styles/global.css";
 
 const QUERY = `
   query {

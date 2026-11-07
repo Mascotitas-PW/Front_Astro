@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useStore } from '../hooks/useStore';
 import { CartModal } from '../components/CartModal';
+import "./styles/Neumorfismo.css";
+import "./styles/global.css";
 
 export function TopBar() {
   const { busqueda, cambiarBusqueda, cambiarPantalla, totalItemsCarrito, usuario, cerrarSesion } = useStore();

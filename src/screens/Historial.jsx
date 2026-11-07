@@ -1,7 +1,8 @@
 import { fetchGraphQL } from "../graphql/client";        
 import { obtenerUsuarioSesion } from '../auth/auth'; 
 import { useEffect, useState } from 'react';
-
+import "./styles/Neumorfismo.css";
+import "./styles/global.css";
 const Q_MIS_PEDIDOS = `
   query MisPedidos($usuarioId: Int!) {
     pedidosPorUsuario(usuarioId: $usuarioId) { id fecha status total usuarioId nombreCompleto direccionEntrega telefono }

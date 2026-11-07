@@ -1,4 +1,6 @@
 import { dinero } from '../services/pedidos';
+import "./styles/Neumorfismo.css";
+import "./styles/global.css";
 
 export default function ResumenPedido({ carrito, subtotal, envio, total }) {
   return (

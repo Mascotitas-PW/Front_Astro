@@ -1,5 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { fetchGraphQL } from '../graphql/client';
+import "./styles/Neumorfismo.css";
+import "./styles/global.css";
+
 
 const CLIENT_ID = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID;
 const MUTATION = `

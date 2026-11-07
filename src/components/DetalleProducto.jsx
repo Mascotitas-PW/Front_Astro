@@ -2,6 +2,8 @@ import { useEffect } from 'react';
 import { useStore } from '../hooks/useStore';
 import { urlImagen } from '../services/imagenes';
 import { obtenerUsuarioSesion } from '../auth/auth';
+import "./styles/Neumorfismo.css";
+import "./styles/global.css";
 
 export function DetalleProducto({ productoId }) {
   const { productos, carrito, cantidadSeleccionada, cambiarCantidad, agregarAlCarrito, cambiarPantalla } = useStore();

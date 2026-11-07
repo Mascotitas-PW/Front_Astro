@@ -1,6 +1,8 @@
 import "../auth/auth.css";
 import { useStore } from "../hooks/useStore";
 import { GRAPHQL_ENDPOINT } from "../graphql/client";
+import "./styles/Neumorfismo.css";
+import "./styles/global.css";
 
 export function Registro() {
    const { cambiarPantalla} = useStore();

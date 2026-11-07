@@ -7,6 +7,8 @@ import { urlImagen } from '../services/imagenes';
 import { FormularioProducto } from './FormularioProducto';
 import { Estadisticas } from './Estadisticas';
 import { useStore } from '../hooks/useStore';
+import "./styles/Neumorfismo.css";
+import "./styles/global.css";
 
 const OPCIONES = [
   { id: 'estadisticas', etiqueta: 'Estadísticas' },

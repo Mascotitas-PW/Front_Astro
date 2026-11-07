@@ -1,4 +1,6 @@
 import { urlImagen } from '../services/imagenes';
+import "./styles/Neumorfismo.css";
+import "./styles/global.css";
 
 export default function ProductoCard({ producto, onVer }) {
   const fallback = `${import.meta.env.BASE_URL}productos/cama.png`;

@@ -1,4 +1,6 @@
 import { MapaEntrega } from '../components/Mapa';
+import "./styles/Neumorfismo.css";
+import "./styles/global.css";
 
 const Campo = ({ etiqueta, ancho, children }) => (
   <label className={`grid gap-2 font-semibold ${ancho ? 'sm:col-span-2' : ''}`}>

@@ -11,7 +11,10 @@ import { useBrickMercadoPago, BRICK_CONTAINER_ID } from "../hooks/useBrickMercad
 import { FormularioEntrega } from "./FormularioEntrega";
 import { ResumenPedido } from "./ResumenPedido";
 import { PedidoConfirmado } from "./PedidoConfirmado";
-import "../styles/Neumorfismo.css";
+import { fetchGraphQL, GRAPHQL_ENDPOINT } from "../services/graphql";
+import "./styles/Neumorfismo.css";
+import "./styles/global.css";
+
 const CREAR_PEDIDO_MUTATION = `
   mutation CrearPedido($input: CrearPedidoInput!) {
     crearPedido(input: $input) {

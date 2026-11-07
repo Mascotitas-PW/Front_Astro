@@ -5,6 +5,8 @@ import ContextSection from "../layout/ContextSection";
 import Footer from "../layout/Footer";
 import ProductoCard from "../components/ProductoCard";
 import Skeleton from "../components/Skeleton";
+import "./styles/Neumorfismo.css";
+import "./styles/global.css";
 
 export function Home() {
   const {

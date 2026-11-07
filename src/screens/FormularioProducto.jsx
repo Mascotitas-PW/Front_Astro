@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { subirImagen, urlImagen } from '../services/imagenes';
+import "./styles/Neumorfismo.css";
+import "./styles/global.css";
 
 const campo = { display: 'grid', gap: 4, marginBottom: '0.9rem' };
 const entrada = { padding: '0.6rem', borderRadius: 8, border: '1px solid #D9C9A0', fontSize: '1rem' };

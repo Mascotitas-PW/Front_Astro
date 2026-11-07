@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
+import "./styles/Neumorfismo.css";
+import "./styles/global.css";
 
 const KEY = import.meta.env.PUBLIC_GOOGLE_MAPS_KEY;
 
