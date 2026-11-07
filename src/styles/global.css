@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+/* Las fuentes (Baloo 2 e Inter) ahora se cargan desde SEO.astro sin bloquear el render.
+   Antes aquí había un @import url(...) de Google Fonts: bloquea el renderizado (aviso de ~800 ms). */
 
 :root {
   --neu-bg: #F5EBD1;
@@ -14,6 +15,11 @@
   --sombra-suave: 6px 6px 14px var(--neu-sombra), -6px -6px 14px var(--neu-luz);
   --sombra-inset: inset 6px 6px 12px var(--neu-sombra), inset -6px -6px 12px var(--neu-luz);
   --radio: 28px;
+
+  /* P3-1: colores con contraste ≥ 4.5:1 sobre el crema */
+  --cafe: #3B2A17;             /* texto sobre amarillo ≈ 7.5:1 */
+  --texto-suave: #5C4A38;      /* texto secundario ≈ 7:1 */
+  --naranja-texto: #A93E16;    /* naranja para TEXTO (precios) ≈ 5.2:1 (el #E8734A solo para fondos) */
 }
 
 * { box-sizing: border-box; }
@@ -55,7 +61,8 @@ input, select, textarea {
   font-size: 1rem;
   box-shadow: var(--sombra-inset);
 }
-input::placeholder { color: #A99986; }
+/* Antes: input::placeholder { color: #A99986 } (≈ 2.3:1, no pasaba el contraste y ganaba por especificidad) */
+input::placeholder, textarea::placeholder { color: #6B5B4A; opacity: 1; }
 input:focus, select:focus, textarea:focus {
   box-shadow: var(--sombra-inset), 0 0 0 3px var(--neu-dorado);
 }
@@ -63,6 +70,7 @@ input[type="file"] { padding: .8rem 1rem; font-size: .9rem; }
 
 .error { color: var(--neu-rojo); }
 
+/* ===== Accesibilidad ===== */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -94,19 +102,6 @@ input[type="file"] { padding: .8rem 1rem; font-size: .9rem; }
   outline-offset: 3px;
 }
 
-.neu-btn-primary,
-button[type="submit"].neu-btn-primary {
-  background: linear-gradient(135deg, #c44a20, #ad3f18);
-  color: #fff;
-}
-
-
-::placeholder { color: #6b5b4a; opacity: 1; }
-.muted, .texto-secundario { color: #5c4a38; }
-
-.badge-bajo { background: #f2c14e; color: #3b2a17; }
-.badge-disponible { background: #2e6b3a; color: #fff; }
-
 /* Respeta usuarios que piden menos movimiento */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -117,14 +112,9 @@ button[type="submit"].neu-btn-primary {
   }
 }
 
-:root {
-  --texto-suave: #5c4a38; 
-  --naranja-texto: #b5441a; 
-}
-.stat-label, .dashboard label, .dashboard th, .dashboard .subtitulo { color: var(--texto-suave); }
-.recharts-tooltip-wrapper, .recharts-default-tooltip { color: #3b2a17 !important; }
-.recharts-tooltip-item { color: var(--naranja-texto) !important; }
-.recharts-cartesian-axis-tick-value { fill: var(--texto-suave); }
+/* Texto secundario genérico (el resto de colores y el responsive viven en Neumorfismo.css) */
+.muted, .texto-secundario { color: var(--texto-suave); }
+
 @media (max-width: 640px) {
   html { font-size: 100%; }
 }
