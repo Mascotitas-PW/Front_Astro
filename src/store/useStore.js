@@ -40,15 +40,14 @@ async function cargarProductos() {
 
 if (typeof window !== 'undefined') {
   cargarProductos();
-  suscribirStock(({ productoId, stock })
-    suscribirProductos(() => cargarProductos())
- {
+  suscribirStock(({ productoId, stock }) => {
     actualizarState({
       productos: state.productos.map((p) =>
         p.id === productoId ? { ...p, stock } : p
       ),
     });
   });
+  suscribirProductos(() => cargarProductos());
 }
 
 const acciones = {

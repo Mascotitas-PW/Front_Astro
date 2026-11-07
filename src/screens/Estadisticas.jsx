@@ -50,17 +50,18 @@ function Panel({ titulo, children }) {
     </div>
   );
 }
-
 export function Estadisticas() {
   const [datos, setDatos] = useState(null);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    fetchGraphQL(QUERY)
-      .then((d) => setDatos(d.estadisticas))
-      .catch((e) => setError(e.message));
-  }, []);
+  const cargar = useCallback(() =>
+    fetchGraphQL(QUERY).then((d) => setDatos(d.estadisticas)).catch((e) => setError(e.message)), []);
 
+  useEffect(() => {
+    cargar();
+    return suscribirPedidos(() => cargar());
+  }, [cargar]);
+  
   if (error) return <p style={{ color: '#A32D2D' }}>{error}</p>;
   if (!datos) return <p>Cargando estadísticas...</p>;
 

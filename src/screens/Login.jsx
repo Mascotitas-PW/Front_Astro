@@ -1,10 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "../auth/auth.css";
 import { GRAPHQL_ENDPOINT } from "../graphql/client";
 import { useStore } from "../store/useStore";
-import { useEffect } from "react";
 import { obtenerUsuarioSesion } from "../auth/auth";
-import { BotonGoogle } from "../auth/BotonGoogle";
+import { BotonGoogle } from "../auth/Btngoogle";
 
 const MUTATION_LOGIN = `
   mutation ($email: String!, $password: String!) {
@@ -14,12 +13,34 @@ const MUTATION_LOGIN = `
     }
   }`;
 
+// Guarda la sesión en sessionStorage (lo lee obtenerUsuarioSesion y fetchGraphQL)
+function guardarEnSessionStorage(payload) {
+  const u = payload.usuario;
+  sessionStorage.setItem("token", payload.token);
+  sessionStorage.setItem("usuarioId", u.id);
+  sessionStorage.setItem("adminemail", u.email);
+  sessionStorage.setItem("usuarioNombre", u.nombre);
+  sessionStorage.setItem("usuarioRol", u.rol);
+}
+
 export function Login() {
   const { cambiarPantalla, refrescarUsuario } = useStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const [cargando, setCargando] = useState(false);
+
+  // Si ya hay sesión, no tiene caso mostrar el login
+  useEffect(() => {
+    if (obtenerUsuarioSesion()) cambiarPantalla("HOME");
+  }, []);
+
+  // Se usa tanto con correo/contraseña como con Google
+  const iniciarSesion = (payload) => {
+    guardarEnSessionStorage(payload);
+    refrescarUsuario();
+    cambiarPantalla("HOME");
+  };
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -53,16 +74,7 @@ export function Login() {
         return;
       }
 
-      const Usuario = (payload) => {
-      const u = payload.usuario;
-      sessionStorage.setItem("token", payload.token);
-      sessionStorage.setItem("usuarioId", u.id);
-      sessionStorage.setItem("adminemail", u.email);
-      sessionStorage.setItem("usuarioNombre", u.nombre);
-      sessionStorage.setItem("usuarioRol", u.rol);
-    };
-    refrescarUsuario();
-      cambiarPantalla("HOME");
+      iniciarSesion(payload);
     } catch (e) {
       console.error("Error de conexión:", e);
       setError("Error de conexión con el servidor de Mascotitas.");
@@ -70,14 +82,7 @@ export function Login() {
       setCargando(false);
     }
   };
-const usuarioActual = obtenerUsuarioSesion();
 
-useEffect(() => {
-  if (usuarioActual) {
-    alert('Ya has iniciado sesión.');
-    cambiarPantalla('HOME');
-  }
-}, []);
   return (
     <div className="auth-page">
       <div className="card">
@@ -103,12 +108,20 @@ useEffect(() => {
             onChange={(e) => setPassword(e.target.value)}
           />
 
-          {error && <p style={{ color: "#A32D2D", marginBottom: 12, fontSize: "0.85rem" }}>{error}</p>}
+          {error && (
+            <p role="alert" style={{ color: "#A32D2D", marginBottom: 12, fontSize: "0.85rem" }}>
+              {error}
+            </p>
+          )}
 
           <button type="submit" className="btn-main" disabled={cargando}>
             {cargando ? "Entrando..." : "Iniciar sesión"}
           </button>
         </form>
+
+        <div className="divider">o</div>
+
+        <BotonGoogle onLogin={iniciarSesion} onError={setError} />
 
         <div className="divider">¿No tienes cuenta?</div>
 
