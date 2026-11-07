@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 @layer base {
   :root {
     --neu-bg: #F5EBD1;      /* crema un poco más oscuro, para que se noten las luces */
