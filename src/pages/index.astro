@@ -20,5 +20,14 @@ import App from '../App.jsx';
 
 	<body>
 		<App client:only="react" />
+		<script is:inline>
+		if ('serviceWorker' in navigator) {
+			window.addEventListener('load', () => {
+			navigator.serviceWorker.register('/Front_Astro/sw.js', { scope: '/Front_Astro/' })
+				.then((reg) => console.log('SW registrado:', reg.scope))
+				.catch((err) => console.error('Error al registrar SW:', err));
+			});
+		}
+		</script>
 	</body>
 </html>
