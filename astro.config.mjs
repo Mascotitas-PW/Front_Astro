@@ -5,7 +5,7 @@ import react from '@astrojs/react';
 
 import tailwindcss from '@tailwindcss/vite';
 
-import { AstroPWAIntegration } from '@vite-pwa/astro';
+import AstroPWA from '@vite-pwa/astro';
 
 // https://astro.build/config
 export default defineConfig({
@@ -13,7 +13,7 @@ export default defineConfig({
   base: '/Front_Astro/',
   integrations: [
     react(),
-    AstroPWAIntegration({
+    AstroPWA({
       registerType: 'autoUpdate',
       injectRegister: 'inline',
       devOptions: {
