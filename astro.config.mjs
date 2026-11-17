@@ -31,16 +31,22 @@ export default defineConfig({
         lang: 'es-MX',
         icons: [
           {
-            src: '/Front_Astro/icons/mascotitas-192.svg',
-            type: 'image/svg+xml',
+            src: '/Front_Astro/icons/mascotitas-192.png',
+            type: 'image/png',
             sizes: '192x192',
             purpose: 'any'
           },
           {
-            src: '/Front_Astro/icons/mascotitas-512.svg',
-            type: 'image/svg+xml',
+            src: '/Front_Astro/icons/mascotitas-512.png',
+            type: 'image/png',
             sizes: '512x512',
-            purpose: 'any maskable'
+            purpose: 'any'
+          },
+          {
+            src: '/Front_Astro/icons/mascotitas-512.png',
+            type: 'image/png',
+            sizes: '512x512',
+            purpose: 'maskable'
           }
         ]
       },
