@@ -1,7 +1,5 @@
 import { useStore } from '../hooks/useStore';
 
-// ⚠️ Llena estos datos con los del negocio. Los textos son una plantilla base:
-// pídele a un abogado o contador que los revise antes de operar con clientes reales.
 const R = {
   nombre: '[NOMBRE O RAZÓN SOCIAL DEL RESPONSABLE]',
   domicilio: '[DOMICILIO DEL RESPONSABLE]',
