@@ -1,0 +1,23 @@
+/* Fase 1: legal, domicilios y checkboxes */
+input[type="checkbox"] {
+  width: 1.4rem; height: 1.4rem; min-height: 0; padding: 0; flex-shrink: 0;
+  accent-color: #AD3F18; box-shadow: none; cursor: pointer;
+}
+.consent-check { display: flex; gap: .8rem; align-items: flex-start; margin: 1rem 0; font-weight: 600; cursor: pointer; }
+.consent-check.span-2 { grid-column: 1 / -1; }
+
+.enlace {
+  background: none; border: 0; padding: .3rem; font: inherit; cursor: pointer;
+  color: var(--color-texto-acento); text-decoration: underline;
+}
+.enlace:hover { color: #AD3F18; }
+
+.legal { max-width: 900px; display: grid; gap: 1.5rem; }
+.legal h3 { margin-top: 1.5rem; }
+.legal p, .legal li { line-height: 1.7; }
+
+.domicilios-grid { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+.domicilio h3 { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
+.domicilio .acciones { margin-top: 1rem; }
+
+.domicilio-selector { display: grid; gap: .5rem; }

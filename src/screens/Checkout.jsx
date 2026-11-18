@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useStore } from '../hooks/useStore';
 import { obtenerUsuarioSesion } from '../auth/auth';
 import {
@@ -10,6 +10,7 @@ import FormularioEntrega from './FormularioEntrega';
 import ResumenPedido from './ResumenPedido';
 import PedidoConfirmado from './PedidoConfirmado';
 import PayPalButton from '../components/PayPalButton';
+import { listarDomicilios, guardarDomicilio } from '../services/domicilios';
 
 export const Checkout = ({ onBackToHome }) => {
   const store = useStore();
@@ -21,11 +22,43 @@ export const Checkout = ({ onBackToHome }) => {
   const usuario = obtenerUsuarioSesion();
   const usuarioId = usuario?.id ?? null;
 
-  const [entrega, setEntrega] = useState({ nombre: '', direccion: '', telefono: '', lat: null, lng: null });
+  const [entrega, setEntrega] = useState({ nombre: '', direccion: '', telefono: '', cp: '', lat: null, lng: null });
   const [metodoPago, setMetodoPago] = useState('Tarjeta');
   const [pedidoCreado, setPedidoCreado] = useState(null);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
+
+  // Domicilios guardados del usuario
+  const [domicilios, setDomicilios] = useState([]);
+  const [domicilioId, setDomicilioId] = useState('');
+  const [guardarDom, setGuardarDom] = useState(false);
+  const [aliasDom, setAliasDom] = useState('Casa');
+
+  useEffect(() => {
+    if (!usuarioId) return;
+    listarDomicilios()
+      .then((lista) => {
+        setDomicilios(lista);
+        const pred = lista.find((d) => d.predeterminado) ?? lista[0];
+        if (pred) elegirDomicilio(String(pred.id), lista);
+      })
+      .catch(() => { /* sin domicilios guardados: el formulario manual sigue funcionando */ });
+  }, [usuarioId]);
+
+  const elegirDomicilio = (id, lista = domicilios) => {
+    setDomicilioId(id);
+    const d = lista.find((x) => String(x.id) === String(id));
+    if (!d) return;
+    setGuardarDom(false);
+    setEntrega({
+      nombre: d.nombreCompleto,
+      direccion: d.direccion,
+      telefono: d.telefono,
+      cp: d.codigoPostal ?? '',
+      lat: d.latitud,
+      lng: d.longitud,
+    });
+  };
 
   // El Brick guarda su callback al montarse; la ref evita leer datos viejos
   const entregaRef = useRef(entrega);
@@ -39,6 +72,21 @@ export const Checkout = ({ onBackToHome }) => {
   const finalizar = (pedido) => {
     setPedidoCreado(pedido);
     store.vaciarCarrito();
+
+    // Si el usuario lo pidió, guarda el domicilio para futuras compras (sin bloquear el pedido)
+    const e = entregaRef.current;
+    if (guardarDom && !domicilioId) {
+      guardarDomicilio({
+        alias: aliasDom.trim() || 'Casa',
+        nombreCompleto: e.nombre.trim(),
+        telefono: e.telefono.replace(/\D/g, ''),
+        direccion: e.direccion.trim(),
+        codigoPostal: e.cp,
+        latitud: e.lat,
+        longitud: e.lng,
+        predeterminado: domicilios.length === 0,
+      }).catch(() => {});
+    }
   };
 
   // Tarjeta: lo dispara el Brick de Mercado Pago
@@ -143,6 +191,13 @@ export const Checkout = ({ onBackToHome }) => {
             entrega={entrega}
             onCambiar={cambiarEntrega}
             onUbicacion={cambiarUbicacion}
+            domicilios={domicilios}
+            domicilioId={domicilioId}
+            onElegirDomicilio={(id) => (id ? elegirDomicilio(id) : setDomicilioId(''))}
+            guardarDom={guardarDom}
+            onGuardarDom={setGuardarDom}
+            aliasDom={aliasDom}
+            onAliasDom={setAliasDom}
             metodoPago={metodoPago}
             onMetodoPago={cambiarMetodo}
             onSubmit={confirmarSinPago}
