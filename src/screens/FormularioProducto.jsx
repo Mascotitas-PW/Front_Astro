@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { subirImagen, urlImagen } from '../services/imagenes';
 
 const VACIO = { nombre: '', precio: '', stock: '', categoriaId: '', pesoKg: '', imagen: '' };
+const VACIO = { nombre: '', precio: '', stock: '', categoriaId: '', imagen: '' };
 
 export function FormularioProducto({
   inicial = null, categorias = [], guardando = false,

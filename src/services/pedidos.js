@@ -4,6 +4,10 @@ import {
 
 const MERCADOPAGO_PAYMENT_URL = `${API_BASE_URL}/process_order`;
 const ENVIO_QUOTES_URL = `${API_BASE_URL}/api/envios/cotizaciones`;
+import { GRAPHQL_ENDPOINT, fetchGraphQL, obtenerToken } from '../graphql/client';
+
+const MERCADOPAGO_PAYMENT_URL =
+  GRAPHQL_ENDPOINT.replace(/\/graphql\/?$/, '') + '/process_order';
 
 const CREAR_PEDIDO_MUTATION = `
   mutation CrearPedido($input: CrearPedidoInput!) {
@@ -25,6 +29,14 @@ export function validarEntrega({ nombre, direccion, telefono, cp, estado, ciudad
   if (!/^\d{5}$/.test(String(cp ?? ''))) return 'El código postal debe tener 5 dígitos.';
   if (!estado?.trim() || !ciudad?.trim() || !colonia?.trim())
     return 'Completa estado, ciudad y colonia.';
+// Misma regla que el back (Envio.cs): gratis arriba de $500, si no $99.
+export const calcularEnvio = (subtotal) => (subtotal > 500 || subtotal === 0 ? 0 : 99);
+
+// Misma validación que hace el back; así no se cobra con datos inválidos.
+export function validarEntrega({ nombre, direccion, telefono }) {
+  if (nombre.trim().length < 3) return 'Escribe tu nombre completo.';
+  if (direccion.trim().length < 5) return 'Escribe una dirección de entrega válida.';
+  if (telefono.replace(/\D/g, '').length !== 10) return 'El teléfono debe tener 10 dígitos.';
   return null;
 }
 
@@ -80,11 +92,22 @@ export async function procesarPagoMercadoPago({
   usuarioId, carrito, formData, email, cotizacionEnvioId, rateId,
 }) {
   const token = obtenerTokenRequerido('Inicia sesión para continuar con el pago.');
+export const datosEntrega = ({ nombre, direccion, telefono, lat, lng }) => ({
+  nombreCompleto: nombre.trim(),
+  direccionEntrega: direccion.trim(),
+  telefono: telefono.replace(/\D/g, ''),
+  latitud: lat ?? null,
+  longitud: lng ?? null,
+});
+
+// Cobra la tarjeta en el back (/process_order). Lanza Error si el pago no se aprueba.
+export async function procesarPagoMercadoPago({ usuarioId, carrito, formData, email }) {
   const response = await fetch(MERCADOPAGO_PAYMENT_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${obtenerToken()}`,
     },
     body: JSON.stringify({
       usuarioId: Number(usuarioId),
@@ -114,10 +137,18 @@ export async function procesarPagoMercadoPago({
   if (!response.ok) throw new Error(pago.message || pago.error || `Error del servidor (${response.status})`);
   if (pago.status !== 'approved') {
     throw new Error(pago.message || `El pago no fue aprobado (estado: ${pago.status || 'desconocido'}).`);
+  if (!response.ok) {
+    throw new Error(pago.message || pago.error || `Error del servidor (${response.status})`);
+  }
+  if (pago.status !== 'approved') {
+    throw new Error(
+      pago.message || `El pago no fue aprobado (estado: ${pago.status || 'desconocido'}).`,
+    );
   }
   return pago;
 }
 
+// Registra el pedido de un pago ya aprobado (el back lo vuelve a verificar con Mercado Pago).
 export async function crearPedidoConPago({ usuarioId, paymentId, carrito, entrega }) {
   const data = await fetchGraphQL(CREAR_PEDIDO_MUTATION, {
     input: {
@@ -131,6 +162,7 @@ export async function crearPedidoConPago({ usuarioId, paymentId, carrito, entreg
   return data.crearPedido;
 }
 
+// Efectivo o transferencia: el pedido queda pendiente de pago.
 export async function crearPedidoSinPago({ usuarioId, metodoPago, carrito, entrega }) {
   const data = await fetchGraphQL(CREAR_PEDIDO_SIN_PAGO_MUTATION, {
     input: {
@@ -142,4 +174,5 @@ export async function crearPedidoSinPago({ usuarioId, metodoPago, carrito, entre
   });
   if (!data?.crearPedidoSinPago) throw new Error('No se recibió confirmación del pedido.');
   return data.crearPedidoSinPago;
+}
 }

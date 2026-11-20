@@ -1,10 +1,14 @@
 import { useStore } from '../hooks/useStore';
 import { dinero } from '../services/pedidos';
+import { calcularEnvio, dinero } from '../services/pedidos';
 
 export function CartModal({ isOpen, onClose, onGoToCheckout }) {
   const { carrito, eliminarDelCarrito, actualizarCantidad, totalCarrito } = useStore();
 
   if (!isOpen) return null;
+
+  const envio = calcularEnvio(totalCarrito);
+  const total = totalCarrito + envio;
 
   return (
     <div className="cart-fondo" onClick={onClose}>
@@ -41,6 +45,8 @@ export function CartModal({ isOpen, onClose, onGoToCheckout }) {
           <div style={{ marginTop: '1.5rem' }}>
             <div className="cart-linea"><span>Subtotal</span><span>{dinero(totalCarrito)}</span></div>
             <div className="cart-linea"><span>Envío</span><span>Se cotiza en checkout</span></div>
+            <div className="cart-linea"><span>Envío</span><span>{envio === 0 ? '¡Envío gratis!' : dinero(envio)}</span></div>
+            <div className="cart-linea cart-total"><span>Total</span><span>{dinero(total)}</span></div>
             <button
               className="neu-btn neu-btn-primary neu-btn-block"
               style={{ marginTop: '1.2rem' }}

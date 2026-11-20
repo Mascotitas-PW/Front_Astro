@@ -10,6 +10,10 @@ if (graphqlEndpointUrl.hostname === "back-astro.onrender.com") {
 export const GRAPHQL_ENDPOINT = graphqlEndpointUrl.toString().replace(/\/$/, "");
 export const API_BASE_URL = GRAPHQL_ENDPOINT.replace(/\/graphql\/?$/, "");
 
+export const GRAPHQL_ENDPOINT =
+  import.meta.env.PUBLIC_GRAPHQL_URL ||
+  "https://back-astro.onrender.com/graphql";
+
 export function obtenerToken() {
   if (typeof window === "undefined") return null;
   return localStorage.getItem("token") || sessionStorage.getItem("token");

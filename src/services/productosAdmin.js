@@ -3,6 +3,7 @@ import { fetchGraphQL } from '../graphql/client';
 const Q_PRODUCTOS = `
   query {
     productos { id nombre precio imagen stock pesoKg categoriaId categoria }
+    productos { id nombre precio imagen stock categoriaId categoria }
   }`;
 
 const Q_CATEGORIAS = `query { categorias { id nombre } }`;

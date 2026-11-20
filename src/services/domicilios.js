@@ -1,6 +1,7 @@
 import { fetchGraphQL } from '../graphql/client';
 
 const CAMPOS = 'id alias nombreCompleto telefono direccion codigoPostal estado ciudad colonia latitud longitud predeterminado';
+const CAMPOS = 'id alias nombreCompleto telefono direccion codigoPostal latitud longitud predeterminado';
 
 export async function listarDomicilios() {
   const d = await fetchGraphQL(`query { misDomicilios { ${CAMPOS} } }`);

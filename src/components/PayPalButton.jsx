@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import {
   API_BASE_URL, obtenerTokenRequerido, MENSAJE_SESION_EXPIRADA,
 } from "../graphql/client";
+import { GRAPHQL_ENDPOINT, obtenerToken } from "../graphql/client";
 
 const PAYPAL_CLIENT_ID = import.meta.env.PUBLIC_PAYPAL_CLIENT_ID;
 const PAYPAL_ENVIRONMENT = import.meta.env.PUBLIC_PAYPAL_ENVIRONMENT || "sandbox";
@@ -10,6 +11,9 @@ const PAYPAL_SDK_URL =
     ? "https://www.paypal.com/web-sdk/v6/core"
     : "https://www.sandbox.paypal.com/web-sdk/v6/core";
 const PAYPAL_API_URL = API_BASE_URL;
+const PAYPAL_API_URL =
+  import.meta.env.PUBLIC_PAYPAL_API_URL ||
+  GRAPHQL_ENDPOINT.replace(/\/graphql\/?$/, "");
 
 function cargarSdkPayPal() {
   if (window.paypal?.createInstance) return Promise.resolve();
@@ -57,6 +61,10 @@ function validarEntrega({ nombreCompleto, direccionEntrega, telefono, codigoPost
   if (telefono.replace(/\D/g, "").length !== 10) return "El teléfono debe tener 10 dígitos.";
   if (!/^\d{5}$/.test(String(codigoPostal ?? ""))) return "El código postal debe tener 5 dígitos.";
   if (!estado?.trim() || !ciudad?.trim() || !colonia?.trim()) return "Completa estado, ciudad y colonia.";
+function validarEntrega({ nombreCompleto, direccionEntrega, telefono }) {
+  if (nombreCompleto.trim().length < 3) return "Escribe tu nombre completo.";
+  if (direccionEntrega.trim().length < 5) return "Escribe una dirección de entrega válida.";
+  if (telefono.replace(/\D/g, "").length !== 10) return "El teléfono debe tener 10 dígitos.";
   return null;
 }
 
@@ -74,6 +82,8 @@ export function PayPalButton({
   longitud,
   cotizacionEnvioId,
   rateId,
+  latitud,
+  longitud,
   onApproved,
   onError,
   disabled,
@@ -94,6 +104,8 @@ export function PayPalButton({
     longitud,
     cotizacionEnvioId,
     rateId,
+    latitud,
+    longitud,
     onApproved,
     onError,
   });
@@ -111,6 +123,8 @@ export function PayPalButton({
     longitud,
     cotizacionEnvioId,
     rateId,
+    latitud,
+    longitud,
     onApproved,
     onError,
   };
@@ -128,6 +142,7 @@ export function PayPalButton({
       if (errorEntrega) throw new Error(errorEntrega);
 
       const token = obtenerTokenRequerido("Inicia sesión para pagar con PayPal.");
+      const token = obtenerToken();
       const response = await fetch(`${PAYPAL_API_URL}/api/orders`, {
         method: "POST",
         headers: {
@@ -148,6 +163,8 @@ export function PayPalButton({
           longitud: current.longitud ?? null,
           cotizacionEnvioId: current.cotizacionEnvioId,
           rateId: current.rateId,
+          latitud: current.latitud ?? null,
+          longitud: current.longitud ?? null,
         }),
       });
       const data = await leerRespuesta(response);
@@ -163,6 +180,7 @@ export function PayPalButton({
       capturaEnCursoRef.current = true;
       const current = callbacksRef.current;
       const token = obtenerTokenRequerido("Inicia sesión para pagar con PayPal.");
+      const token = obtenerToken();
       try {
         const response = await fetch(`${PAYPAL_API_URL}/api/orders/${orderID}/capture`, {
           method: "POST",
@@ -184,6 +202,8 @@ export function PayPalButton({
             longitud: current.longitud ?? null,
             cotizacionEnvioId: current.cotizacionEnvioId,
             rateId: current.rateId,
+          latitud: current.latitud ?? null,
+          longitud: current.longitud ?? null,
           }),
         });
         const data = await leerRespuesta(response);

@@ -19,6 +19,7 @@ export default function ResumenPedido({ carrito, subtotal, envio, total }) {
       <hr />
       <div className="resumen-linea"><span>Subtotal</span><span>{dinero(subtotal)}</span></div>
       <div className="resumen-linea"><span>Envío</span><span>{envio == null ? 'Cotiza para ver el costo' : dinero(envio)}</span></div>
+      <div className="resumen-linea"><span>Envío</span><span>{envio === 0 ? '¡Gratis!' : dinero(envio)}</span></div>
       <div className="resumen-linea resumen-total"><span>Total</span><span>{dinero(total)}</span></div>
     </aside>
   );

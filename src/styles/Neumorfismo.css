@@ -275,8 +275,7 @@
 .modal { width: 100%; max-width: 460px; }
 .modal .acciones { justify-content: flex-end; margin-top: 1.2rem; }
 
-/* =====================================================================
-   RESPONSIVE MÓVIL (P3-1)
+/* ==============================================================   RESPONSIVE MÓVIL (P3-1)
    ===================================================================== */
 @media (max-width: 768px) {
   .neu-card { padding: 1.2rem; }
