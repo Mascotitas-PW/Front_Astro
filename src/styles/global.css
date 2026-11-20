@@ -1,0 +1,120 @@
+/* Las fuentes (Baloo 2 e Inter) ahora se cargan desde SEO.astro sin bloquear el render.
+   Antes aquí había un @import url(...) de Google Fonts: bloquea el renderizado (aviso de ~800 ms). */
+
+:root {
+  --neu-bg: #F5EBD1;
+  --neu-luz: #FFFDF5;
+  --neu-sombra: #D6C49A;
+  --neu-texto: #3A2E22;
+  --neu-acento: #E8734A;
+  --neu-dorado: #E8B93E;
+  --neu-verde: #3B7A3B;
+  --neu-rojo: #A32D2D;
+  --color-texto-acento: #4A3623;
+  --sombra-card: 10px 10px 22px var(--neu-sombra), -10px -10px 22px var(--neu-luz);
+  --sombra-suave: 6px 6px 14px var(--neu-sombra), -6px -6px 14px var(--neu-luz);
+  --sombra-inset: inset 6px 6px 12px var(--neu-sombra), inset -6px -6px 12px var(--neu-luz);
+  --radio: 28px;
+
+  /* P3-1: colores con contraste ≥ 4.5:1 sobre el crema */
+  --cafe: #3B2A17;             /* texto sobre amarillo ≈ 7.5:1 */
+  --texto-suave: #5C4A38;      /* texto secundario ≈ 7:1 */
+  --naranja-texto: #A93E16;    /* naranja para TEXTO (precios) ≈ 5.2:1 (el #E8734A solo para fondos) */
+}
+
+* { box-sizing: border-box; }
+
+html { font-size: 112.5%; -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--neu-bg);
+  color: var(--neu-texto);
+  font-family: 'Inter', system-ui, sans-serif;
+  line-height: 1.5;
+}
+#root { min-height: 100vh; }
+
+h1, h2, h3, h4 {
+  font-family: 'Baloo 2', system-ui, sans-serif;
+  color: var(--color-texto-acento);
+  margin: 0 0 .5em;
+  line-height: 1.2;
+}
+h1 { font-size: 2.6rem; }
+h2 { font-size: 2rem; }
+h3 { font-size: 1.4rem; }
+
+button { font: inherit; }
+
+input, select, textarea {
+  width: 100%;
+  min-height: 3.2rem;
+  padding: .85rem 1.2rem;
+  background: var(--neu-bg);
+  color: var(--neu-texto);
+  border: 0;
+  border-radius: 16px;
+  outline: none;
+  font-family: inherit;
+  font-size: 1rem;
+  box-shadow: var(--sombra-inset);
+}
+/* Antes: input::placeholder { color: #A99986 } (≈ 2.3:1, no pasaba el contraste y ganaba por especificidad) */
+input::placeholder, textarea::placeholder { color: #6B5B4A; opacity: 1; }
+input:focus, select:focus, textarea:focus {
+  box-shadow: var(--sombra-inset), 0 0 0 3px var(--neu-dorado);
+}
+input[type="file"] { padding: .8rem 1rem; font-size: .9rem; }
+
+.error { color: var(--neu-rojo); }
+
+/* ===== Accesibilidad ===== */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 1000;
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+  background: #4a3623;
+  color: #fff;
+  font-weight: 700;
+}
+.skip-link:focus { top: 0.75rem; }
+
+/* Foco visible en todo lo interactivo (no quitar outline sin reemplazo) */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 3px solid #4a3623;
+  outline-offset: 3px;
+}
+
+/* Respeta usuarios que piden menos movimiento */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Texto secundario genérico (el resto de colores y el responsive viven en Neumorfismo.css) */
+.muted, .texto-secundario { color: var(--texto-suave); }
+
+@media (max-width: 640px) {
+  html { font-size: 100%; }
+}
