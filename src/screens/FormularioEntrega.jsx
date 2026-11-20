@@ -6,10 +6,6 @@ export default function FormularioEntrega({
   guardarDom, onGuardarDom, aliasDom, onAliasDom,
   metodoPago, onMetodoPago, onSubmit, deshabilitado, loading,
   tarifas = [], cotizacionEnvioId, rateId, onRateId, onCotizar, cotizando,
-  entrega, onCambiar, onUbicacion,
-  domicilios = [], domicilioId = '', onElegirDomicilio,
-  guardarDom, onGuardarDom, aliasDom, onAliasDom,
-  metodoPago, onMetodoPago, onSubmit, deshabilitado, loading,
 }) {
   const usandoGuardado = domicilioId !== '';
 
@@ -64,8 +60,6 @@ export default function FormularioEntrega({
         ) : (
           <input required value={entrega.colonia} onChange={(e) => onCambiar('colonia', e.target.value)} />
         )}
-        <input type="text" inputMode="numeric" maxLength={5} value={entrega.cp} autoComplete="postal-code"
-          onChange={(e) => onCambiar('cp', e.target.value.replace(/\D/g, ''))} placeholder="5 dígitos" />
       </label>
 
       <label className="field">

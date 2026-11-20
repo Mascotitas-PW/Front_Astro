@@ -3,7 +3,6 @@ import { useStore } from '../hooks/useStore';
 import { obtenerUsuarioSesion } from '../auth/auth';
 import {
   validarEntrega, itemsInput, cotizarEnvio,
-  calcularEnvio, validarEntrega, itemsInput,
   procesarPagoMercadoPago, crearPedidoConPago, crearPedidoSinPago,
 } from '../services/pedidos';
 import { useBrickMercadoPago, BRICK_CONTAINER_ID } from '../hooks/useBrickMercadoPago';
@@ -24,8 +23,6 @@ export const Checkout = ({ onBackToHome }) => {
   const tarifaSeleccionada = cotizacion?.tarifas?.find((rate) => rate.id === rateId) ?? null;
   const envio = tarifaSeleccionada ? Number(tarifaSeleccionada.importe) : null;
   const total = subtotal + (envio ?? 0);
-  const envio = calcularEnvio(subtotal);
-  const total = subtotal + envio;
 
   const usuario = obtenerUsuarioSesion();
   const usuarioId = usuario?.id ?? null;
@@ -36,7 +33,6 @@ export const Checkout = ({ onBackToHome }) => {
   const [colonias, setColonias] = useState([]);
   const [consultandoCodigoPostal, setConsultandoCodigoPostal] = useState(false);
   const [errorCodigoPostal, setErrorCodigoPostal] = useState('');
-  const [entrega, setEntrega] = useState({ nombre: '', direccion: '', telefono: '', cp: '', lat: null, lng: null });
   const [metodoPago, setMetodoPago] = useState('Tarjeta');
   const [pedidoCreado, setPedidoCreado] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -126,9 +122,6 @@ export const Checkout = ({ onBackToHome }) => {
     });
     setCotizacion(null);
     setRateId('');
-      lat: d.latitud,
-      lng: d.longitud,
-    });
   };
 
   // El Brick guarda su callback al montarse; la ref evita leer datos viejos
@@ -165,9 +158,6 @@ export const Checkout = ({ onBackToHome }) => {
       setCotizando(false);
     }
   };
-
-  const cambiarEntrega = (campo, valor) => setEntrega((e) => ({ ...e, [campo]: valor }));
-  const cambiarUbicacion = ({ lat, lng }) => setEntrega((e) => ({ ...e, lat, lng }));
 
   const cambiarMetodo = (metodo) => { setErrorMsg(null); setMetodoPago(metodo); };
 
@@ -217,9 +207,6 @@ export const Checkout = ({ onBackToHome }) => {
       const pedido = await crearPedidoConPago({
         usuarioId, paymentId: pago.id, carrito,
         entrega: { ...entregaRef.current, cotizacionEnvioId: cotizacion.id, rateId: tarifaSeleccionada.id },
-      pago = await procesarPagoMercadoPago({ usuarioId, carrito, formData, email: usuario?.email });
-      const pedido = await crearPedidoConPago({
-        usuarioId, paymentId: pago.id, carrito, entrega: entregaRef.current,
       });
       finalizar(pedido);
       return pago;
@@ -239,7 +226,6 @@ export const Checkout = ({ onBackToHome }) => {
 
   useBrickMercadoPago({
     activo: metodoPago === 'Tarjeta' && !pedidoCreado && !!usuarioId && carrito.length > 0 && !!tarifaSeleccionada,
-    activo: metodoPago === 'Tarjeta' && !pedidoCreado && !!usuarioId && carrito.length > 0,
     total,
     onSubmit: pagarConTarjeta,
     onReady: () => setErrorMsg(null),
@@ -270,10 +256,6 @@ export const Checkout = ({ onBackToHome }) => {
         usuarioId, metodoPago, carrito,
         entrega: { ...entrega, cotizacionEnvioId: cotizacion.id, rateId: tarifaSeleccionada.id },
       }));
-
-    setLoading(true);
-    try {
-      finalizar(await crearPedidoSinPago({ usuarioId, metodoPago, carrito, entrega }));
     } catch (err) {
       console.error('Error al registrar el pedido:', err);
       setErrorMsg(err.message || 'Error de conexión con el servidor.');
@@ -363,11 +345,6 @@ export const Checkout = ({ onBackToHome }) => {
                 onApproved={pagoPayPalAprobado}
                 onError={(err) => setErrorMsg(err?.message || 'No se pudo completar el pago con PayPal.')}
                 disabled={carrito.length === 0 || !tarifaSeleccionada}
-                latitud={entrega.lat}
-                longitud={entrega.lng}
-                onApproved={pagoPayPalAprobado}
-                onError={(err) => setErrorMsg(err?.message || 'No se pudo completar el pago con PayPal.')}
-                disabled={carrito.length === 0}
               />
             </div>
           )}
