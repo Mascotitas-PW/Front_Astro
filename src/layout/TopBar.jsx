@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useStore } from '../hooks/useStore';
 import { CartModal } from '../components/CartModal';
-import { t } from '../i18n';
+import { t, urlOtroIdioma, otroIdioma } from '../i18n';
 
 export function TopBar() {
   const { busqueda, cambiarBusqueda, cambiarPantalla, pantalla, totalItemsCarrito, usuario, cerrarSesion } = useStore();
@@ -17,49 +17,51 @@ export function TopBar() {
   return (
     <>
       <header className="topbar">
-        {/* Un clic en "Mascotitas" lleva al inicio */}
-        <button type="button" className="topbar-logo" onClick={() => cambiarPantalla('HOME')} aria-label="Mascotitas, inicio">
-        <img src={`${import.meta.env.BASE_URL}icons/mascotitas-192.png`} alt="Mascotitas" />
+        <button type="button" className="topbar-logo" onClick={() => cambiarPantalla('HOME')} aria-label={t('inicio')}>
+          <img src={`${import.meta.env.BASE_URL}icons/mascotitas-192.png`} alt="Mascotitas" />
         </button>
 
         <div className="topbar-search">
           <input
-            aria-label="Buscar productos"
+            aria-label={t('buscar')}
             value={busqueda}
             onChange={(e) => buscar(e.target.value)}
-            placeholder="Buscar productos..."
+            placeholder={t('buscar')}
           />
         </div>
 
-        <nav className="topbar-nav" aria-label="Navegación principal">
+        <nav className="topbar-nav" aria-label={t('navPrincipal')}>
           {usuario && (
             <button type="button" className="neu-btn" onClick={() => cambiarPantalla('HISTORIAL')}>
-              {esAdmin ? 'Historial de compras' : 'Mi historial de compras'}
+              {esAdmin ? t('historialAdmin') : t('historial')}
             </button>
           )}
           {usuario && (
             <button type="button" className="neu-btn" onClick={() => cambiarPantalla('DOMICILIOS')}>
-              Mis domicilios
+              {t('domicilios')}
             </button>
           )}
           {usuario && (
             <button type="button" className="neu-btn" onClick={() => cambiarPantalla('FACTURAS')}>
-              Facturación
+              {t('facturas')}
             </button>
           )}
           {esAdmin && (
             <button type="button" className="neu-btn" onClick={() => cambiarPantalla('DASHBOARD')}>
-              Dashboard
+              {t('dashboard')}
             </button>
           )}
           <button type="button" className="neu-btn neu-btn-primary" onClick={() => setCarritoAbierto(true)}>
-            Carrito ({totalItemsCarrito})
+            {t('carrito')} ({totalItemsCarrito})
           </button>
           {usuario ? (
-            <button type="button" className="neu-btn" onClick={cerrarSesion}>Salir</button>
+            <button type="button" className="neu-btn" onClick={cerrarSesion}>{t('salir')}</button>
           ) : (
-            <button type="button" className="neu-btn" onClick={() => cambiarPantalla('LOGIN')}>Iniciar sesión</button>
+            <button type="button" className="neu-btn" onClick={() => cambiarPantalla('LOGIN')}>{t('entrar')}</button>
           )}
+          <a className="neu-btn" href={urlOtroIdioma()} hrefLang={otroIdioma()} lang={otroIdioma()}>
+            {t('idioma')}
+          </a>
         </nav>
       </header>
 

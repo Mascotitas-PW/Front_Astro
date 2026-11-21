@@ -6,7 +6,7 @@ export default function ProductoCard({ producto, onVer, prioridad = false }) {
 
   return (
     <article className="producto-card">
-      {producto.stock <= 0 && <span className="badge badge-bad">Agotado</span>}
+      {producto.stock <= 0 && <span className="badge badge-bad">{t('agotado')}</span>}
       <img
         src={src}
         alt={producto.nombre}

@@ -1,14 +1,15 @@
-import { t } from '../i18n';
+import { t, categoria as nombreCategoria } from '../i18n';
+
 export default function Sidebar({ categorias, categoriaSeleccionada, onElegirCategoria }) {
   return (
     <aside className="sidebar">
-      <h3>Categorías</h3>
+      <h3>{t('categorias')}</h3>
       <ul>
         <li
           className={!categoriaSeleccionada ? "categoria-activa" : ""}
           onClick={() => onElegirCategoria(null)}
         >
-          Todas
+          {t('todas')}
         </li>
         {categorias.map((categoria) => (
           <li
@@ -16,7 +17,7 @@ export default function Sidebar({ categorias, categoriaSeleccionada, onElegirCat
             className={categoriaSeleccionada === categoria ? "categoria-activa" : ""}
             onClick={() => onElegirCategoria(categoria)}
           >
-            {categoria}
+            {nombreCategoria(categoria)}
           </li>
         ))}
       </ul>

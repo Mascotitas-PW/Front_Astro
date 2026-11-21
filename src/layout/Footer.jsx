@@ -1,16 +1,17 @@
 import { useStore } from '../hooks/useStore';
 import { t } from '../i18n';
+
 export default function Footer() {
   const { cambiarPantalla } = useStore();
   return (
     <footer className="footer">
       <p className="footer-brand">Mascotitas</p>
-      <nav aria-label="Información legal">
-        <button type="button" className="enlace" onClick={() => cambiarPantalla('TERMINOS')}>Términos y condiciones</button>
+      <nav aria-label={t('navLegal')}>
+        <button type="button" className="enlace" onClick={() => cambiarPantalla('TERMINOS')}>{t('legalTerminos')}</button>
         {' · '}
-        <button type="button" className="enlace" onClick={() => cambiarPantalla('PRIVACIDAD')}>Aviso de privacidad</button>
+        <button type="button" className="enlace" onClick={() => cambiarPantalla('PRIVACIDAD')}>{t('legalPrivacidad')}</button>
       </nav>
-      <p className="footer-copy">© 2026 Mascotitas — Todo lo que necesita tu mascota</p>
+      <p className="footer-copy">© 2026 Mascotitas — {t('heroTitulo')}</p>
     </footer>
   );
 }
