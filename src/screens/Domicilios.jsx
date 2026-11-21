@@ -42,10 +42,13 @@ export function Domicilios() {
             <h3>
               {d.alias} {d.predeterminado && <span className="badge badge-ok">Predeterminado</span>}
             </h3>
-            <p><strong>{d.nombreCompleto}</strong><br />{d.direccion}
+            <p>
+              <strong>{d.nombreCompleto}</strong><br />
+              {d.direccion}
               {d.colonia ? `, ${d.colonia}` : ''}{d.ciudad ? `, ${d.ciudad}` : ''}{d.estado ? `, ${d.estado}` : ''}
-              {d.codigoPostal ? ` · C.P. ${d.codigoPostal}` : ''}<br />Tel. {d.telefono}</p>
-            <p><strong>{d.nombreCompleto}</strong><br />{d.direccion}{d.codigoPostal ? ` · C.P. ${d.codigoPostal}` : ''}<br />Tel. {d.telefono}</p>
+              {d.codigoPostal ? ` · C.P. ${d.codigoPostal}` : ''}<br />
+              Tel. {d.telefono}
+            </p>
             {d.latitud != null && <p className="nota nota-ok">✓ Con ubicación en el mapa</p>}
             <div className="acciones">
               {!d.predeterminado && <button type="button" className="neu-btn neu-btn-sm" onClick={() => predeterminar(d)}>Hacer predeterminado</button>}

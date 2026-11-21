@@ -40,13 +40,8 @@ function crearMapa(L, contenedor, centro, zoom) {
   return mapa;
 }
 
-/**
- * Mapa para marcar la ubicación de entrega (OpenStreetMap + Leaflet + Nominatim).
- * - Escribir la dirección mueve el pin.
- * - Tocar el mapa, arrastrar el pin o "Usar mi ubicación" fija la ubicación y rellena la dirección.
- * - onUbicacion({ lat, lng }) y onDireccion(texto) avisan al formulario.
- */
-export function MapaEntrega({ direccion, ubicacion, onUbicacion, onDireccion }) {
+
+export function MapaEntrega({ direccion, ubicacion, onUbicacion, onDireccion, onCodigoPostal }) {
   const contenedor = useRef(null);
   const leaflet = useRef(null);
   const mapa = useRef(null);
@@ -55,7 +50,7 @@ export function MapaEntrega({ direccion, ubicacion, onUbicacion, onDireccion }) 
   const direccionRef = useRef(direccion);
   direccionRef.current = direccion;
   const cb = useRef({});
-  cb.current = { onUbicacion, onDireccion };
+  cb.current = { onUbicacion, onDireccion, onCodigoPostal };
 
   const [listo, setListo] = useState(false);
   const [aviso, setAviso] = useState(null);
@@ -85,12 +80,15 @@ export function MapaEntrega({ direccion, ubicacion, onUbicacion, onDireccion }) 
     if (rellenarDireccion) {
       try {
         const d = await nominatim(
-          `/reverse?format=jsonv2&lat=${pos.lat}&lon=${pos.lng}&zoom=18&accept-language=es`,
+          `/reverse?format=jsonv2&addressdetails=1&lat=${pos.lat}&lon=${pos.lng}&zoom=18&accept-language=es`,
         );
-        if (d?.display_name && d.display_name !== direccionRef.current) {
-          saltarBusqueda.current = true; // no volver a buscar la dirección que acabamos de poner
-          cb.current.onDireccion?.(d.display_name);
+        const a = d?.address ?? {};
+        const calle = [a.road, a.house_number].filter(Boolean).join(' ');
+        if (calle && calle !== direccionRef.current) {
+          saltarBusqueda.current = true;
+          cb.current.onDireccion?.(calle);
         }
+        if (/^\d{5}$/.test(a.postcode ?? '')) cb.current.onCodigoPostal?.(a.postcode);
       } catch {
         /* si falla, la ubicación igual queda guardada */
       }

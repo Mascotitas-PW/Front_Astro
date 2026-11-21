@@ -6,7 +6,7 @@ import { dinero } from '../services/pedidos';
 import { MapaSoloLectura } from '../components/Mapa';
 import { SolicitarFactura } from '../components/SolicitarFactura';
 
-const CAMPOS = 'id fecha status total usuarioId nombreCompleto direccionEntrega telefono latitud longitud guiaNumero urlRastreo envioEstado paqueteria servicioEnvio';
+const CAMPOS = 'id fecha status total usuarioId nombreCompleto direccionEntrega codigoPostalEntrega coloniaEntrega ciudadEntrega estadoEntrega telefono latitud longitud paqueteria servicioEnvio costoEnvio';
 const Q_MIS_PEDIDOS = `query MisPedidos($usuarioId: Int!) { pedidosPorUsuario(usuarioId: $usuarioId) { ${CAMPOS} } }`;
 const Q_TODOS = `query TodosLosPedidos { pedidos { ${CAMPOS} } }`;
 const Q_DETALLE = `query Detalle($pedidoId: Int!) { detallePedido(pedidoId: $pedidoId) { productoId cantidad precioUnitario } }`;
@@ -125,7 +125,7 @@ export function Historial() {
 
 function FilaPedido({ p, esAdmin, columnas, abierto, renglones, nombres, onToggle, onFacturar }) {
   const tieneMapa = p.latitud != null && p.longitud != null;
-  const entregado = p.envioEstado === 'Entregado';
+  const entregado = p.status?.includes('Entregado');
 
   return (
     <>
@@ -135,9 +135,6 @@ function FilaPedido({ p, esAdmin, columnas, abierto, renglones, nombres, onToggl
         {esAdmin && <td>{p.nombreCompleto || `Usuario ${p.usuarioId}`}</td>}
         <td>
           <div>{p.status}</div>
-          {p.envioEstado && p.envioEstado !== 'Sin guía' && (
-            <small style={{ color: 'var(--neu-verde)' }}>{p.envioEstado}</small>
-          )}
         </td>
         <td>{dinero(p.total)}</td>
         <td>
@@ -165,14 +162,6 @@ function FilaPedido({ p, esAdmin, columnas, abierto, renglones, nombres, onToggl
                 <p><strong>Teléfono:</strong> {p.telefono || 'No registrado'}</p>
                 {p.paqueteria && (
                   <p><strong>Paquetería:</strong> {p.paqueteria} — {p.servicioEnvio}</p>
-                )}
-                {p.guiaNumero && (
-                  <p>
-                    <strong>Guía:</strong> {p.guiaNumero}
-                    {p.urlRastreo && (
-                      <> — <a href={p.urlRastreo} target="_blank" rel="noreferrer" className="enlace">Rastrear</a></>
-                    )}
-                  </p>
                 )}
                 <hr style={{ margin: '.8rem 0' }} />
                 <strong>Productos</strong>

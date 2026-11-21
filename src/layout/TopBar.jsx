@@ -17,8 +17,8 @@ export function TopBar() {
     <>
       <header className="topbar">
         {/* Un clic en "Mascotitas" lleva al inicio */}
-        <button type="button" className="topbar-logo" onClick={() => cambiarPantalla('HOME')}>
-          Mascotitas
+        <button type="button" className="topbar-logo" onClick={() => cambiarPantalla('HOME')} aria-label="Mascotitas, inicio">
+        <img src={`${import.meta.env.BASE_URL}icons/mascotitas-192.png`} alt="Mascotitas" />
         </button>
 
         <div className="topbar-search">
@@ -39,6 +39,11 @@ export function TopBar() {
           {usuario && (
             <button type="button" className="neu-btn" onClick={() => cambiarPantalla('DOMICILIOS')}>
               Mis domicilios
+            </button>
+          )}
+          {usuario && (
+            <button type="button" className="neu-btn" onClick={() => cambiarPantalla('FACTURAS')}>
+              Facturación
             </button>
           )}
           {esAdmin && (
