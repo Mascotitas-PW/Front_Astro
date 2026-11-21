@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useStore } from '../hooks/useStore';
-import { urlImagen } from '../services/imagenes';
+import { urlImagen, SIN_IMAGEN } from '../services/imagenes';
 import { obtenerUsuarioSesion } from '../auth/auth';
 import { dinero } from '../services/pedidos';
 
@@ -20,8 +20,7 @@ export function DetalleProducto({ productoId }) {
 
   if (!producto) return <main className="page">Producto no encontrado.</main>;
 
-  const fallback = `${import.meta.env.BASE_URL}productos/cama.png`;
-  const src = producto.imagen ? urlImagen(producto.imagen) : fallback;
+  const src = urlImagen(producto.imagen) || SIN_IMAGEN;
 
   const manejarCantidad = (event) => {
     const n = parseInt(event.target.value, 10);
@@ -36,7 +35,7 @@ export function DetalleProducto({ productoId }) {
       <img
         src={src}
         alt={producto.nombre}
-        onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = fallback; }}
+        onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = SIN_IMAGEN; }}
       />
       <h2>{producto.nombre}</h2>
       <p className="detalle-precio">{dinero(producto.precio)}</p>

@@ -1,8 +1,7 @@
-import { urlImagen } from '../services/imagenes';
+import { urlImagen, SIN_IMAGEN } from '../services/imagenes';
 
 export default function ProductoCard({ producto, onVer, prioridad = false }) {
-  const fallback = `${import.meta.env.BASE_URL}productos/cama.png`;
-  const src = producto?.imagen ? urlImagen(producto.imagen) : fallback;
+  const src = urlImagen(producto?.imagen) || SIN_IMAGEN;
 
   return (
     <article className="producto-card">
@@ -15,7 +14,7 @@ export default function ProductoCard({ producto, onVer, prioridad = false }) {
         loading={prioridad ? 'eager' : 'lazy'}
         fetchPriority={prioridad ? 'high' : 'auto'}
         decoding="async"
-        onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = fallback; }}
+        onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = SIN_IMAGEN; }}
       />
       <div className="producto-info">
         <h3>

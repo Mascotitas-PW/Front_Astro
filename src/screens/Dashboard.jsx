@@ -5,7 +5,7 @@ import {
   crearProducto, actualizarProducto, eliminarProducto,
 } from '../services/productosAdmin';
 import { suscribirStock, suscribirProductos } from '../services/stockEnVivo';
-import { urlImagen } from '../services/imagenes';
+import { urlImagen, SIN_IMAGEN } from '../services/imagenes';
 import { dinero } from '../services/pedidos';
 import { FormularioProducto } from './FormularioProducto';
 import { Estadisticas } from './Estadisticas';
@@ -101,7 +101,13 @@ export function Dashboard() {
         <tbody>
           {productos.map((p) => (
             <tr key={p.id}>
-              <td><img src={urlImagen(p.imagen)} alt="" /></td>
+              <td>
+                <img
+                  src={urlImagen(p.imagen) || SIN_IMAGEN}
+                  alt=""
+                  onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = SIN_IMAGEN; }}
+                />
+              </td>
               <td>{p.nombre}</td>
               <td>{p.categoria}</td>
               <td>{dinero(p.precio)}</td>
