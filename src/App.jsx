@@ -1,6 +1,5 @@
 import './styles/global.css';
 import './styles/Neumorfismo.css';
-import './styles/fase1.css';
 import { setLocale } from './i18n';
 import OfflineBanner from './components/OfflineBanner';
 import { useStore } from './hooks/useStore';
