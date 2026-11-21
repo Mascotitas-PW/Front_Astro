@@ -1,0 +1,4 @@
+{"name":"Mascotitas","short_name":"Mascotitas","lang":"es","start_url":"./","scope":"./","display":"standalone",
+ "background_color":"#F5EBD1","theme_color":"#FCD88A",
+ "icons":[{"src":"icons/mascotitas-192.png","sizes":"192x192","type":"image/png"},
+          {"src":"icons/mascotitas-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}

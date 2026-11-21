@@ -5,7 +5,7 @@ import react from '@astrojs/react';
 
 import tailwindcss from '@tailwindcss/vite';
 
-import AstroPWA from '@vite-pwa/astro';
+import { AstroPWAIntegration as AstroPWA } from '@vite-pwa/astro';
 
 // https://astro.build/config
 export default defineConfig({
@@ -58,6 +58,6 @@ export default defineConfig({
 
   vite: {
     plugins: [tailwindcss()],
-  }
-  
+  },
+  i18n: { defaultLocale: 'es', locales: ['es', 'en'], routing: { prefixDefaultLocale: false } },
 });

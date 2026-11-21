@@ -347,5 +347,29 @@ select option { background:var(--neu-bg); color:var(--neu-texto); }
 /* el mapa ya no se superpone a la topbar */
 .mapa { position:relative; z-index:0; isolation:isolate; }
 .topbar { z-index:1100; }
+body { min-height: 100dvh; overflow-x: clip; }
+#root { min-height: 100dvh; }
+img, video, svg { max-width: 100%; }
+
+/* safe areas (PWA instalada / notch) */
+.topbar { padding-top: max(1rem, env(safe-area-inset-top));
+  padding-left: max(1rem, env(safe-area-inset-left)); padding-right: max(1rem, env(safe-area-inset-right)); }
+.footer { padding-bottom: max(2rem, env(safe-area-inset-bottom)); }
+.page, .layout-body, .dash { padding-left: max(1rem, env(safe-area-inset-left)); padding-right: max(1rem, env(safe-area-inset-right)); }
+.cart-panel { height: 100dvh; padding-bottom: max(1.8rem, env(safe-area-inset-bottom)); }
+.mapa { height: clamp(240px, 45dvh, 400px); }
+
+.offline-banner { position: sticky; top: 0; z-index: 1200; padding: .6rem 1rem; text-align: center;
+  background: #3B2A17; color: #FFF8E7; font-weight: 600; }
+
 }
+@media (max-width: 360px) { .topbar-nav .neu-btn { font-size: .75rem; padding: .3rem .6rem; } .neu-card { padding: 1rem; } }
+@media (min-width: 1200px) { .grid-productos { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); } }
+
+/* horizontal en teléfono */
+@media (orientation: landscape) and (max-height: 500px) {
+  .topbar { position: static; } .hero { padding: 1rem; } .mapa { height: 70dvh; }
+  .modal-fondo, .cart-fondo { align-items: flex-start; overflow-y: auto; }
+
 @media (max-width: 340px) { .grid-productos { grid-template-columns: 1fr; } }
+}
