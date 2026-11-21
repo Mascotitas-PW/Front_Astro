@@ -12,6 +12,11 @@ const Q_TODOS = `query TodosLosPedidos { pedidos { ${CAMPOS} } }`;
 const Q_DETALLE = `query Detalle($pedidoId: Int!) { detallePedido(pedidoId: $pedidoId) { productoId cantidad precioUnitario } }`;
 const Q_PRODUCTOS = `query { productos { id nombre } }`;
 
+// ⚠️ Ajusta el nombre de esta mutación y sus variables si en tu backend se llaman distinto
+const M_CAMBIAR_STATUS = `mutation CambiarStatus($pedidoId: Int!, $status: String!) { actualizarStatusPedido(pedidoId: $pedidoId, status: $status) { id status } }`;
+
+const ESTADOS_PEDIDO = ['Pendiente', 'Enviado', 'Entregado'];
+
 export function Historial() {
   const usuario = obtenerUsuarioSesion();
   const usuarioId = usuario?.id ?? null;
@@ -22,6 +27,7 @@ export function Historial() {
   const [detalles, setDetalles] = useState({});
   const [abierto, setAbierto] = useState(null);
   const [facturando, setFacturando] = useState(null); // pedidoId que se está facturando
+  const [actualizandoId, setActualizandoId] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
 
@@ -58,6 +64,19 @@ export function Historial() {
       setDetalles((prev) => ({ ...prev, [pedidoId]: d.detallePedido }));
     } catch (e) {
       setError(e.message);
+    }
+  }
+
+  async function cambiarStatus(pedidoId, status) {
+    setActualizandoId(pedidoId);
+    try {
+      await fetchGraphQL(M_CAMBIAR_STATUS, { pedidoId, status });
+      setPedidos((prev) => prev.map((p) => (p.id === pedidoId ? { ...p, status } : p)));
+      setError(null);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setActualizandoId(null);
     }
   }
 
@@ -109,10 +128,12 @@ export function Historial() {
                   esAdmin={esAdmin}
                   columnas={columnas}
                   abierto={abierto === p.id}
+                  actualizando={actualizandoId === p.id}
                   renglones={detalles[p.id]}
                   nombres={nombres}
                   onToggle={() => alternarDetalle(p.id)}
                   onFacturar={() => setFacturando(p.id)}
+                  onCambiarStatus={(nuevoStatus) => cambiarStatus(p.id, nuevoStatus)}
                 />
               ))}
             </tbody>
@@ -123,9 +144,14 @@ export function Historial() {
   );
 }
 
-function FilaPedido({ p, esAdmin, columnas, abierto, renglones, nombres, onToggle, onFacturar }) {
+function FilaPedido({ p, esAdmin, columnas, abierto, actualizando, renglones, nombres, onToggle, onFacturar, onCambiarStatus }) {
   const tieneMapa = p.latitud != null && p.longitud != null;
   const entregado = p.status?.includes('Entregado');
+
+  // Si el pedido tiene algún estatus distinto en BD (ej. "Pagado"), se conserva en el select para no perderlo visualmente
+  const opciones = ESTADOS_PEDIDO.includes(p.status)
+    ? ESTADOS_PEDIDO
+    : [p.status, ...ESTADOS_PEDIDO].filter(Boolean);
 
   return (
     <>
@@ -134,7 +160,20 @@ function FilaPedido({ p, esAdmin, columnas, abierto, renglones, nombres, onToggl
         <td>{new Date(p.fecha).toLocaleString('es-MX')}</td>
         {esAdmin && <td>{p.nombreCompleto || `Usuario ${p.usuarioId}`}</td>}
         <td>
-          <div>{p.status}</div>
+          {esAdmin ? (
+            <select
+              className="neu-input"
+              value={p.status}
+              disabled={actualizando}
+              onChange={(e) => onCambiarStatus(e.target.value)}
+            >
+              {opciones.map((st) => (
+                <option key={st} value={st}>{st}</option>
+              ))}
+            </select>
+          ) : (
+            <div>{p.status}</div>
+          )}
         </td>
         <td>{dinero(p.total)}</td>
         <td>
