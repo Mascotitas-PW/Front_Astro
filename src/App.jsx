@@ -1,6 +1,8 @@
 import './styles/global.css';
 import './styles/Neumorfismo.css';
 import './styles/fase1.css';
+import { setLocale } from './i18n';
+import OfflineBanner from './components/OfflineBanner';
 import { useStore } from './hooks/useStore';
 import { TopBar } from './layout/TopBar';
 import { Home } from './screens/Home';
@@ -15,11 +17,13 @@ import { Terminos, Privacidad } from './screens/Legal';
 import { Facturas } from './screens/Facturas';
 import { ConsentimientoLegal } from './components/ConsentimientoLegal';
 
-export default function App() {
+export default function App({ locale = 'es' }) {
+  setLocale(locale);
   const { pantalla, productoSeleccionadoId } = useStore();
 
   return (
     <div>
+      <OfflineBanner />
       <TopBar />
       {pantalla === 'HOME' && <Home />}
       {pantalla === 'LOGIN' && <Login />}

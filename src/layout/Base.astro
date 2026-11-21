@@ -23,6 +23,7 @@ const title = locale === 'es'
   <link rel="alternate" hreflang="x-default" href={getAbsoluteLocaleUrl('es')} />
 </head>
 <body>
+  <div id="root"><App client:only="react" locale={locale} /></div>
   <script is:inline define:vars={{ base }}>
     if ('serviceWorker' in navigator) {
       addEventListener('load', () => navigator.serviceWorker.register(base + 'sw.js'));
