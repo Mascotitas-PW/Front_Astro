@@ -5,6 +5,8 @@ import ContextSection from "../layout/ContextSection";
 import Footer from "../layout/Footer";
 import ProductoCard from "../components/ProductoCard";
 import Skeleton from "../components/Skeleton";
+import { t } from '../i18n';
+
 
 export function Home() {
   const {

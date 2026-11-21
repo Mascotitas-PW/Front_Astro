@@ -1,3 +1,4 @@
+import { t } from '../i18n';
 export default function Sidebar({ categorias, categoriaSeleccionada, onElegirCategoria }) {
   return (
     <aside className="sidebar">

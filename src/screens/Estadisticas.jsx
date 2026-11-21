@@ -6,6 +6,7 @@ import {
 import { fetchGraphQL } from '../graphql/client';
 import { suscribirPedidos } from '../services/stockEnVivo';
 import { dinero } from '../services/pedidos';
+import { t } from '../i18n';
 
 const QUERY = `
   query {

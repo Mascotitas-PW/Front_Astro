@@ -1,4 +1,5 @@
 import { urlImagen, SIN_IMAGEN } from '../services/imagenes';
+import { t } from '../i18n';
 
 export default function ProductoCard({ producto, onVer, prioridad = false }) {
   const src = urlImagen(producto?.imagen) || SIN_IMAGEN;

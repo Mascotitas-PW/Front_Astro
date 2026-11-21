@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useStore } from '../hooks/useStore';
 import { CartModal } from '../components/CartModal';
+import { t } from '../i18n';
 
 export function TopBar() {
   const { busqueda, cambiarBusqueda, cambiarPantalla, pantalla, totalItemsCarrito, usuario, cerrarSesion } = useStore();

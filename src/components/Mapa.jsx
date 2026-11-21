@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import 'leaflet/dist/leaflet.css';
+import { t } from '../i18n';
 
 const CENTRO_MX = [23.6, -102.5];
 const NOMINATIM = 'https://nominatim.openstreetmap.org';

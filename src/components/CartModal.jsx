@@ -1,5 +1,6 @@
 import { useStore } from '../hooks/useStore';
 import { dinero } from '../services/pedidos';
+import { t } from '../i18n';
 
 export function CartModal({ isOpen, onClose, onGoToCheckout }) {
   const { carrito, eliminarDelCarrito, actualizarCantidad, totalCarrito } = useStore();

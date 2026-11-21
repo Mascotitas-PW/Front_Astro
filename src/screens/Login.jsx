@@ -4,6 +4,8 @@ import { GRAPHQL_ENDPOINT } from '../graphql/client';
 import { useStore } from '../hooks/useStore';
 import { obtenerUsuarioSesion, guardarSesion } from '../auth/auth';
 import { BotonGoogle } from '../auth/Btngoogle';
+import { t } from '../i18n';
+
 
 const MUTATION_LOGIN = `
   mutation ($email: String!, $password: String!) {

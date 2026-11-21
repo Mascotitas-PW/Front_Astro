@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '../hooks/useStore';
 import { terminosAceptados, aceptarTerminos } from '../services/legal';
+import { t } from '../i18n';
 
 // Pide aceptar términos y aviso de privacidad la primera vez que el usuario inicia sesión
 // (correo o Google) y cada vez que cambia la versión de los textos.

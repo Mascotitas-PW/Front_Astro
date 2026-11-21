@@ -1,3 +1,4 @@
+import { t } from '../i18n';
 export default function Hero() {
   return (
     <section className="hero">

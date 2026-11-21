@@ -3,6 +3,7 @@ import {
   listarMisDatosFiscales, guardarDatosFiscales,
   obtenerCatalogos, solicitarFactura,
 } from '../services/facturas';
+import { t } from '../i18n';
 
 const VACIO = {
   alias: 'Principal', rfc: '', razonSocial: '', regimenFiscal: '',

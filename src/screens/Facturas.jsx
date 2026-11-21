@@ -5,6 +5,7 @@ import {
 } from '../services/facturas';
 import { dinero } from '../services/pedidos';
 import { useStore } from '../hooks/useStore';
+import { t } from '../i18n';
 
 const dineroLocal = (n) =>
   Number(n).toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });

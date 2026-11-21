@@ -12,6 +12,7 @@ import PedidoConfirmado from './PedidoConfirmado';
 import PayPalButton from '../components/PayPalButton';
 import { listarDomicilios, guardarDomicilio } from '../services/domicilios';
 import { API_BASE_URL } from '../graphql/client';
+import { t } from '../i18n';
 
 export const Checkout = ({ onBackToHome }) => {
   const store = useStore();

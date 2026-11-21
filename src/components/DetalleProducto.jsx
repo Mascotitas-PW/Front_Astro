@@ -3,6 +3,7 @@ import { useStore } from '../hooks/useStore';
 import { urlImagen, SIN_IMAGEN } from '../services/imagenes';
 import { obtenerUsuarioSesion } from '../auth/auth';
 import { dinero } from '../services/pedidos';
+import { t } from '../i18n';
 
 export function DetalleProducto({ productoId }) {
   const { productos, carrito, cantidadSeleccionada, cambiarCantidad, agregarAlCarrito, cambiarPantalla } = useStore();

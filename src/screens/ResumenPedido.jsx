@@ -1,4 +1,6 @@
 import { dinero } from '../services/pedidos';
+import { t } from '../i18n';
+
 
 export default function ResumenPedido({ carrito, subtotal, envio, total }) {
   return (

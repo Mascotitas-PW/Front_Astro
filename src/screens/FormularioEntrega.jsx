@@ -1,4 +1,6 @@
 import { MapaEntrega } from '../components/Mapa';
+import { t } from '../i18n';
+
 
 export default function FormularioEntrega({
   entrega, colonias = [], consultandoCodigoPostal = false, errorCodigoPostal = '', onCambiar, onUbicacion,

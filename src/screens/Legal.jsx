@@ -1,4 +1,5 @@
 import { useStore } from '../hooks/useStore';
+import { t } from '../i18n';
 
 const R = {
   nombre: '[NOMBRE O RAZÓN SOCIAL DEL RESPONSABLE]',

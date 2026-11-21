@@ -10,6 +10,7 @@ import { dinero } from '../services/pedidos';
 import { FormularioProducto } from './FormularioProducto';
 import { Estadisticas } from './Estadisticas';
 import { useStore } from '../hooks/useStore';
+import { t } from '../i18n';
 
 const OPCIONES = [
   { id: 'estadisticas', etiqueta: 'Estadísticas' },

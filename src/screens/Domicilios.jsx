@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { listarDomicilios, guardarDomicilio, eliminarDomicilio } from '../services/domicilios';
 import { useStore } from '../hooks/useStore';
+import { t } from '../i18n';
 
 export function Domicilios() {
   const { cambiarPantalla } = useStore();

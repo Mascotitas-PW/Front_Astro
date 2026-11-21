@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { subirImagen, urlImagen } from '../services/imagenes';
+import { t } from '../i18n';
+
 
 const VACIO = { nombre: '', precio: '', stock: '', categoriaId: '', pesoKg: '', imagen: '' };
 

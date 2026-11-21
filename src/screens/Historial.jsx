@@ -5,6 +5,7 @@ import { suscribirPedidos } from '../services/stockEnVivo';
 import { dinero } from '../services/pedidos';
 import { MapaSoloLectura } from '../components/Mapa';
 import { SolicitarFactura } from '../components/SolicitarFactura';
+import { t } from '../i18n';
 
 const CAMPOS = 'id fecha status total usuarioId nombreCompleto direccionEntrega codigoPostalEntrega coloniaEntrega ciudadEntrega estadoEntrega telefono latitud longitud paqueteria servicioEnvio costoEnvio';
 const Q_MIS_PEDIDOS = `query MisPedidos($usuarioId: Int!) { pedidosPorUsuario(usuarioId: $usuarioId) { ${CAMPOS} } }`;
@@ -12,7 +13,6 @@ const Q_TODOS = `query TodosLosPedidos { pedidos { ${CAMPOS} } }`;
 const Q_DETALLE = `query Detalle($pedidoId: Int!) { detallePedido(pedidoId: $pedidoId) { productoId cantidad precioUnitario } }`;
 const Q_PRODUCTOS = `query { productos { id nombre } }`;
 
-// ⚠️ Ajusta el nombre de esta mutación y sus variables si en tu backend se llaman distinto
 const M_CAMBIAR_STATUS = `mutation CambiarStatus($pedidoId: Int!, $status: String!) { actualizarStatusPedido(pedidoId: $pedidoId, status: $status) { id status } }`;
 
 const ESTADOS_PEDIDO = ['Pendiente', 'Enviado', 'Entregado'];
@@ -26,7 +26,7 @@ export function Historial() {
   const [nombres, setNombres] = useState({});
   const [detalles, setDetalles] = useState({});
   const [abierto, setAbierto] = useState(null);
-  const [facturando, setFacturando] = useState(null); // pedidoId que se está facturando
+  const [facturando, setFacturando] = useState(null);
   const [actualizandoId, setActualizandoId] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
@@ -146,9 +146,8 @@ export function Historial() {
 
 function FilaPedido({ p, esAdmin, columnas, abierto, actualizando, renglones, nombres, onToggle, onFacturar, onCambiarStatus }) {
   const tieneMapa = p.latitud != null && p.longitud != null;
-  const entregado = p.status?.includes('Entregado');
+  const entregado = p.status?.toLowerCase().includes('entregado');
 
-  // Si el pedido tiene algún estatus distinto en BD (ej. "Pagado"), se conserva en el select para no perderlo visualmente
   const opciones = ESTADOS_PEDIDO.includes(p.status)
     ? ESTADOS_PEDIDO
     : [p.status, ...ESTADOS_PEDIDO].filter(Boolean);
@@ -181,8 +180,7 @@ function FilaPedido({ p, esAdmin, columnas, abierto, actualizando, renglones, no
             <button className="neu-btn neu-btn-sm neu-btn-primary" onClick={onToggle}>
               {abierto ? 'Ocultar' : 'Ver detalle'}
             </button>
-            {/* El botón de facturar solo aparece cuando el pedido está entregado y es del cliente */}
-            {entregado && !esAdmin && (
+            {entregado && (
               <button className="neu-btn neu-btn-sm" onClick={onFacturar}>
                 Facturar pedido
               </button>

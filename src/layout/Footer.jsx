@@ -1,5 +1,5 @@
 import { useStore } from '../hooks/useStore';
-
+import { t } from '../i18n';
 export default function Footer() {
   const { cambiarPantalla } = useStore();
   return (
