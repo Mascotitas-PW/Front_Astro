@@ -4,8 +4,9 @@ import { obtenerUsuarioSesion } from '../auth/auth';
 import { suscribirPedidos } from '../services/stockEnVivo';
 import { dinero } from '../services/pedidos';
 import { MapaSoloLectura } from '../components/Mapa';
+import { SolicitarFactura } from '../components/SolicitarFactura';
 
-const CAMPOS = 'id fecha status total usuarioId nombreCompleto direccionEntrega telefono latitud longitud';
+const CAMPOS = 'id fecha status total usuarioId nombreCompleto direccionEntrega telefono latitud longitud guiaNumero urlRastreo envioEstado paqueteria servicioEnvio';
 const Q_MIS_PEDIDOS = `query MisPedidos($usuarioId: Int!) { pedidosPorUsuario(usuarioId: $usuarioId) { ${CAMPOS} } }`;
 const Q_TODOS = `query TodosLosPedidos { pedidos { ${CAMPOS} } }`;
 const Q_DETALLE = `query Detalle($pedidoId: Int!) { detallePedido(pedidoId: $pedidoId) { productoId cantidad precioUnitario } }`;
@@ -20,6 +21,7 @@ export function Historial() {
   const [nombres, setNombres] = useState({});
   const [detalles, setDetalles] = useState({});
   const [abierto, setAbierto] = useState(null);
+  const [facturando, setFacturando] = useState(null); // pedidoId que se está facturando
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
 
@@ -40,7 +42,6 @@ export function Historial() {
     }
   }, [usuarioId, esAdmin]);
 
-  // Carga inicial y actualización en vivo cuando entra un pedido nuevo
   useEffect(() => {
     cargar();
     return suscribirPedidos((evento) => {
@@ -68,7 +69,22 @@ export function Historial() {
   return (
     <main className="page">
       <h2>{esAdmin ? 'Historial de compras' : 'Mi historial de compras'}</h2>
-      {error && <div className="alerta alerta-error">{error}</div>}
+      {error && <div role="alert" className="alerta alerta-error">{error}</div>}
+
+      {facturando && (
+        <div className="modal-fondo" onClick={() => setFacturando(null)}>
+          <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: 740, padding: '1rem' }}>
+            <SolicitarFactura
+              pedidoId={facturando}
+              onFacturaEmitida={(f) => {
+                setFacturando(null);
+                alert(`Factura ${f.serie}${f.folio} generada (estado: ${f.estado}). Puedes verla en "Facturas".`);
+              }}
+              onCerrar={() => setFacturando(null)}
+            />
+          </div>
+        </div>
+      )}
 
       {pedidos.length === 0 ? (
         <p>Aún no hay compras registradas.</p>
@@ -88,9 +104,15 @@ export function Historial() {
             <tbody>
               {pedidos.map((p) => (
                 <FilaPedido
-                  key={p.id} p={p} esAdmin={esAdmin} columnas={columnas}
-                  abierto={abierto === p.id} renglones={detalles[p.id]} nombres={nombres}
+                  key={p.id}
+                  p={p}
+                  esAdmin={esAdmin}
+                  columnas={columnas}
+                  abierto={abierto === p.id}
+                  renglones={detalles[p.id]}
+                  nombres={nombres}
                   onToggle={() => alternarDetalle(p.id)}
+                  onFacturar={() => setFacturando(p.id)}
                 />
               ))}
             </tbody>
@@ -101,37 +123,68 @@ export function Historial() {
   );
 }
 
-function FilaPedido({ p, esAdmin, columnas, abierto, renglones, nombres, onToggle }) {
+function FilaPedido({ p, esAdmin, columnas, abierto, renglones, nombres, onToggle, onFacturar }) {
   const tieneMapa = p.latitud != null && p.longitud != null;
+  const entregado = p.envioEstado === 'Entregado';
+
   return (
     <>
       <tr>
         <td>#{p.id}</td>
         <td>{new Date(p.fecha).toLocaleString('es-MX')}</td>
         {esAdmin && <td>{p.nombreCompleto || `Usuario ${p.usuarioId}`}</td>}
-        <td>{p.status}</td>
+        <td>
+          <div>{p.status}</div>
+          {p.envioEstado && p.envioEstado !== 'Sin guía' && (
+            <small style={{ color: 'var(--neu-verde)' }}>{p.envioEstado}</small>
+          )}
+        </td>
         <td>{dinero(p.total)}</td>
         <td>
-          <button className="neu-btn neu-btn-sm neu-btn-primary" onClick={onToggle}>
-            {abierto ? 'Ocultar' : 'Ver detalle'}
-          </button>
+          <div className="acciones" style={{ flexDirection: 'column', gap: '.4rem' }}>
+            <button className="neu-btn neu-btn-sm neu-btn-primary" onClick={onToggle}>
+              {abierto ? 'Ocultar' : 'Ver detalle'}
+            </button>
+            {/* El botón de facturar solo aparece cuando el pedido está entregado y es del cliente */}
+            {entregado && !esAdmin && (
+              <button className="neu-btn neu-btn-sm" onClick={onFacturar}>
+                Facturar pedido
+              </button>
+            )}
+          </div>
         </td>
       </tr>
+
       {abierto && (
         <tr className="fila-detalle">
           <td colSpan={columnas}>
             <div className="historial-detalle">
               <div>
-                <p><strong>Nombre completo:</strong> {p.nombreCompleto || 'No registrado'}</p>
-                <p><strong>Dirección de entrega:</strong> {p.direccionEntrega || 'No registrada'}</p>
+                <p><strong>Nombre:</strong> {p.nombreCompleto || 'No registrado'}</p>
+                <p><strong>Dirección:</strong> {p.direccionEntrega || 'No registrada'}</p>
                 <p><strong>Teléfono:</strong> {p.telefono || 'No registrado'}</p>
-                <hr />
-                <strong>Productos</strong>
-                {!renglones ? <p>Cargando detalle...</p> : renglones.map((r) => (
-                  <p key={r.productoId}>
-                    {nombres[r.productoId] ?? `Producto ${r.productoId}`} × {r.cantidad} — {dinero(r.precioUnitario)} c/u
+                {p.paqueteria && (
+                  <p><strong>Paquetería:</strong> {p.paqueteria} — {p.servicioEnvio}</p>
+                )}
+                {p.guiaNumero && (
+                  <p>
+                    <strong>Guía:</strong> {p.guiaNumero}
+                    {p.urlRastreo && (
+                      <> — <a href={p.urlRastreo} target="_blank" rel="noreferrer" className="enlace">Rastrear</a></>
+                    )}
                   </p>
-                ))}
+                )}
+                <hr style={{ margin: '.8rem 0' }} />
+                <strong>Productos</strong>
+                {!renglones ? (
+                  <p>Cargando detalle...</p>
+                ) : (
+                  renglones.map((r) => (
+                    <p key={r.productoId}>
+                      {nombres[r.productoId] ?? `Producto ${r.productoId}`} × {r.cantidad} — {dinero(r.precioUnitario)} c/u
+                    </p>
+                  ))
+                )}
               </div>
               <div>
                 <strong>Ubicación de entrega</strong>

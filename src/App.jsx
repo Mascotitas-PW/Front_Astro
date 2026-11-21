@@ -12,6 +12,7 @@ import { Historial } from './screens/Historial';
 import { Dashboard } from './screens/Dashboard';
 import { Domicilios } from './screens/Domicilios';
 import { Terminos, Privacidad } from './screens/Legal';
+import { Facturas } from './screens/Facturas';
 import { ConsentimientoLegal } from './components/ConsentimientoLegal';
 
 export default function App() {
@@ -30,6 +31,7 @@ export default function App() {
       {pantalla === 'DOMICILIOS' && <Domicilios />}
       {pantalla === 'TERMINOS' && <Terminos />}
       {pantalla === 'PRIVACIDAD' && <Privacidad />}
+      {pantalla === 'FACTURAS' && <Facturas />}
       <ConsentimientoLegal />
     </div>
   );
