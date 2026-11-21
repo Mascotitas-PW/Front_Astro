@@ -417,5 +417,6 @@ input[type="checkbox"] {
   .topbar { position: static; }
   .hero { padding: 1rem; }
   .mapa { height: 70dvh; }
-  .modal-fondo, .cart-fondo { align-items: flex-start; overflow-y: auto; }
+  .modal-fondo, .cart-fondo { z-index: 1200; }
+  .modal-fondo { align-items: safe center; overflow-y: auto; }
 }

@@ -26,13 +26,14 @@ export async function listarMisDatosFiscales() {
 export async function obtenerCatalogos() {
   const d = await fetchGraphQL(`
     query {
-      catalogoUsosCfdi
-      catalogoRegimenesFiscales
+      catalogoUsosCfdi { key value }
+      catalogoRegimenesFiscales { key value }
     }
   `);
+  const aObjeto = (lista) => Object.fromEntries(lista.map(({ key, value }) => [key, value]));
   return {
-    usosCfdi: d.catalogoUsosCfdi,
-    regimenesFiscales: d.catalogoRegimenesFiscales,
+    usosCfdi: aObjeto(d.catalogoUsosCfdi),
+    regimenesFiscales: aObjeto(d.catalogoRegimenesFiscales),
   };
 }
 
