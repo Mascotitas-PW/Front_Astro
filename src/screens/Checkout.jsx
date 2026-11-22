@@ -242,10 +242,10 @@ export const Checkout = ({ onBackToHome }) => {
     finalizar(resultado.pedido);
   };
 
-  // Efectivo / transferencia
+  // Efectivo
   const confirmarSinPago = async (e) => {
     e.preventDefault();
-    if (metodoPago !== 'Efectivo' && metodoPago !== 'Transferencia') return;
+    if (metodoPago !== 'Efectivo') return;
 
     setErrorMsg(null);
     if (carrito.length === 0) return setErrorMsg('El carrito está vacío.');

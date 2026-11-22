@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { registrarVenta } from '../services/facturas';
 
-const FORMAS = ['Efectivo', 'Transferencia', 'Tarjeta', 'PayPal'];
+const FORMAS = ['Efectivo', 'Tarjeta', 'PayPal'];
 const deducir = (s = '') =>
-  /paypal/i.test(s) ? 'PayPal' : /mercado/i.test(s) ? 'Tarjeta' : /efectivo/i.test(s) ? 'Efectivo' : 'Transferencia';
+  /paypal/i.test(s) ? 'PayPal' : /mercado/i.test(s) ? 'Tarjeta' : /efectivo/i.test(s) ? 'Efectivo' : 'Efectivo';
 
 export function RegistrarVenta({ pedido, onRegistrada, onCerrar }) {
   const [cliente, setCliente] = useState(pedido?.nombreCompleto ?? '');

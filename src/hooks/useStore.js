@@ -101,9 +101,13 @@ if (enNavegador) {
   });
   suscribirProductos(() => cargarProductos());
   window.addEventListener('sesion-expirada', () => {
-  sincronizarUsuarioDesdeSesion();
-  actualizarState({ pantalla: 'LOGIN' });
-});
+    const usuario = obtenerUsuarioSesion() || null;
+    actualizarState({
+      usuario,
+      ...(usuario ? {} : { carrito: [] }),
+      pantalla: 'LOGIN',
+    });
+  });
 }
 
 const acciones = {

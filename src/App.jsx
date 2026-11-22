@@ -21,7 +21,7 @@ export default function App({ locale = 'es' }) {
   const { pantalla, productoSeleccionadoId } = useStore();
 
   return (
-    <div>
+    <div className="app-shell">
       <OfflineBanner />
       <TopBar />
       {pantalla === 'HOME' && <Home />}

@@ -1,5 +1,15 @@
 const CLAVES_SESION = ['token', 'usuarioId', 'adminemail', 'usuarioNombre', 'usuarioRol'];
 
+// ¿El JWT sigue vigente? (30 s de margen)
+export function tokenVigente(token) {
+  try {
+    const { exp } = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+    return !exp || exp * 1000 > Date.now() + 30000;
+  } catch {
+    return false;
+  }
+}
+
 function migrarSesionCompartida() {
   if (localStorage.getItem('token') || !sessionStorage.getItem('token')) return;
   CLAVES_SESION.forEach((clave) => {
@@ -16,28 +26,17 @@ export function obtenerUsuarioSesion() {
 
   const token = localStorage.getItem('token');
   if (!token || !tokenVigente(token)) {
-    cerrarSesion();
+    if (token) cerrarSesion();
     return null;
   }
 
-  const id = localStorage.getItem('usuarioId') || sessionStorage.getItem('usuarioId') || sessionStorage.getItem('id');
-  const email = localStorage.getItem('adminemail') || sessionStorage.getItem('adminemail') || sessionStorage.getItem('email');
-  const nombre = localStorage.getItem('usuarioNombre') || sessionStorage.getItem('usuarioNombre') || sessionStorage.getItem('adminNombre');
-  const rol = localStorage.getItem('usuarioRol') || sessionStorage.getItem('usuarioRol');
+  const id = localStorage.getItem('usuarioId');
+  const email = localStorage.getItem('adminemail');
+  const nombre = localStorage.getItem('usuarioNombre');
+  const rol = localStorage.getItem('usuarioRol');
 
-  if (id || email) {
-    return { id: id ? Number(id) : null, email, nombre, rol };
-  }
+  if (id || email) return { id: id ? Number(id) : null, email, nombre, rol };
   return null;
-}
-
-export function tokenVigente(token) {
-  try {
-    const { exp } = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
-    return !exp || exp * 1000 > Date.now() + 30000;
-  } catch {
-    return false;
-  }
 }
 
 // Guarda la sesión (login normal y Google devuelven { token, usuario })
