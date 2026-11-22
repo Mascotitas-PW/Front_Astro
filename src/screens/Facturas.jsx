@@ -50,7 +50,7 @@ export function Facturas() {
 
   return (
     <main className="page">
-      <h2>{esAdmin ? 'Ventas registradas' : 'Mis facturas'}</h2>
+      <h2>{esAdmin ? 'Ventas facturadas' : 'Mis facturas'}</h2>
 
       {error && <div role="alert" className="alerta alerta-error">{error}</div>}
 
@@ -58,7 +58,7 @@ export function Facturas() {
         <div className="neu-card" style={{ padding: '2rem', textAlign: 'center' }}>
           {esAdmin ? (
             <>
-              <p>Aún no hay ventas registradas para facturar.</p>
+              <p>Aún no hay ventas facturadas.</p>
               <p className="nota">
                 Registra la venta de un pedido entregado desde{' '}
                 <button type="button" className="enlace" onClick={() => cambiarPantalla('HISTORIAL')}>

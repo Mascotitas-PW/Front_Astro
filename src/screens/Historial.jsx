@@ -99,7 +99,7 @@ export function Historial() {
                 pedido={pedidos.find((x) => x.id === facturando)}
                 onRegistrada={(f) => {
                   setFacturando(null);
-                  alert(`Venta ${f.serie}${f.folio} registrada. Puedes verla en "Facturas".`);
+                  alert(`Venta ${f.serie}${f.folio} facturada. Puedes verla en "Facturas".`);
                 }}
                 onCerrar={() => setFacturando(null)}
               />
@@ -194,7 +194,7 @@ function FilaPedido({ p, esAdmin, columnas, abierto, actualizando, renglones, no
             </button>
             {entregado && (
               <button className="neu-btn neu-btn-sm" onClick={onFacturar}>
-                {esAdmin ? 'Registrar venta' : 'Facturar pedido'}
+                {esAdmin ? 'Facturar venta' : 'Facturar pedido'}
               </button>
             )}
           </div>

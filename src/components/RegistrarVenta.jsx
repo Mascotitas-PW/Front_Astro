@@ -25,7 +25,7 @@ export function RegistrarVenta({ pedido, onRegistrada, onCerrar }) {
 
   return (
     <form onSubmit={enviar} className="neu-card form-grid" style={{ maxWidth: 700 }}>
-      <h3 className="span-2">Registrar venta — Pedido #{pedido?.id}</h3>
+      <h3 className="span-2">Facturar venta — Pedido #{pedido?.id}</h3>
       <label className="field span-2">Cliente (opcional)
         <input value={cliente} onChange={(e) => setCliente(e.target.value)} placeholder="Público en general" />
       </label>
@@ -41,7 +41,7 @@ export function RegistrarVenta({ pedido, onRegistrada, onCerrar }) {
       <div className="acciones span-2">
         <button type="button" className="neu-btn" onClick={onCerrar}>Cancelar</button>
         <button type="submit" className="neu-btn neu-btn-primary" disabled={enviando}>
-          {enviando ? 'Registrando…' : 'Registrar venta'}
+          {enviando ? 'Facturando…' : 'Facturar venta'}
         </button>
       </div>
     </form>
