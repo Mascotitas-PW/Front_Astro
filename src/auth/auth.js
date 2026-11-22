@@ -1,7 +1,4 @@
 const CLAVES_SESION = ['token', 'usuarioId', 'adminemail', 'usuarioNombre', 'usuarioRol'];
-const token = localStorage.getItem('token');
-if (!token || !tokenVigente(token)) { cerrarSesion(); return null; }
-
 
 function migrarSesionCompartida() {
   if (localStorage.getItem('token') || !sessionStorage.getItem('token')) return;
@@ -13,10 +10,16 @@ function migrarSesionCompartida() {
 }
 
 export function obtenerUsuarioSesion() {
-  
   if (typeof window === 'undefined') return null;
 
   migrarSesionCompartida();
+
+  const token = localStorage.getItem('token');
+  if (!token || !tokenVigente(token)) {
+    cerrarSesion();
+    return null;
+  }
+
   const id = localStorage.getItem('usuarioId') || sessionStorage.getItem('usuarioId') || sessionStorage.getItem('id');
   const email = localStorage.getItem('adminemail') || sessionStorage.getItem('adminemail') || sessionStorage.getItem('email');
   const nombre = localStorage.getItem('usuarioNombre') || sessionStorage.getItem('usuarioNombre') || sessionStorage.getItem('adminNombre');
@@ -26,14 +29,15 @@ export function obtenerUsuarioSesion() {
     return { id: id ? Number(id) : null, email, nombre, rol };
   }
   return null;
-  
 }
 
 export function tokenVigente(token) {
   try {
     const { exp } = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
     return !exp || exp * 1000 > Date.now() + 30000;
-  } catch { return false; }
+  } catch {
+    return false;
+  }
 }
 
 // Guarda la sesión (login normal y Google devuelven { token, usuario })
