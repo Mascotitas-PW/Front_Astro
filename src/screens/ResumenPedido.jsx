@@ -23,7 +23,10 @@ export default function ResumenPedido({ carrito, subtotal, envio, iva, total }) 
         <span>Envío</span>
         <span>{envio == null ? 'Cotiza para ver el costo' : dinero(envio)}</span>
       </div>
-      <div className="resumen-linea"><span>IVA (16%)</span><span>{dinero(iva)}</span></div>
+     <div className="resumen-linea">
+    <span>IVA (16%)</span>
+    <span>{dinero(iva ?? Math.max(0, total - subtotal - (envio ?? 0)))}</span>
+    </div>
       <div className="resumen-linea resumen-total"><span>Total</span><span>{dinero(total)}</span></div>
     </aside>
   );
