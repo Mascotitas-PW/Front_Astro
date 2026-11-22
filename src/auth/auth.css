@@ -10,3 +10,18 @@
 .auth-page .neu-btn { margin-top: .4rem; }
 .auth-page .divider { text-align: center; color: #8A7967; margin: 1.4rem 0 1rem; }
 @media (max-width: 500px) { .auth-page { padding: 1rem; } .auth-page .card { padding: 2rem 1.4rem; } }
+.auth-page { width: 100%; }
+.auth-page .card {
+  width: min(100%, 720px); max-width: none; padding: 3.2rem 3.6rem;
+}
+.auth-page h1 { font-size: 3.4rem; }
+.auth-page .tagline { font-size: 1.3rem; margin-bottom: 2.2rem; }
+.auth-page label { font-size: 1.1rem; }
+.auth-page input { min-height: 3.6rem; font-size: 1.1rem; }
+.auth-page .neu-btn { min-height: 3.6rem; font-size: 1.1rem; }
+.google-btn { transform: scale(1.1); transform-origin: center; margin: .4rem 0; }
+
+@media (max-width: 500px) {
+  .auth-page .card { padding: 2rem 1.4rem; }
+  .auth-page h1 { font-size: 2.6rem; }
+}
