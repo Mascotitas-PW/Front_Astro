@@ -6,7 +6,6 @@ import { guardarSesion } from '../auth/auth';
 import { BotonGoogle } from '../auth/Btngoogle';
 import { t } from '../i18n';
 
-
 const MUTATION_REGISTRO = `
   mutation ($nombre: String!, $email: String!, $password: String!) {
     registrar(nombre: $nombre, email: $email, password: $password)
@@ -33,9 +32,9 @@ export function Registro() {
 
     const nombre = form.nombre.trim();
     const email = form.email.trim();
-    if (!nombre || !email || !form.password || !form.password2) return setError('Todos los campos son obligatorios.');
-    if (form.password !== form.password2) return setError('Las contraseñas no coinciden.');
-    if (form.password.length < 6) return setError('La contraseña debe tener al menos 6 caracteres.');
+    if (!nombre || !email || !form.password || !form.password2) return setError(t('Todos los campos son obligatorios.'));
+    if (form.password !== form.password2) return setError(t('Las contraseñas no coinciden.'));
+    if (form.password.length < 6) return setError(t('La contraseña debe tener al menos 6 caracteres.'));
 
     setCargando(true);
     try {
@@ -47,12 +46,12 @@ export function Registro() {
       const response = await res.json();
 
       if (response.errors?.length) return setError(response.errors[0].message);
-      if (!response.data?.registrar) return setError('El servidor no confirmó la creación de la cuenta.');
+      if (!response.data?.registrar) return setError(t('El servidor no confirmó la creación de la cuenta.'));
 
-      alert('Cuenta creada correctamente. Ahora inicia sesión.');
+      alert(t('Cuenta creada correctamente. Ahora inicia sesión.'));
       cambiarPantalla('LOGIN');
     } catch {
-      setError('Error de conexión con el servidor.');
+      setError(t('Error de conexión con el servidor.'));
     } finally {
       setCargando(false);
     }
@@ -62,34 +61,58 @@ export function Registro() {
     <div className="auth-page">
       <div className="card">
         <h1>Mascotitas</h1>
-        <p className="tagline">Crear cuenta</p>
+        <p className="tagline">{t('Crear cuenta')}</p>
 
         <form onSubmit={enviar}>
-          <label htmlFor="nombre">Nombre de usuario</label>
-          <input type="text" id="nombre" placeholder="Nombre de usuario" value={form.nombre} onChange={cambiar('nombre')} />
+          <label htmlFor="nombre">{t('Nombre de usuario')}</label>
+          <input
+            type="text"
+            id="nombre"
+            placeholder={t('Nombre de usuario')}
+            value={form.nombre}
+            onChange={cambiar('nombre')}
+          />
 
-          <label htmlFor="email">Email</label>
-          <input type="email" id="email" placeholder="Email" value={form.email} onChange={cambiar('email')} />
+          <label htmlFor="email">{t('Email')}</label>
+          <input
+            type="email"
+            id="email"
+            placeholder={t('Email')}
+            value={form.email}
+            onChange={cambiar('email')}
+          />
 
-          <label htmlFor="password">Contraseña</label>
-          <input type="password" id="password" placeholder="Crea una contraseña" value={form.password} onChange={cambiar('password')} />
+          <label htmlFor="password">{t('Contraseña')}</label>
+          <input
+            type="password"
+            id="password"
+            placeholder={t('Crea una contraseña')}
+            value={form.password}
+            onChange={cambiar('password')}
+          />
 
-          <label htmlFor="password2">Confirmar contraseña</label>
-          <input type="password" id="password2" placeholder="Repite tu contraseña" value={form.password2} onChange={cambiar('password2')} />
+          <label htmlFor="password2">{t('Confirmar contraseña')}</label>
+          <input
+            type="password"
+            id="password2"
+            placeholder={t('Repite tu contraseña')}
+            value={form.password2}
+            onChange={cambiar('password2')}
+          />
 
           {error && <div role="alert" className="alerta alerta-error">{error}</div>}
 
           <button type="submit" className="neu-btn neu-btn-primary neu-btn-block" disabled={cargando}>
-            {cargando ? 'Creando cuenta...' : 'Crear cuenta'}
+            {cargando ? t('Creando cuenta...') : t('Crear cuenta')}
           </button>
         </form>
 
-        <div className="divider">o regístrate con</div>
+        <div className="divider">{t('o regístrate con')}</div>
         <BotonGoogle onLogin={entrarConGoogle} onError={setError} />
 
-        <div className="divider">¿Ya tienes cuenta?</div>
+        <div className="divider">{t('¿Ya tienes cuenta?')}</div>
         <button type="button" className="neu-btn neu-btn-block" onClick={() => cambiarPantalla('LOGIN')}>
-          Iniciar sesión
+          {t('Iniciar sesión')}
         </button>
       </div>
     </div>

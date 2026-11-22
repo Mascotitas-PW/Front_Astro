@@ -2,12 +2,11 @@ import { useState } from 'react';
 import { subirImagen, urlImagen } from '../services/imagenes';
 import { t } from '../i18n';
 
-
 const VACIO = { nombre: '', precio: '', stock: '', categoriaId: '', pesoKg: '', imagen: '' };
 
 export function FormularioProducto({
   inicial = null, categorias = [], guardando = false,
-  textoBoton = 'Guardar', onGuardar, onCancelar,
+  textoBoton, onGuardar, onCancelar,
 }) {
   const [datos, setDatos] = useState(
     inicial
@@ -39,13 +38,13 @@ export function FormularioProducto({
     const form = e.currentTarget;
     setError(null);
 
-    if (datos.nombre.trim().length < 2) return setError('Escribe el nombre del producto.');
-    if (!(Number(datos.precio) > 0)) return setError('El precio debe ser mayor a 0.');
+    if (datos.nombre.trim().length < 2) return setError(t('Escribe el nombre del producto.'));
+    if (!(Number(datos.precio) > 0)) return setError(t('El precio debe ser mayor a 0.'));
     if (!Number.isInteger(Number(datos.stock)) || Number(datos.stock) < 0)
-      return setError('El stock debe ser un entero de 0 o más.');
-    if (!(Number(datos.pesoKg) > 0)) return setError('El peso debe ser mayor a 0 kg.');
-    if (!datos.categoriaId) return setError('Elige una categoría.');
-    if (!archivo && !datos.imagen) return setError('Sube una imagen del producto.');
+      return setError(t('El stock debe ser un entero de 0 o más.'));
+    if (!(Number(datos.pesoKg) > 0)) return setError(t('El peso debe ser mayor a 0 kg.'));
+    if (!datos.categoriaId) return setError(t('Elige una categoría.'));
+    if (!archivo && !datos.imagen) return setError(t('Sube una imagen del producto.'));
 
     try {
       let imagen = datos.imagen;
@@ -75,32 +74,38 @@ export function FormularioProducto({
   return (
     <form onSubmit={enviar} className="neu-card form-producto">
       <div className="form-grid">
-        <label className="field span-2">Nombre
+        <label className="field span-2">
+          {t('Nombre')}
           <input name="nombre" value={datos.nombre} onChange={cambiar} />
         </label>
-        <label className="field">Precio (MXN)
+        <label className="field">
+          {t('Precio (MXN)')}
           <input name="precio" type="number" step="0.01" min="0" value={datos.precio} onChange={cambiar} />
         </label>
-        <label className="field">Stock
+        <label className="field">
+          {t('Stock')}
           <input name="stock" type="number" step="1" min="0" value={datos.stock} onChange={cambiar} />
         </label>
-        <label className="field">Peso del producto (kg)
+        <label className="field">
+          {t('Peso del producto (kg)')}
           <input name="pesoKg" type="number" step="0.001" min="0.001" value={datos.pesoKg} onChange={cambiar} />
         </label>
-        <label className="field span-2">Categoría
+        <label className="field span-2">
+          {t('Categoría')}
           <select name="categoriaId" value={datos.categoriaId} onChange={cambiar}>
-            <option value="">Selecciona…</option>
+            <option value="">{t('Selecciona…')}</option>
             {categorias.map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}
           </select>
         </label>
       </div>
 
       <div style={{ display: 'grid', gap: '1rem', alignContent: 'start' }}>
-        <label className="field">Imagen (JPG, PNG o WEBP, máx. 5 MB)
+        <label className="field">
+          {t('Imagen (JPG, PNG o WEBP, máx. 5 MB)')}
           <input type="file" accept="image/jpeg,image/png,image/webp" onChange={elegirArchivo} />
         </label>
         <div className="neu-inset previa">
-          {previa ? <img src={previa} alt="Vista previa" /> : <span className="nota">Vista previa</span>}
+          {previa ? <img src={previa} alt={t('Vista previa')} /> : <span className="nota">{t('Vista previa')}</span>}
         </div>
       </div>
 
@@ -108,9 +113,9 @@ export function FormularioProducto({
         {error && <div className="alerta alerta-error">{error}</div>}
         <div className="acciones">
           <button type="submit" disabled={ocupado} className="neu-btn neu-btn-primary">
-            {subiendo ? 'Subiendo imagen…' : guardando ? 'Guardando…' : textoBoton}
+            {subiendo ? t('Subiendo imagen…') : guardando ? t('Guardando…') : (textoBoton ?? t('Guardar'))}
           </button>
-          {onCancelar && <button type="button" onClick={onCancelar} className="neu-btn">Cancelar</button>}
+          {onCancelar && <button type="button" onClick={onCancelar} className="neu-btn">{t('Cancelar')}</button>}
         </div>
       </div>
     </form>

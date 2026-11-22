@@ -67,7 +67,7 @@ export function SolicitarFactura({ pedidoId, onFacturaEmitida, onCerrar }) {
       // Si marcó "guardar este perfil" y no es perfil ya guardado, guardarlo primero
       if (guardar && !usandoPerfil) {
         await guardarDatosFiscales({
-          id: null, alias: form.alias.trim() || 'Principal',
+          id: null, alias: form.alias.trim() || t('Principal'),
           rfc: form.rfc.trim().toUpperCase(),
           razonSocial: form.razonSocial.trim().toUpperCase(),
           regimenFiscal: form.regimenFiscal,
@@ -86,20 +86,20 @@ export function SolicitarFactura({ pedidoId, onFacturaEmitida, onCerrar }) {
     }
   };
 
-  if (cargando) return <div className="neu-card" style={{ padding: '2rem' }}>Cargando catálogos...</div>;
+  if (cargando) return <div className="neu-card" style={{ padding: '2rem' }}>{t('Cargando catálogos...')}</div>;
 
   return (
     <form onSubmit={enviar} className="neu-card form-grid" style={{ maxWidth: 700 }}>
-      <h3 className="span-2">Solicitar factura — Pedido #{pedidoId}</h3>
+      <h3 className="span-2">{t('Solicitar factura')} — {t('Pedido')} #{pedidoId}</h3>
 
       {datosFiscales.length > 0 && (
         <label className="field span-2">
-          Mis datos fiscales guardados
+          {t('Mis datos fiscales guardados')}
           <select value={perfilId} onChange={(e) => elegirPerfil(e.target.value)}>
             {datosFiscales.map((p) => (
               <option key={p.id} value={p.id}>{p.alias} — {p.rfc}</option>
             ))}
-            <option value="">➕ Usar otros datos</option>
+            <option value="">➕ {t('Usar otros datos')}</option>
           </select>
         </label>
       )}
@@ -108,51 +108,51 @@ export function SolicitarFactura({ pedidoId, onFacturaEmitida, onCerrar }) {
       {!usandoPerfil && (
         <>
           <label className="field">
-            RFC *
+            {t('RFC *')}
             <input required type="text" maxLength={13} value={form.rfc}
               onChange={cambiar('rfc')} placeholder="XAXX010101000" />
           </label>
           <label className="field">
-            Razón social o nombre *
+            {t('Razón social o nombre *')}
             <input required type="text" value={form.razonSocial}
               onChange={cambiar('razonSocial')} placeholder="JUAN PEREZ GARCIA" />
           </label>
           <label className="field">
-            Régimen fiscal *
+            {t('Régimen fiscal *')}
             <select required value={form.regimenFiscal} onChange={cambiar('regimenFiscal')}>
-              <option value="">Selecciona…</option>
+              <option value="">{t('Selecciona…')}</option>
               {Object.entries(catalogos.regimenesFiscales).map(([k, v]) => (
                 <option key={k} value={k}>{v}</option>
               ))}
             </select>
           </label>
           <label className="field">
-            Código postal fiscal *
+            {t('Código postal fiscal *')}
             <input required type="text" inputMode="numeric" maxLength={5}
               value={form.codigoPostalFiscal} onChange={cambiar('codigoPostalFiscal')}
               placeholder="44100" />
           </label>
           <label className="field span-2">
-            Domicilio fiscal (opcional)
+            {t('Domicilio fiscal (opcional)')}
             <input type="text" value={form.domicilioFiscal} onChange={cambiar('domicilioFiscal')}
-              placeholder="Calle, número, colonia, ciudad" />
+              placeholder={t('Calle, número, colonia, ciudad')} />
           </label>
           <label className="consent-check span-2">
             <input type="checkbox" checked={guardar} onChange={(e) => setGuardar(e.target.checked)} />
-            <span>Guardar estos datos para mis próximas facturas</span>
+            <span>{t('Guardar estos datos para mis próximas facturas')}</span>
           </label>
           {guardar && (
             <label className="field span-2">
-              Nombre de este perfil fiscal
+              {t('Nombre de este perfil fiscal')}
               <input type="text" maxLength={40} value={form.alias}
-                onChange={cambiar('alias')} placeholder="Mi empresa, RFC personal…" />
+                onChange={cambiar('alias')} placeholder={t('Mi empresa, RFC personal…')} />
             </label>
           )}
         </>
       )}
 
       <label className="field span-2">
-        Uso del CFDI *
+        {t('Uso del CFDI *')}
         <select required value={usoCfdi} onChange={(e) => setUsoCfdi(e.target.value)}>
           {Object.entries(catalogos.usosCfdi).map(([k, v]) => (
             <option key={k} value={k}>{v}</option>
@@ -163,9 +163,9 @@ export function SolicitarFactura({ pedidoId, onFacturaEmitida, onCerrar }) {
       {error && <div role="alert" className="alerta alerta-error span-2">{error}</div>}
 
       <div className="acciones span-2">
-        <button type="button" className="neu-btn" onClick={onCerrar}>Cancelar</button>
+        <button type="button" className="neu-btn" onClick={onCerrar}>{t('Cancelar')}</button>
         <button type="submit" className="neu-btn neu-btn-primary" disabled={enviando}>
-          {enviando ? 'Generando factura…' : 'Generar factura'}
+          {enviando ? t('Generando factura…') : t('Generar factura')}
         </button>
       </div>
     </form>

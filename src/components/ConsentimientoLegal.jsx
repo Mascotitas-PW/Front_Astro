@@ -44,28 +44,31 @@ export function ConsentimientoLegal() {
   return (
     <div className="modal-fondo" role="dialog" aria-modal="true" aria-labelledby="titulo-legal">
       <div className="neu-card modal">
-        <h3 id="titulo-legal">Antes de continuar</h3>
+        <h3 id="titulo-legal">{t('Antes de continuar')}</h3>
         <p>
-          Para usar tu cuenta y comprar necesitas aceptar nuestros términos y el tratamiento de tus datos personales
-          (nombre, contacto, domicilio, ubicación y datos fiscales).
+          {t('Para usar tu cuenta y comprar necesitas aceptar nuestros términos y el tratamiento de tus datos personales (nombre, contacto, domicilio, ubicación y datos fiscales).')}
         </p>
         <p>
-          <button type="button" className="enlace" onClick={() => cambiarPantalla('TERMINOS')}>Leer términos y condiciones</button>
+          <button type="button" className="enlace" onClick={() => cambiarPantalla('TERMINOS')}>
+            {t('Leer términos y condiciones')}
+          </button>
           {' · '}
-          <button type="button" className="enlace" onClick={() => cambiarPantalla('PRIVACIDAD')}>Leer aviso de privacidad</button>
+          <button type="button" className="enlace" onClick={() => cambiarPantalla('PRIVACIDAD')}>
+            {t('Leer aviso de privacidad')}
+          </button>
         </p>
 
         <label className="consent-check">
           <input type="checkbox" checked={acepto} onChange={(e) => setAcepto(e.target.checked)} />
-          <span>He leído y acepto los términos y condiciones y el aviso de privacidad.</span>
+          <span>{t('He leído y acepto los términos y condiciones y el aviso de privacidad.')}</span>
         </label>
 
         {error && <div role="alert" className="alerta alerta-error" style={{ marginTop: '1rem' }}>{error}</div>}
 
         <div className="acciones">
-          <button type="button" className="neu-btn" onClick={cerrarSesion}>No acepto</button>
+          <button type="button" className="neu-btn" onClick={cerrarSesion}>{t('No acepto')}</button>
           <button type="button" className="neu-btn neu-btn-primary" disabled={!acepto || guardando} onClick={aceptar}>
-            {guardando ? 'Guardando...' : 'Aceptar y continuar'}
+            {guardando ? t('Guardando...') : t('Aceptar y continuar')}
           </button>
         </div>
       </div>

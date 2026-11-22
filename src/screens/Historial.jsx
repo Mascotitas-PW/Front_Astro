@@ -6,7 +6,7 @@ import { dinero } from '../services/pedidos';
 import { MapaSoloLectura } from '../components/Mapa';
 import { SolicitarFactura } from '../components/SolicitarFactura';
 import { RegistrarVenta } from '../components/RegistrarVenta';
-import { t } from '../i18n';
+import { t, estatus, fechaLoc } from '../i18n';
 
 const CAMPOS = 'id fecha status total usuarioId nombreCompleto direccionEntrega codigoPostalEntrega coloniaEntrega ciudadEntrega estadoEntrega telefono latitud longitud paqueteria servicioEnvio costoEnvio';
 const Q_MIS_PEDIDOS = `query MisPedidos($usuarioId: Int!) { pedidosPorUsuario(usuarioId: $usuarioId) { ${CAMPOS} } }`;
@@ -81,14 +81,14 @@ export function Historial() {
     }
   }
 
-  if (!usuario) return <main className="page">Inicia sesión para ver tus compras.</main>;
-  if (cargando) return <main className="page">Cargando compras...</main>;
+  if (!usuario) return <main className="page">{t('Inicia sesión para ver tus compras.')}</main>;
+  if (cargando) return <main className="page">{t('Cargando compras...')}</main>;
 
   const columnas = esAdmin ? 6 : 5;
 
   return (
     <main className="page">
-      <h2>{esAdmin ? 'Historial de compras' : 'Mi historial de compras'}</h2>
+      <h2>{esAdmin ? t('Historial de compras') : t('Mi historial de compras')}</h2>
       {error && <div role="alert" className="alerta alerta-error">{error}</div>}
 
       {facturando && (
@@ -99,7 +99,7 @@ export function Historial() {
                 pedido={pedidos.find((x) => x.id === facturando)}
                 onRegistrada={(f) => {
                   setFacturando(null);
-                  alert(`Venta ${f.serie}${f.folio} facturada. Puedes verla en "Facturas".`);
+                  alert(`${t('Venta')} ${f.serie}${f.folio} ${t('facturada. Puedes verla en "Facturas".')}`);
                 }}
                 onCerrar={() => setFacturando(null)}
               />
@@ -108,7 +108,7 @@ export function Historial() {
                 pedidoId={facturando}
                 onFacturaEmitida={(f) => {
                   setFacturando(null);
-                  alert(`Factura ${f.serie}${f.folio} generada (estado: ${f.estado}). Puedes verla en "Facturas".`);
+                  alert(`${t('Factura')} ${f.serie}${f.folio} ${t('generada')} (${t('estado')}: ${estatus(f.estado)}). ${t('Puedes verla en "Facturas".')}`);
                 }}
                 onCerrar={() => setFacturando(null)}
               />
@@ -118,17 +118,17 @@ export function Historial() {
       )}
 
       {pedidos.length === 0 ? (
-        <p>Aún no hay compras registradas.</p>
+        <p>{t('Aún no hay compras registradas.')}</p>
       ) : (
         <div className="tabla-wrap">
           <table className="tabla">
             <thead>
               <tr>
-                <th>Pedido</th>
-                <th>Fecha</th>
-                {esAdmin && <th>Cliente</th>}
-                <th>Estatus</th>
-                <th>Total</th>
+                <th>{t('Pedido')}</th>
+                <th>{t('Fecha')}</th>
+                {esAdmin && <th>{t('Cliente')}</th>}
+                <th>{t('Estatus')}</th>
+                <th>{t('Total')}</th>
                 <th></th>
               </tr>
             </thead>
@@ -168,8 +168,8 @@ function FilaPedido({ p, esAdmin, columnas, abierto, actualizando, renglones, no
     <>
       <tr>
         <td>#{p.id}</td>
-        <td>{new Date(p.fecha).toLocaleString('es-MX')}</td>
-        {esAdmin && <td>{p.nombreCompleto || `Usuario ${p.usuarioId}`}</td>}
+        <td>{fechaLoc(p.fecha)}</td>
+        {esAdmin && <td>{p.nombreCompleto || `${t('Usuario')} ${p.usuarioId}`}</td>}
         <td>
           {esAdmin ? (
             <select
@@ -179,22 +179,22 @@ function FilaPedido({ p, esAdmin, columnas, abierto, actualizando, renglones, no
               onChange={(e) => onCambiarStatus(e.target.value)}
             >
               {opciones.map((st) => (
-                <option key={st} value={st}>{st}</option>
+                <option key={st} value={st}>{estatus(st)}</option>
               ))}
             </select>
           ) : (
-            <div>{p.status}</div>
+            <div>{estatus(p.status)}</div>
           )}
         </td>
         <td>{dinero(p.total)}</td>
         <td>
           <div className="acciones" style={{ flexDirection: 'column', gap: '.4rem' }}>
             <button className="neu-btn neu-btn-sm neu-btn-primary" onClick={onToggle}>
-              {abierto ? 'Ocultar' : 'Ver detalle'}
+              {abierto ? t('Ocultar') : t('Ver detalle')}
             </button>
             {entregado && (
               <button className="neu-btn neu-btn-sm" onClick={onFacturar}>
-                {esAdmin ? 'Facturar venta' : 'Facturar pedido'}
+                {esAdmin ? t('Facturar venta') : t('Facturar pedido')}
               </button>
             )}
           </div>
@@ -206,29 +206,29 @@ function FilaPedido({ p, esAdmin, columnas, abierto, actualizando, renglones, no
           <td colSpan={columnas}>
             <div className="historial-detalle">
               <div>
-                <p><strong>Nombre:</strong> {p.nombreCompleto || 'No registrado'}</p>
-                <p><strong>Dirección:</strong> {p.direccionEntrega || 'No registrada'}</p>
-                <p><strong>Teléfono:</strong> {p.telefono || 'No registrado'}</p>
+                <p><strong>{t('Nombre:')}</strong> {p.nombreCompleto || t('No registrado')}</p>
+                <p><strong>{t('Dirección:')}</strong> {p.direccionEntrega || t('No registrada')}</p>
+                <p><strong>{t('Teléfono:')}</strong> {p.telefono || t('No registrado')}</p>
                 {p.paqueteria && (
-                  <p><strong>Paquetería:</strong> {p.paqueteria} — {p.servicioEnvio}</p>
+                  <p><strong>{t('Paquetería:')}</strong> {p.paqueteria} — {p.servicioEnvio}</p>
                 )}
                 <hr style={{ margin: '.8rem 0' }} />
-                <strong>Productos</strong>
+                <strong>{t('Productos')}</strong>
                 {!renglones ? (
-                  <p>Cargando detalle...</p>
+                  <p>{t('Cargando detalle...')}</p>
                 ) : (
                   renglones.map((r) => (
                     <p key={r.productoId}>
-                      {nombres[r.productoId] ?? `Producto ${r.productoId}`} × {r.cantidad} — {dinero(r.precioUnitario)} c/u
+                      {nombres[r.productoId] ?? `${t('Producto')} ${r.productoId}`} × {r.cantidad} — {dinero(r.precioUnitario)} {t('c/u')}
                     </p>
                   ))
                 )}
               </div>
               <div>
-                <strong>Ubicación de entrega</strong>
+                <strong>{t('Ubicación de entrega')}</strong>
                 {tieneMapa
                   ? <MapaSoloLectura lat={p.latitud} lng={p.longitud} />
-                  : <p className="nota">Este pedido no tiene ubicación en el mapa.</p>}
+                  : <p className="nota">{t('Este pedido no tiene ubicación en el mapa.')}</p>}
               </div>
             </div>
           </td>

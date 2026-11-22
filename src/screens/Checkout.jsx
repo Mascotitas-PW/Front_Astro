@@ -77,15 +77,15 @@ export const Checkout = ({ onBackToHome }) => {
     fetch(`${API_BASE_URL}/api/codigos-postales/${codigoPostal}`, { signal: controller.signal })
       .then(async (response) => {
         const data = await response.json().catch(() => ({}));
-        if (response.status === 404) throw new Error('Código postal no encontrado.');
-        if (response.status === 400) throw new Error(data.message || 'Código postal inválido.');
-        if (!response.ok) throw new Error(data.message || `No se pudo consultar el código postal (${response.status}).`);
+        if (response.status === 404) throw new Error(t('Código postal no encontrado.'));
+        if (response.status === 400) throw new Error(data.message || t('Código postal inválido.'));
+        if (!response.ok) throw new Error(data.message || `${t('No se pudo consultar el código postal')} (${response.status}).`);
         return data;
       })
       .then((data) => {
         const opcionesColonia = Array.isArray(data.colonias) ? data.colonias : [];
         setColonias(opcionesColonia);
-        setErrorCodigoPostal(opcionesColonia.length ? '' : 'El código postal no tiene colonias disponibles.');
+        setErrorCodigoPostal(opcionesColonia.length ? '' : t('El código postal no tiene colonias disponibles.'));
         setEntrega((actual) => ({
           ...actual,
           estado: data.estado ?? '',
@@ -98,7 +98,7 @@ export const Checkout = ({ onBackToHome }) => {
       .catch((error) => {
         if (error.name !== 'AbortError') {
           setColonias([]);
-          setErrorCodigoPostal(error.message || 'No se pudo consultar el código postal.');
+          setErrorCodigoPostal(error.message || t('No se pudo consultar el código postal.'));
           setEntrega((actual) => ({ ...actual, estado: '', ciudad: '', colonia: '' }));
         }
       })
@@ -146,7 +146,7 @@ export const Checkout = ({ onBackToHome }) => {
   const solicitarCotizacion = async () => {
     const error = validarEntrega(entrega);
     if (error) return setErrorMsg(error);
-    if (carrito.length === 0) return setErrorMsg('El carrito está vacío.');
+    if (carrito.length === 0) return setErrorMsg(t('El carrito está vacío.'));
 
     setCotizando(true);
     setErrorMsg(null);
@@ -154,11 +154,11 @@ export const Checkout = ({ onBackToHome }) => {
       const resultado = await cotizarEnvio({ carrito, entrega });
       setCotizacion(resultado);
       setRateId('');
-      if (!resultado.tarifas?.length) setErrorMsg('No hay tarifas para esta dirección.');
+      if (!resultado.tarifas?.length) setErrorMsg(t('No hay tarifas para esta dirección.'));
     } catch (errorCotizacion) {
       setCotizacion(null);
       setRateId('');
-      setErrorMsg(errorCotizacion.message || 'No se pudo cotizar el envío.');
+      setErrorMsg(errorCotizacion.message || t('No se pudo cotizar el envío.'));
     } finally {
       setCotizando(false);
     }
@@ -174,7 +174,7 @@ export const Checkout = ({ onBackToHome }) => {
     const e = entregaRef.current;
     if (guardarDom && !domicilioId) {
       guardarDomicilio({
-        alias: aliasDom.trim() || 'Casa',
+        alias: aliasDom.trim() || t('Casa'),
         nombreCompleto: e.nombre.trim(),
         telefono: e.telefono.replace(/\D/g, ''),
         direccion: e.direccion.trim(),
@@ -195,7 +195,7 @@ export const Checkout = ({ onBackToHome }) => {
     if (errEntrega) { setErrorMsg(errEntrega); throw new Error(errEntrega); }
 
     if (!tarifaSeleccionada || !cotizacion) {
-      const error = new Error('Cotiza el envío y selecciona una tarifa antes de pagar.');
+      const error = new Error(t('Cotiza el envío y selecciona una tarifa antes de pagar.'));
       setErrorMsg(error.message);
       throw error;
     }
@@ -219,8 +219,8 @@ export const Checkout = ({ onBackToHome }) => {
       console.error('Error procesando pago:', error);
       setErrorMsg(
         pago
-          ? `El pago fue aprobado, pero no se pudo guardar el pedido: ${error.message}`
-          : error.message || 'No se pudo procesar el pago.',
+          ? `${t('El pago fue aprobado, pero no se pudo guardar el pedido')}: ${error.message}`
+          : error.message || t('No se pudo procesar el pago.'),
       );
       if (pago) return pago; // ya cobrado: no hacer fallar al Brick para que no reintente el cobro
       throw error;
@@ -248,12 +248,12 @@ export const Checkout = ({ onBackToHome }) => {
     if (metodoPago !== 'Efectivo') return;
 
     setErrorMsg(null);
-    if (carrito.length === 0) return setErrorMsg('El carrito está vacío.');
-    if (!usuarioId) return setErrorMsg('Inicia sesión para completar tu compra.');
+    if (carrito.length === 0) return setErrorMsg(t('El carrito está vacío.'));
+    if (!usuarioId) return setErrorMsg(t('Inicia sesión para completar tu compra.'));
 
     const errEntrega = validarEntrega(entrega);
     if (errEntrega) return setErrorMsg(errEntrega);
-    if (!cotizacion || !tarifaSeleccionada) return setErrorMsg('Cotiza el envío y selecciona una tarifa.');
+    if (!cotizacion || !tarifaSeleccionada) return setErrorMsg(t('Cotiza el envío y selecciona una tarifa.'));
 
     setLoading(true);
     try {
@@ -263,7 +263,7 @@ export const Checkout = ({ onBackToHome }) => {
       }));
     } catch (err) {
       console.error('Error al registrar el pedido:', err);
-      setErrorMsg(err.message || 'Error de conexión con el servidor.');
+      setErrorMsg(err.message || t('Error de conexión con el servidor.'));
     } finally {
       setLoading(false);
     }
@@ -274,10 +274,10 @@ export const Checkout = ({ onBackToHome }) => {
   if (!usuario) {
     return (
       <main className="page" style={{ maxWidth: 560, textAlign: 'center' }}>
-        <h2>Inicia sesión para pagar</h2>
-        <p>Necesitas una cuenta para completar tu compra.</p>
+        <h2>{t('Inicia sesión para pagar')}</h2>
+        <p>{t('Necesitas una cuenta para completar tu compra.')}</p>
         <button onClick={() => store.cambiarPantalla('LOGIN')} className="neu-btn neu-btn-primary">
-          Ir a iniciar sesión
+          {t('Ir a iniciar sesión')}
         </button>
       </main>
     );
@@ -295,7 +295,7 @@ export const Checkout = ({ onBackToHome }) => {
 
   return (
     <main className="page">
-      <h2>Confirmar compra</h2>
+      <h2>{t('Confirmar compra')}</h2>
 
       {errorMsg && <div role="alert" className="alerta alerta-error">{errorMsg}</div>}
 
@@ -332,7 +332,7 @@ export const Checkout = ({ onBackToHome }) => {
 
           {metodoPago === 'PayPal' && (
             <div className="neu-card pago-bloque">
-              <h3>Pagar con PayPal</h3>
+              <h3>{t('Pagar con PayPal')}</h3>
               <PayPalButton
                 items={itemsInput(carrito)}
                 usuarioId={usuarioId}
@@ -348,7 +348,7 @@ export const Checkout = ({ onBackToHome }) => {
                 cotizacionEnvioId={cotizacion?.id}
                 rateId={tarifaSeleccionada?.id}
                 onApproved={pagoPayPalAprobado}
-                onError={(err) => setErrorMsg(err?.message || 'No se pudo completar el pago con PayPal.')}
+                onError={(err) => setErrorMsg(err?.message || t('No se pudo completar el pago con PayPal.'))}
                 disabled={carrito.length === 0 || !tarifaSeleccionada}
               />
             </div>

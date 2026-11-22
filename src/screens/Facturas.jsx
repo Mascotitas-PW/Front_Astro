@@ -5,7 +5,7 @@ import {
 } from '../services/facturas';
 import { dinero } from '../services/pedidos';
 import { useStore } from '../hooks/useStore';
-import { t } from '../i18n';
+import { t, fechaLoc } from '../i18n';
 
 const dineroLocal = (n) =>
   Number(n).toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
@@ -42,15 +42,15 @@ export function Facturas() {
     const clase = estado === 'Timbrada' || estado === 'Registrada' ? 'badge-ok'
       : estado === 'Cancelada' ? 'badge-bad'
       : 'badge-warn';
-    return <span className={`badge ${clase}`}>{estado}</span>;
+    return <span className={`badge ${clase}`}>{t(estado)}</span>;
   };
 
-  if (!usuario) return <main className="page">Inicia sesión para ver tus facturas.</main>;
-  if (cargando) return <main className="page">Cargando facturas...</main>;
+  if (!usuario) return <main className="page">{t('Inicia sesión para ver tus facturas.')}</main>;
+  if (cargando) return <main className="page">{t('Cargando facturas...')}</main>;
 
   return (
     <main className="page">
-      <h2>{esAdmin ? 'Ventas facturadas' : 'Mis facturas'}</h2>
+      <h2>{esAdmin ? t('Ventas facturadas') : t('Mis facturas')}</h2>
 
       {error && <div role="alert" className="alerta alerta-error">{error}</div>}
 
@@ -58,21 +58,21 @@ export function Facturas() {
         <div className="neu-card" style={{ padding: '2rem', textAlign: 'center' }}>
           {esAdmin ? (
             <>
-              <p>Aún no hay ventas facturadas.</p>
+              <p>{t('Aún no hay ventas facturadas.')}</p>
               <p className="nota">
-                Registra la venta de un pedido entregado desde{' '}
+                {t('Registra la venta de un pedido entregado desde')}{' '}
                 <button type="button" className="enlace" onClick={() => cambiarPantalla('HISTORIAL')}>
-                  el historial de compras
+                  {t('el historial de compras')}
                 </button>.
               </p>
             </>
           ) : (
             <>
-              <p>Aún no hay facturas emitidas.</p>
+              <p>{t('Aún no hay facturas emitidas.')}</p>
               <p className="nota">
-                Puedes solicitar la factura de un pedido entregado desde{' '}
+                {t('Puedes solicitar la factura de un pedido entregado desde')}{' '}
                 <button type="button" className="enlace" onClick={() => cambiarPantalla('HISTORIAL')}>
-                  tu historial de compras
+                  {t('tu historial de compras')}
                 </button>.
               </p>
             </>
@@ -83,13 +83,13 @@ export function Facturas() {
           <table className="tabla">
             <thead>
               <tr>
-                <th>Folio</th>
-                <th>Pedido</th>
-                <th>Fecha</th>
-                {esAdmin && <th>Cliente</th>}
-                <th>Total</th>
-                <th>Estado</th>
-                <th>Acciones</th>
+                <th>{t('Folio')}</th>
+                <th>{t('Pedido')}</th>
+                <th>{t('Fecha')}</th>
+                {esAdmin && <th>{t('Cliente')}</th>}
+                <th>{t('Total')}</th>
+                <th>{t('Estado')}</th>
+                <th>{t('Acciones')}</th>
               </tr>
             </thead>
             <tbody>
@@ -97,7 +97,7 @@ export function Facturas() {
                 <tr key={f.id}>
                   <td><strong>{f.serie}{f.folio}</strong></td>
                   <td>#{f.pedidoId}</td>
-                  <td>{new Date(f.fechaEmision).toLocaleDateString('es-MX')}</td>
+                  <td>{fechaLoc(f.fechaEmision)}</td>
                   {esAdmin && <td>{f.razonSocialReceptor}</td>}
                   <td>{dineroLocal(f.total)}</td>
                   <td>{badgeEstado(f.estado)}</td>
@@ -109,7 +109,7 @@ export function Facturas() {
                         disabled={descargando === f.id}
                         onClick={() => accion(() => verHtml(f.id), f.id)}
                       >
-                        Ver
+                        {t('Ver')}
                       </button>
                       <button
                         type="button"
@@ -117,7 +117,7 @@ export function Facturas() {
                         disabled={descargando === f.id}
                         onClick={() => accion(() => descargarPdf(f.id, f.folio), f.id)}
                       >
-                        PDF / HTML
+                        {t('PDF / HTML')}
                       </button>
                       {f.origen !== 'Empresa' && (
                         <button
@@ -126,13 +126,13 @@ export function Facturas() {
                           disabled={descargando === f.id}
                           onClick={() => accion(() => descargarXml(f.id, f.folio), f.id)}
                         >
-                          XML
+                          {t('XML')}
                         </button>
                       )}
                     </div>
                     {f.estado === 'Borrador' && f.motivoError && (
                       <p className="nota" style={{ color: 'var(--neu-rojo)', marginTop: '.3rem' }}>
-                        Error: {f.motivoError}
+                        {t('Error')}: {f.motivoError}
                       </p>
                     )}
                   </td>

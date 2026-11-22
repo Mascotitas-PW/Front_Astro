@@ -21,7 +21,7 @@ async function nominatim(ruta) {
   ultimaPeticion = Date.now() + espera;
   if (espera) await new Promise((r) => setTimeout(r, espera));
   const res = await fetch(`${NOMINATIM}${ruta}`);
-  if (!res.ok) throw new Error('El buscador de direcciones no respondió.');
+  if (!res.ok) throw new Error(t('El buscador de direcciones no respondió.'));
   return res.json();
 }
 
@@ -113,7 +113,7 @@ export function MapaEntrega({ direccion, ubicacion, onUbicacion, onDireccion, on
         if (ubicacion) colocar(ubicacion, 16);
         setListo(true);
       } catch {
-        setAviso('No se pudo cargar el mapa.');
+        setAviso(t('No se pudo cargar el mapa.'));
       }
     })();
     return () => {
@@ -131,30 +131,30 @@ export function MapaEntrega({ direccion, ubicacion, onUbicacion, onDireccion, on
     if (saltarBusqueda.current) { saltarBusqueda.current = false; return undefined; }
 
     let cancelado = false;
-    const t = setTimeout(async () => {
+    const temporizador = setTimeout(async () => {
       try {
         const datos = await nominatim(
           `/search?format=jsonv2&limit=1&countrycodes=mx&accept-language=es&q=${encodeURIComponent(direccion)}`,
         );
         if (cancelado) return;
         if (!datos?.length) {
-          setAviso('No encontramos esa dirección. Toca el mapa para marcar tu ubicación.');
+          setAviso(t('No encontramos esa dirección. Toca el mapa para marcar tu ubicación.'));
           return;
         }
         elegir({ lat: Number(datos[0].lat), lng: Number(datos[0].lon) }, false);
       } catch {
-        if (!cancelado) setAviso('No pudimos buscar la dirección. Toca el mapa para marcarla.');
+        if (!cancelado) setAviso(t('No pudimos buscar la dirección. Toca el mapa para marcarla.'));
       }
     }, 1200);
-    return () => { cancelado = true; clearTimeout(t); };
+    return () => { cancelado = true; clearTimeout(temporizador); };
   }, [direccion, listo]);
 
   const usarMiUbicacion = () => {
     if (!listo) return;
-    if (!navigator.geolocation) { setAviso('Tu navegador no permite obtener la ubicación.'); return; }
+    if (!navigator.geolocation) { setAviso(t('Tu navegador no permite obtener la ubicación.')); return; }
     navigator.geolocation.getCurrentPosition(
       (p) => elegir({ lat: p.coords.latitude, lng: p.coords.longitude }, true),
-      () => setAviso('No pudimos obtener tu ubicación. Revisa los permisos o toca el mapa.'),
+      () => setAviso(t('No pudimos obtener tu ubicación. Revisa los permisos o toca el mapa.')),
       { enableHighAccuracy: true, timeout: 10000 },
     );
   };
@@ -162,16 +162,16 @@ export function MapaEntrega({ direccion, ubicacion, onUbicacion, onDireccion, on
   return (
     <div className="span-2 mapa-bloque">
       <div className="mapa-barra">
-        <strong>Marca tu ubicación de entrega</strong>
+        <strong>{t('Marca tu ubicación de entrega')}</strong>
         <button type="button" className="neu-btn neu-btn-sm" onClick={usarMiUbicacion}>
-          📍 Usar mi ubicación
+          📍 {t('Usar mi ubicación')}
         </button>
       </div>
       <div ref={contenedor} className="mapa" />
       {aviso && <p className="nota">{aviso}</p>}
       {ubicacion && (
         <p className="nota nota-ok">
-          ✓ La ubicación se guardará con tu pedido (puedes arrastrar el pin para ajustarla).
+          ✓ {t('La ubicación se guardará con tu pedido (puedes arrastrar el pin para ajustarla).')}
         </p>
       )}
     </div>
@@ -204,7 +204,7 @@ export function MapaSoloLectura({ lat, lng }) {
         target="_blank"
         rel="noreferrer"
       >
-        Abrir en OpenStreetMap
+        {t('Abrir en OpenStreetMap')}
       </a>
     </div>
   );

@@ -6,7 +6,6 @@ import { obtenerUsuarioSesion, guardarSesion } from '../auth/auth';
 import { BotonGoogle } from '../auth/Btngoogle';
 import { t } from '../i18n';
 
-
 const MUTATION_LOGIN = `
   mutation ($email: String!, $password: String!) {
     login(email: $email, password: $password) {
@@ -38,7 +37,7 @@ export function Login() {
     setError(null);
 
     if (!email.trim() || !password) {
-      setError('Todos los campos son obligatorios.');
+      setError(t('Todos los campos son obligatorios.'));
       return;
     }
 
@@ -53,12 +52,12 @@ export function Login() {
 
       if (result.errors?.length) { setError(result.errors[0].message); return; }
       const payload = result.data?.login;
-      if (!payload) { setError('Usuario o contraseña incorrectos.'); return; }
+      if (!payload) { setError(t('Usuario o contraseña incorrectos.')); return; }
 
       iniciarSesion(payload);
     } catch (e) {
       console.error('Error de conexión:', e);
-      setError('Error de conexión con el servidor de Mascotitas.');
+      setError(t('Error de conexión con el servidor de Mascotitas.'));
     } finally {
       setCargando(false);
     }
@@ -68,28 +67,40 @@ export function Login() {
     <div className="auth-page">
       <div className="card">
         <h1>Mascotitas</h1>
-        <p className="tagline">Iniciar sesión</p>
+        <p className="tagline">{t('Iniciar sesión')}</p>
 
         <form onSubmit={handleLogin}>
-          <label htmlFor="email">Email</label>
-          <input type="email" id="email" placeholder="Ingresa tu email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <label htmlFor="email">{t('Email')}</label>
+          <input
+            type="email"
+            id="email"
+            placeholder={t('Ingresa tu email')}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
 
-          <label htmlFor="contrasena">Contraseña</label>
-          <input type="password" id="contrasena" placeholder="Ingresa tu contraseña" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <label htmlFor="contrasena">{t('Contraseña')}</label>
+          <input
+            type="password"
+            id="contrasena"
+            placeholder={t('Ingresa tu contraseña')}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
           {error && <div role="alert" className="alerta alerta-error">{error}</div>}
 
           <button type="submit" className="neu-btn neu-btn-primary neu-btn-block" disabled={cargando}>
-            {cargando ? 'Entrando...' : 'Iniciar sesión'}
+            {cargando ? t('Entrando...') : t('Iniciar sesión')}
           </button>
         </form>
 
-        <div className="divider">o</div>
+        <div className="divider">{t('o')}</div>
         <BotonGoogle onLogin={iniciarSesion} onError={setError} />
 
-        <div className="divider">¿No tienes cuenta?</div>
+        <div className="divider">{t('¿No tienes cuenta?')}</div>
         <button type="button" className="neu-btn neu-btn-block" onClick={() => cambiarPantalla('REGISTER')}>
-          Registrarse
+          {t('Registrarse')}
         </button>
       </div>
     </div>

@@ -6,7 +6,7 @@ import {
 import { fetchGraphQL } from '../graphql/client';
 import { suscribirPedidos } from '../services/stockEnVivo';
 import { dinero } from '../services/pedidos';
-import { t } from '../i18n';
+import { t, fechaLoc } from '../i18n';
 
 const QUERY = `
   query {
@@ -19,7 +19,12 @@ const QUERY = `
   }`;
 
 const COLORES = ['#E8734A', '#E8B93E', '#3B7A3B', '#4A3623', '#7A9E9F', '#B5651D'];
-const diaCorto = (f) => { const [, m, d] = f.split('-'); return `${d}/${m}`; };
+const diaCorto = (f) => {
+  const texto = fechaLoc(f);
+  if (texto && texto !== f) return texto;
+  const [, m, d] = f.split('-');
+  return `${d}/${m}`;
+};
 
 function Kpi({ titulo, valor }) {
   return (
@@ -55,50 +60,50 @@ export function Estadisticas() {
   }, [cargar]);
 
   if (error) return <div className="alerta alerta-error">{error}</div>;
-  if (!datos) return <p>Cargando estadísticas...</p>;
+  if (!datos) return <p>{t('Cargando estadísticas...')}</p>;
 
   const sinVentas = datos.totalPedidos === 0;
 
   return (
     <>
-      <h2>Estadísticas</h2>
+      <h2>{t('Estadísticas')}</h2>
 
       <div className="kpis">
-        <Kpi titulo="Ventas totales" valor={dinero(datos.totalVentas)} />
-        <Kpi titulo="Pedidos" valor={datos.totalPedidos} />
-        <Kpi titulo="Ticket promedio" valor={dinero(datos.ticketPromedio)} />
+        <Kpi titulo={t('Ventas totales')} valor={dinero(datos.totalVentas)} />
+        <Kpi titulo={t('Pedidos')} valor={datos.totalPedidos} />
+        <Kpi titulo={t('Ticket promedio')} valor={dinero(datos.ticketPromedio)} />
       </div>
 
       {sinVentas ? (
-        <p>Aún no hay ventas registradas para graficar.</p>
+        <p>{t('Aún no hay ventas registradas para graficar.')}</p>
       ) : (
         <>
-          <Panel titulo="Ventas de los últimos 30 días">
+          <Panel titulo={t('Ventas de los últimos 30 días')}>
             <ResponsiveContainer>
               <LineChart data={datos.ventasPorDia}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#D6C49A" />
                 <XAxis dataKey="fecha" tickFormatter={diaCorto} interval={4} />
                 <YAxis tickFormatter={(v) => `$${v}`} />
-                <Tooltip labelFormatter={diaCorto} formatter={(v) => [dinero(v), 'Ventas']} />
-                <Line type="monotone" dataKey="total" name="Ventas" stroke="#E8734A" strokeWidth={3} dot={false} />
+                <Tooltip labelFormatter={diaCorto} formatter={(v) => [dinero(v), t('Ventas')]} />
+                <Line type="monotone" dataKey="total" name={t('Ventas')} stroke="#E8734A" strokeWidth={3} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </Panel>
 
           <div className="paneles">
-            <Panel titulo="Productos más vendidos (unidades)">
+            <Panel titulo={t('Productos más vendidos (unidades)')}>
               <ResponsiveContainer>
                 <BarChart data={datos.topProductos} layout="vertical" margin={{ left: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#D6C49A" />
                   <XAxis type="number" allowDecimals={false} />
                   <YAxis type="category" dataKey="nombre" width={140} />
                   <Tooltip />
-                  <Bar dataKey="unidades" name="Unidades" fill="#E8B93E" radius={[0, 6, 6, 0]} />
+                  <Bar dataKey="unidades" name={t('Unidades')} fill="#E8B93E" radius={[0, 6, 6, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </Panel>
 
-            <Panel titulo="Ventas por categoría">
+            <Panel titulo={t('Ventas por categoría')}>
               <ResponsiveContainer>
                 <PieChart>
                   <Pie data={datos.ventasPorCategoria} dataKey="ingresos" nameKey="categoria" outerRadius={100} label>

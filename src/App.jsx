@@ -1,6 +1,7 @@
+import { useState } from 'react';
 import './styles/global.css';
 import './styles/Neumorfismo.css';
-import { setLocale } from './i18n';
+import { setLocale, useLocale } from './i18n';
 import OfflineBanner from './components/OfflineBanner';
 import { useStore } from './hooks/useStore';
 import { TopBar } from './layout/TopBar';
@@ -17,7 +18,9 @@ import { Facturas } from './screens/Facturas';
 import { ConsentimientoLegal } from './components/ConsentimientoLegal';
 
 export default function App({ locale = 'es' }) {
-  setLocale(locale);
+  useState(() => { setLocale(locale); }); 
+  useLocale();                            
+
   const { pantalla, productoSeleccionadoId } = useStore();
 
   return (

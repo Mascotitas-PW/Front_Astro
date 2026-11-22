@@ -29,7 +29,7 @@ function cargarSdkPayPal() {
     script.addEventListener("load", resolve, { once: true });
     script.addEventListener(
       "error",
-      () => reject(new Error("No se pudo cargar PayPal.")),
+      () => reject(new Error(t("No se pudo cargar PayPal."))),
       { once: true },
     );
   });
@@ -41,23 +41,23 @@ async function leerRespuesta(response) {
   try {
     data = await response.json();
   } catch {
-    data = { message: "El servidor devolvió una respuesta inválida." };
+    data = { message: t("El servidor devolvió una respuesta inválida.") };
   }
 
   if (!response.ok) {
-    if (response.status === 401) throw new Error(MENSAJE_SESION_EXPIRADA);
-    throw new Error(data.message || data.error || `Error del servidor (${response.status}).`);
+    if (response.status === 401) throw new Error(t(MENSAJE_SESION_EXPIRADA));
+    throw new Error(data.message || data.error || `${t("Error del servidor")} (${response.status}).`);
   }
 
   return data;
 }
 
 function validarEntrega({ nombreCompleto, direccionEntrega, telefono, codigoPostal, estado, ciudad, colonia }) {
-  if (nombreCompleto.trim().length < 3) return "Escribe tu nombre completo.";
-  if (direccionEntrega.trim().length < 5) return "Escribe una dirección de entrega válida.";
-  if (telefono.replace(/\D/g, "").length !== 10) return "El teléfono debe tener 10 dígitos.";
-  if (!/^\d{5}$/.test(String(codigoPostal ?? ""))) return "El código postal debe tener 5 dígitos.";
-  if (!estado?.trim() || !ciudad?.trim() || !colonia?.trim()) return "Completa estado, ciudad y colonia.";
+  if (nombreCompleto.trim().length < 3) return t("Escribe tu nombre completo.");
+  if (direccionEntrega.trim().length < 5) return t("Escribe una dirección de entrega válida.");
+  if (telefono.replace(/\D/g, "").length !== 10) return t("El teléfono debe tener 10 dígitos.");
+  if (!/^\d{5}$/.test(String(codigoPostal ?? ""))) return t("El código postal debe tener 5 dígitos.");
+  if (!estado?.trim() || !ciudad?.trim() || !colonia?.trim()) return t("Completa estado, ciudad y colonia.");
   return null;
 }
 
@@ -128,7 +128,7 @@ export function PayPalButton({
       const errorEntrega = validarEntrega(current);
       if (errorEntrega) throw new Error(errorEntrega);
 
-      const token = obtenerTokenRequerido("Inicia sesión para pagar con PayPal.");
+      const token = obtenerTokenRequerido(t("Inicia sesión para pagar con PayPal."));
       const response = await fetch(`${PAYPAL_API_URL}/api/orders`, {
         method: "POST",
         headers: {
@@ -152,18 +152,18 @@ export function PayPalButton({
         }),
       });
       const data = await leerRespuesta(response);
-      if (!data.id) throw new Error("El servidor no devolvió el ID de la orden PayPal.");
+      if (!data.id) throw new Error(t("El servidor no devolvió el ID de la orden PayPal."));
       return { orderId: data.id };
     };
 
     const capturarOrden = async (paypalData) => {
       const orderID = paypalData?.orderID || paypalData?.orderId;
-      if (!orderID) throw new Error("PayPal no devolvió el orderID.");
+      if (!orderID) throw new Error(t("PayPal no devolvió el orderID."));
       if (capturaEnCursoRef.current) return null;
 
       capturaEnCursoRef.current = true;
       const current = callbacksRef.current;
-      const token = obtenerTokenRequerido("Inicia sesión para pagar con PayPal.");
+      const token = obtenerTokenRequerido(t("Inicia sesión para pagar con PayPal."));
       try {
         const response = await fetch(`${PAYPAL_API_URL}/api/orders/${orderID}/capture`, {
           method: "POST",
@@ -189,7 +189,7 @@ export function PayPalButton({
         });
         const data = await leerRespuesta(response);
         if (data.capture?.status !== "COMPLETED") {
-          throw new Error(`PayPal no completó el pago (estado: ${data.capture?.status || "desconocido"}).`);
+          throw new Error(`${t("PayPal no completó el pago")} (${t("estado")}: ${data.capture?.status || t("desconocido")}).`);
         }
         return data;
       } finally {
@@ -209,7 +209,7 @@ export function PayPalButton({
         const eligibility = await sdk.findEligibleMethods();
 
         if (!eligibility.isEligible("paypal")) {
-          callbacksRef.current.onError(new Error("PayPal no está disponible para esta cuenta."));
+          callbacksRef.current.onError(new Error(t("PayPal no está disponible para esta cuenta.")));
           return;
         }
 
@@ -222,7 +222,7 @@ export function PayPalButton({
               callbacksRef.current.onError(error);
             }
           },
-          onCancel: () => callbacksRef.current.onError(new Error("Pago cancelado.")),
+          onCancel: () => callbacksRef.current.onError(new Error(t("Pago cancelado."))),
           onError: (error) => callbacksRef.current.onError(error),
         });
 
@@ -249,10 +249,10 @@ export function PayPalButton({
   }, [disabled]);
 
   if (!PAYPAL_CLIENT_ID) {
-    return <p>Configura PUBLIC_PAYPAL_CLIENT_ID para habilitar PayPal.</p>;
+    return <p>{t("Configura PUBLIC_PAYPAL_CLIENT_ID para habilitar PayPal.")}</p>;
   }
 
-  return <div ref={containerRef} aria-label="Pagar con PayPal" />;
+  return <div ref={containerRef} aria-label={t("Pagar con PayPal")} />;
 }
 
 export default PayPalButton;

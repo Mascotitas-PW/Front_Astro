@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { registrarVenta } from '../services/facturas';
+import { t } from '../i18n';
 
 const FORMAS = ['Efectivo', 'Tarjeta', 'PayPal'];
 const deducir = (s = '') =>

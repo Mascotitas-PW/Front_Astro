@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useStore } from '../hooks/useStore';
 import { CartModal } from '../components/CartModal';
-import { t, urlOtroIdioma, otroIdioma } from '../i18n';
+import { t, toggleLocale, otroIdioma } from '../i18n';
 
 export function TopBar() {
   const { busqueda, cambiarBusqueda, cambiarPantalla, pantalla, totalItemsCarrito, usuario, cerrarSesion } = useStore();
@@ -59,9 +59,7 @@ export function TopBar() {
           ) : (
             <button type="button" className="neu-btn" onClick={() => cambiarPantalla('LOGIN')}>{t('entrar')}</button>
           )}
-          <a className="neu-btn" href={urlOtroIdioma()} hrefLang={otroIdioma()} lang={otroIdioma()}>
-            {t('idioma')}
-          </a>
+         <button type="button" className="neu-btn" onClick={toggleLocale} lang={otroIdioma()}>{t('idioma')}</button>
         </nav>
       </header>
 

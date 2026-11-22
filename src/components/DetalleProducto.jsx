@@ -19,7 +19,7 @@ export function DetalleProducto({ productoId }) {
     if (disponible > 0 && cantidadSeleccionada > disponible) cambiarCantidad(disponible);
   }, [disponible, cantidadSeleccionada]);
 
-  if (!producto) return <main className="page">Producto no encontrado.</main>;
+  if (!producto) return <main className="page">{t('Producto no encontrado.')}</main>;
 
   const src = urlImagen(producto.imagen) || SIN_IMAGEN;
 
@@ -32,18 +32,20 @@ export function DetalleProducto({ productoId }) {
 
   return (
     <main className="detalle neu-card">
-      <button className="detalle-cerrar neu-btn" onClick={() => cambiarPantalla('HOME')} aria-label="Cerrar">✕</button>
+      <button className="detalle-cerrar neu-btn" onClick={() => cambiarPantalla('HOME')} aria-label={t('Cerrar')}>✕</button>
       <img
         src={src}
         alt={producto.nombre}
         onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = SIN_IMAGEN; }}
       />
       <h2>{producto.nombre}</h2>
-      <p className="detalle-precio">{dinero(producto.precio)} <small className="mas-iva">+ IVA</small></p>
-      <span className={`badge ${claseStock}`}>{stock <= 0 ? 'Agotado' : `Stock: ${stock} disponibles`}</span>
+      <p className="detalle-precio">{dinero(producto.precio)} <small className="mas-iva">{t('+ IVA')}</small></p>
+      <span className={`badge ${claseStock}`}>
+        {stock <= 0 ? t('Agotado') : `${t('Stock')}: ${stock} ${t('disponibles')}`}
+      </span>
 
       <div className="detalle-cantidad">
-        <label htmlFor="cantidad">Cantidad:</label>
+        <label htmlFor="cantidad">{t('Cantidad:')}</label>
         <input
           id="cantidad"
           type="number"
@@ -53,7 +55,9 @@ export function DetalleProducto({ productoId }) {
           onChange={manejarCantidad}
           disabled={agotado}
         />
-        <small>(máx. {disponible}{enCarrito > 0 ? `, ya tienes ${enCarrito} en el carrito` : ''})</small>
+        <small>
+          ({t('máx.')} {disponible}{enCarrito > 0 ? `, ${t('ya tienes')} ${enCarrito} ${t('en el carrito')}` : ''})
+        </small>
       </div>
 
       <button
@@ -65,14 +69,14 @@ export function DetalleProducto({ productoId }) {
         }}
       >
         {!usuario
-          ? 'Inicia sesión para agregar'
+          ? t('Inicia sesión para agregar')
           : agotado
-            ? (stock <= 0 ? 'Agotado' : 'Ya tienes todo el stock en tu carrito')
-            : 'Agregar al carrito'}
+            ? (stock <= 0 ? t('Agotado') : t('Ya tienes todo el stock en tu carrito'))
+            : t('Agregar al carrito')}
       </button>
 
       <button className="neu-btn neu-btn-block" style={{ marginTop: '1rem' }} onClick={() => cambiarPantalla('HOME')}>
-        Volver al catálogo
+        {t('Volver al catálogo')}
       </button>
     </main>
   );
