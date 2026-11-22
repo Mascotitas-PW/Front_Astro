@@ -30,9 +30,10 @@ export function BotonGoogle({ onLogin, onError }) {
           }
         },
       });
-      window.google.accounts.id.renderButton(ref.current, {
-        theme: 'outline', size: 'large', text: 'continue_with', shape: 'pill', width: 340,
-      });
+     window.google.accounts.id.renderButton(ref.current, {
+     theme: 'outline', size: 'large', text: 'continue_with', shape: 'pill',
+     width: Math.min(400, Math.max(200, Math.floor(ref.current.parentElement.clientWidth))),
+    });
     };
 
     if (window.google?.accounts?.id) {

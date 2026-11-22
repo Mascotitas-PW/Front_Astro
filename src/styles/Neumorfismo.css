@@ -438,3 +438,8 @@ input[type="radio"] { width: 1.3rem; height: 1.3rem; border-radius: 50%; }
   .modal-fondo, .cart-fondo { z-index: 1200; }
   .modal-fondo { align-items: safe center; overflow-y: auto; }
 }
+@media (max-width: 768px) {
+  .topbar { gap: .9rem; padding-bottom: 1rem; }
+  .topbar-nav { gap: .9rem .8rem; }
+  .topbar-nav .neu-btn { min-height: 2.6rem; padding: .4rem 1rem; }
+}
