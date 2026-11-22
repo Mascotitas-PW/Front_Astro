@@ -1,4 +1,7 @@
 const CLAVES_SESION = ['token', 'usuarioId', 'adminemail', 'usuarioNombre', 'usuarioRol'];
+const token = localStorage.getItem('token');
+if (!token || !tokenVigente(token)) { cerrarSesion(); return null; }
+
 
 function migrarSesionCompartida() {
   if (localStorage.getItem('token') || !sessionStorage.getItem('token')) return;
