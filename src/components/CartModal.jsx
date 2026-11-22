@@ -41,7 +41,7 @@ export function CartModal({ isOpen, onClose, onGoToCheckout }) {
         {carrito.length > 0 && (
           <div style={{ marginTop: '1.5rem' }}>
             <div className="cart-linea"><span>Subtotal</span><span>{dinero(totalCarrito)}</span></div>
-            <div className="cart-linea"><span>Envío</span><span>Se cotiza en checkout</span></div>
+           <div className="cart-linea"><span>Envío e IVA</span><span>Se calculan en checkout</span></div>
             <button
               className="neu-btn neu-btn-primary neu-btn-block"
               style={{ marginTop: '1.2rem' }}

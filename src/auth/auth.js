@@ -10,6 +10,7 @@ function migrarSesionCompartida() {
 }
 
 export function obtenerUsuarioSesion() {
+  
   if (typeof window === 'undefined') return null;
 
   migrarSesionCompartida();
@@ -22,6 +23,14 @@ export function obtenerUsuarioSesion() {
     return { id: id ? Number(id) : null, email, nombre, rol };
   }
   return null;
+  
+}
+
+export function tokenVigente(token) {
+  try {
+    const { exp } = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+    return !exp || exp * 1000 > Date.now() + 30000;
+  } catch { return false; }
 }
 
 // Guarda la sesión (login normal y Google devuelven { token, usuario })

@@ -100,6 +100,10 @@ if (enNavegador) {
     actualizarState({ productos });
   });
   suscribirProductos(() => cargarProductos());
+  window.addEventListener('sesion-expirada', () => {
+  sincronizarUsuarioDesdeSesion();
+  actualizarState({ pantalla: 'LOGIN' });
+});
 }
 
 const acciones = {

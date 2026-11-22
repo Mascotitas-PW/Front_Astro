@@ -23,7 +23,7 @@ export default function ProductoCard({ producto, onVer, prioridad = false }) {
             {producto.nombre}
           </button>
         </h3>
-        <p className="precio">${Number(producto.precio).toFixed(2)}</p>
+       <p className="precio">${Number(producto.precio).toFixed(2)} <small className="mas-iva">+ IVA</small></p>
       </div>
     </article>
   );

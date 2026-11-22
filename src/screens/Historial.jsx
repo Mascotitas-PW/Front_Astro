@@ -5,6 +5,7 @@ import { suscribirPedidos } from '../services/stockEnVivo';
 import { dinero } from '../services/pedidos';
 import { MapaSoloLectura } from '../components/Mapa';
 import { SolicitarFactura } from '../components/SolicitarFactura';
+import { RegistrarVenta } from '../components/RegistrarVenta';
 import { t } from '../i18n';
 
 const CAMPOS = 'id fecha status total usuarioId nombreCompleto direccionEntrega codigoPostalEntrega coloniaEntrega ciudadEntrega estadoEntrega telefono latitud longitud paqueteria servicioEnvio costoEnvio';
@@ -93,14 +94,25 @@ export function Historial() {
       {facturando && (
         <div className="modal-fondo" onClick={() => setFacturando(null)}>
           <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: 740, padding: '1rem' }}>
-            <SolicitarFactura
-              pedidoId={facturando}
-              onFacturaEmitida={(f) => {
-                setFacturando(null);
-                alert(`Factura ${f.serie}${f.folio} generada (estado: ${f.estado}). Puedes verla en "Facturas".`);
-              }}
-              onCerrar={() => setFacturando(null)}
-            />
+            {esAdmin ? (
+              <RegistrarVenta
+                pedido={pedidos.find((x) => x.id === facturando)}
+                onRegistrada={(f) => {
+                  setFacturando(null);
+                  alert(`Venta ${f.serie}${f.folio} registrada. Puedes verla en "Facturas".`);
+                }}
+                onCerrar={() => setFacturando(null)}
+              />
+            ) : (
+              <SolicitarFactura
+                pedidoId={facturando}
+                onFacturaEmitida={(f) => {
+                  setFacturando(null);
+                  alert(`Factura ${f.serie}${f.folio} generada (estado: ${f.estado}). Puedes verla en "Facturas".`);
+                }}
+                onCerrar={() => setFacturando(null)}
+              />
+            )}
           </div>
         </div>
       )}
@@ -182,7 +194,7 @@ function FilaPedido({ p, esAdmin, columnas, abierto, actualizando, renglones, no
             </button>
             {entregado && (
               <button className="neu-btn neu-btn-sm" onClick={onFacturar}>
-                Facturar pedido
+                {esAdmin ? 'Registrar venta' : 'Facturar pedido'}
               </button>
             )}
           </div>

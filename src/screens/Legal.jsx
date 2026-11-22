@@ -2,10 +2,10 @@ import { useStore } from '../hooks/useStore';
 import { t } from '../i18n';
 
 const R = {
-  nombre: '[NOMBRE O RAZÓN SOCIAL DEL RESPONSABLE]',
-  domicilio: '[DOMICILIO DEL RESPONSABLE]',
-  correo: '[CORREO DE CONTACTO PARA PRIVACIDAD]',
-  ciudad: '[CIUDAD Y ESTADO]',
+  nombre: 'Eduardo Chavarría',
+  domicilio: 'Av. Reforma 123, Ciudad de México, C.P. 06600',
+  correo: 'privacidad@mascotitas.com',
+  ciudad: 'Ciudad de México (CDMX)',
 };
 const ACTUALIZACION = 'Noviembre de 2026';
 
@@ -43,7 +43,7 @@ export function Terminos() {
       </p>
       <h3>4. Pedidos y formas de pago</h3>
       <p>
-        Puedes pagar con tarjeta (Mercado Pago), PayPal, efectivo contra entrega o transferencia. Los pagos con tarjeta y PayPal los procesan
+        Puedes pagar con tarjeta (Mercado Pago), PayPal y efectivo contra entrega. Los pagos con tarjeta y PayPal los procesan
         directamente esos proveedores; esta tienda no almacena los datos de tu tarjeta. Los pedidos con efectivo o transferencia quedan pendientes
         de pago hasta su confirmación.
       </p>
@@ -61,8 +61,10 @@ export function Terminos() {
       </p>
       <h3>7. Cancelaciones, cambios y devoluciones</h3>
       <p>
-        Conforme a la Ley Federal de Protección al Consumidor y a la política vigente de la tienda: [DESCRIBE AQUÍ PLAZOS Y CONDICIONES
-        DE CANCELACIÓN, CAMBIOS Y DEVOLUCIONES]. Por razones de higiene, los alimentos abiertos no admiten devolución.
+      Conforme a la Ley Federal de Protección al Consumidor y a la política vigente de Mascotitas, 
+      puedes solicitar la cancelación de tu pedido antes de que sea despachado y gestionar cambios o devoluciones 
+      dentro de los 5 días naturales posteriores a la entrega, siempre que el producto conserve su empaque original, etiquetas y buen estado. 
+      Por razones de higiene y sanidad animal, los alimentos, premios y productos de uso sanitario o higiénico abiertos o manipulados no admiten devolución.
       </p>
       <h3>8. Propiedad intelectual</h3>
       <p>La marca, el diseño y el contenido de la tienda pertenecen a sus titulares y no pueden usarse sin autorización.</p>

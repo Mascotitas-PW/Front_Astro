@@ -14,7 +14,9 @@ export const API_BASE_URL = GRAPHQL_ENDPOINT.replace(/\/graphql\/?$/, "");
 
 export function obtenerToken() {
   if (typeof window === "undefined") return null;
-  return localStorage.getItem("token") || sessionStorage.getItem("token");
+  const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+  if (token && !tokenVigente(token)) { cerrarSesion(); return null; }
+  return token;
 }
 
 export const MENSAJE_SESION_EXPIRADA = "Tu sesión expiró. Cierra sesión y vuelve a iniciar sesión.";
@@ -41,6 +43,13 @@ export async function fetchGraphQL(query, variables = {}) {
     throw new Error(t('sinRed'));
   }
   const json = await res.json();
-  if (json.errors) throw new Error(json.errors[0].message);
-  return json.data;
+  if (json.errors) {
+  const e = json.errors[0];
+  if (/^AUTH_NOT_AUTH/.test(e.extensions?.code ?? '')) {
+    cerrarSesion();
+    window.dispatchEvent(new Event('sesion-expirada'));
+    throw new Error(MENSAJE_SESION_EXPIRADA);
+  }
+  throw new Error(e.message);
+}
 }

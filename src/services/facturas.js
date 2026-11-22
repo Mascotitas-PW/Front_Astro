@@ -5,7 +5,7 @@ const BASE = GRAPHQL_ENDPOINT.replace(/\/graphql\/?$/, '');
 const CAMPOS_FACTURA = `
   id pedidoId usuarioId serie folio estado uuid fechaEmision
   subtotal iva total rfcReceptor razonSocialReceptor usoCfdi
-  tipoComprobante motivoError
+  tipoComprobante motivoError origen
 `;
 
 const CAMPOS_DATOS = `
@@ -56,6 +56,14 @@ export async function solicitarFactura(input) {
     { input },
   );
   return d.solicitarFactura;
+}
+
+export async function registrarVenta(input) {
+  const d = await fetchGraphQL(
+    `mutation ($input: RegistroVentaInput!) { registrarVenta(input: $input) { ${CAMPOS_FACTURA} } }`,
+    { input },
+  );
+  return d.registrarVenta;
 }
 
 // ── Descargas (REST) ─────────────────────────────────────────────────────

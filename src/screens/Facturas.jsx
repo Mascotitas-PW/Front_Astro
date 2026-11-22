@@ -39,7 +39,7 @@ export function Facturas() {
   };
 
   const badgeEstado = (estado) => {
-    const clase = estado === 'Timbrada' ? 'badge-ok'
+    const clase = estado === 'Timbrada' || estado === 'Registrada' ? 'badge-ok'
       : estado === 'Cancelada' ? 'badge-bad'
       : 'badge-warn';
     return <span className={`badge ${clase}`}>{estado}</span>;
@@ -50,18 +50,33 @@ export function Facturas() {
 
   return (
     <main className="page">
-      <h2>{esAdmin ? 'Todas las facturas' : 'Mis facturas'}</h2>
+      <h2>{esAdmin ? 'Ventas registradas' : 'Mis facturas'}</h2>
 
       {error && <div role="alert" className="alerta alerta-error">{error}</div>}
 
       {facturas.length === 0 ? (
         <div className="neu-card" style={{ padding: '2rem', textAlign: 'center' }}>
-          <p>Aún no hay facturas emitidas.</p>
-          <p className="nota">Puedes solicitar la factura de un pedido entregado desde
-            {' '}<button type="button" className="enlace" onClick={() => cambiarPantalla('HISTORIAL')}>
-              tu historial de compras
-            </button>.
-          </p>
+          {esAdmin ? (
+            <>
+              <p>Aún no hay ventas registradas para facturar.</p>
+              <p className="nota">
+                Registra la venta de un pedido entregado desde{' '}
+                <button type="button" className="enlace" onClick={() => cambiarPantalla('HISTORIAL')}>
+                  el historial de compras
+                </button>.
+              </p>
+            </>
+          ) : (
+            <>
+              <p>Aún no hay facturas emitidas.</p>
+              <p className="nota">
+                Puedes solicitar la factura de un pedido entregado desde{' '}
+                <button type="button" className="enlace" onClick={() => cambiarPantalla('HISTORIAL')}>
+                  tu historial de compras
+                </button>.
+              </p>
+            </>
+          )}
         </div>
       ) : (
         <div className="tabla-wrap">
@@ -71,7 +86,7 @@ export function Facturas() {
                 <th>Folio</th>
                 <th>Pedido</th>
                 <th>Fecha</th>
-                {esAdmin && <th>RFC Receptor</th>}
+                {esAdmin && <th>Cliente</th>}
                 <th>Total</th>
                 <th>Estado</th>
                 <th>Acciones</th>
@@ -83,7 +98,7 @@ export function Facturas() {
                   <td><strong>{f.serie}{f.folio}</strong></td>
                   <td>#{f.pedidoId}</td>
                   <td>{new Date(f.fechaEmision).toLocaleDateString('es-MX')}</td>
-                  {esAdmin && <td style={{ fontSize: '.9em' }}>{f.rfcReceptor}<br /><small>{f.razonSocialReceptor}</small></td>}
+                  {esAdmin && <td>{f.razonSocialReceptor}</td>}
                   <td>{dineroLocal(f.total)}</td>
                   <td>{badgeEstado(f.estado)}</td>
                   <td>
@@ -104,14 +119,16 @@ export function Facturas() {
                       >
                         PDF / HTML
                       </button>
-                      <button
-                        type="button"
-                        className="neu-btn neu-btn-sm"
-                        disabled={descargando === f.id}
-                        onClick={() => accion(() => descargarXml(f.id, f.folio), f.id)}
-                      >
-                        XML
-                      </button>
+                      {f.origen !== 'Empresa' && (
+                        <button
+                          type="button"
+                          className="neu-btn neu-btn-sm"
+                          disabled={descargando === f.id}
+                          onClick={() => accion(() => descargarXml(f.id, f.folio), f.id)}
+                        >
+                          XML
+                        </button>
+                      )}
                     </div>
                     {f.estado === 'Borrador' && f.motivoError && (
                       <p className="nota" style={{ color: 'var(--neu-rojo)', marginTop: '.3rem' }}>

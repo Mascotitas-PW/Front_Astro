@@ -4,6 +4,7 @@ import { obtenerUsuarioSesion } from '../auth/auth';
 import {
   validarEntrega, itemsInput, cotizarEnvio,
   procesarPagoMercadoPago, crearPedidoConPago, crearPedidoSinPago,
+  TASA_IVA,
 } from '../services/pedidos';
 import { useBrickMercadoPago, BRICK_CONTAINER_ID } from '../hooks/useBrickMercadoPago';
 import FormularioEntrega from './FormularioEntrega';
@@ -23,7 +24,10 @@ export const Checkout = ({ onBackToHome }) => {
   const [cotizando, setCotizando] = useState(false);
   const tarifaSeleccionada = cotizacion?.tarifas?.find((rate) => rate.id === rateId) ?? null;
   const envio = tarifaSeleccionada ? Number(tarifaSeleccionada.importe) : null;
-  const total = subtotal + (envio ?? 0);
+  const centavos = Math.round((subtotal + (envio ?? 0)) * 100);
+  const ivaCentavos = Math.round(centavos * TASA_IVA);
+  const iva = ivaCentavos / 100;
+  const total = (centavos + ivaCentavos) / 100;
 
   const usuario = obtenerUsuarioSesion();
   const usuarioId = usuario?.id ?? null;

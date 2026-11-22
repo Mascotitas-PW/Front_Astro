@@ -39,7 +39,7 @@ export function DetalleProducto({ productoId }) {
         onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = SIN_IMAGEN; }}
       />
       <h2>{producto.nombre}</h2>
-      <p className="detalle-precio">{dinero(producto.precio)}</p>
+      <p className="detalle-precio">{dinero(producto.precio)} <small className="mas-iva">+ IVA</small></p>
       <span className={`badge ${claseStock}`}>{stock <= 0 ? 'Agotado' : `Stock: ${stock} disponibles`}</span>
 
       <div className="detalle-cantidad">

@@ -84,16 +84,20 @@ export default function FormularioEntrega({
       {cotizacionEnvioId && (
         <fieldset className="span-2" style={{ border: 0, padding: 0, margin: 0 }}>
           <legend>Paquetería y servicio</legend>
-          {tarifas.length === 0 ? <p>No hay tarifas disponibles para esta dirección.</p> : tarifas.map((tarifa) => (
-            <label key={tarifa.id} className="field">
-              <span>
-                <input type="radio" name="tarifaEnvio" checked={rateId === tarifa.id}
-                  onChange={() => onRateId(tarifa.id)} />
-                {tarifa.paqueteria} · {tarifa.servicio} · {Number(tarifa.importe).toLocaleString('es-MX', { style: 'currency', currency: tarifa.moneda || 'MXN' })}
-                {tarifa.diasEntrega ? ` · ${tarifa.diasEntrega} días` : ''}
-              </span>
-            </label>
-          ))}
+          {tarifas.length === 0 ? <p>No hay tarifas disponibles para esta dirección.</p> : (
+            <div className="tarifas">
+              {tarifas.map((tarifa) => (
+                <label key={tarifa.id} className={`tarifa ${rateId === tarifa.id ? 'tarifa-activa' : ''}`}>
+                  <input type="radio" name="tarifaEnvio" checked={rateId === tarifa.id}
+                    onChange={() => onRateId(tarifa.id)} />
+                  <span>
+                    {tarifa.paqueteria} · {tarifa.servicio} · {Number(tarifa.importe).toLocaleString('es-MX', { style: 'currency', currency: tarifa.moneda || 'MXN' })}
+                    {tarifa.diasEntrega ? ` · ${tarifa.diasEntrega} días` : ''}
+                  </span>
+                </label>
+              ))}
+            </div>
+          )}
         </fieldset>
       )}
 

@@ -14,7 +14,8 @@ const CREAR_PEDIDO_SIN_PAGO_MUTATION = `
   mutation CrearPedidoSinPago($input: CrearPedidoSinPagoInput!) {
     crearPedidoSinPago(input: $input) { id status total }
   }`;
-
+  
+export const TASA_IVA = 0.16;
 export const dinero = (n) =>
   Number(n).toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
 
