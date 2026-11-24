@@ -334,6 +334,8 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 export const getLocale = () => loc;
 export const otroIdioma = () => (loc === 'es' ? 'en' : 'es');
 export const fechaLoc = () => (loc === 'en' ? 'en-US' : 'es-MX');
+export const formatoFecha = (f) =>
+  f ? new Date(f).toLocaleString(fechaLoc()) : '';
 
 export function setLocale(l) {
   const nuevo = ui[l] ? l : 'es';

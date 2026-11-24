@@ -6,7 +6,7 @@ import { dinero } from '../services/pedidos';
 import { MapaSoloLectura } from '../components/Mapa';
 import { SolicitarFactura } from '../components/SolicitarFactura';
 import { RegistrarVenta } from '../components/RegistrarVenta';
-import { t, estatus, fechaLoc } from '../i18n';
+import { t, estatus, formatoFecha } from '../i18n';
 
 const CAMPOS = 'id fecha status total usuarioId nombreCompleto direccionEntrega codigoPostalEntrega coloniaEntrega ciudadEntrega estadoEntrega telefono latitud longitud paqueteria servicioEnvio costoEnvio';
 const Q_MIS_PEDIDOS = `query MisPedidos($usuarioId: Int!) { pedidosPorUsuario(usuarioId: $usuarioId) { ${CAMPOS} } }`;
@@ -168,7 +168,7 @@ function FilaPedido({ p, esAdmin, columnas, abierto, actualizando, renglones, no
     <>
       <tr>
         <td>#{p.id}</td>
-        <td>{fechaLoc(p.fecha)}</td>
+        <td>{formatoFecha(p.fecha)}</td>
         {esAdmin && <td>{p.nombreCompleto || `${t('Usuario')} ${p.usuarioId}`}</td>}
         <td>
           {esAdmin ? (
