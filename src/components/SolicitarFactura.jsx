@@ -10,7 +10,7 @@ const VACIO = {
   codigoPostalFiscal: '', domicilioFiscal: '', predeterminado: false,
 };
 
-export function SolicitarFactura({ pedidoId, onFacturaEmitida, onCerrar }) {
+export function SolicitarFactura({ pedidoId, numeroPedido, onFacturaEmitida, onCerrar }) {
   const [catalogos, setCatalogos] = useState({ usosCfdi: {}, regimenesFiscales: {} });
   const [datosFiscales, setDatosFiscales] = useState([]);
   const [perfilId, setPerfilId] = useState('');       // '' = nuevo perfil
@@ -90,8 +90,8 @@ export function SolicitarFactura({ pedidoId, onFacturaEmitida, onCerrar }) {
 
   return (
     <form onSubmit={enviar} className="neu-card form-grid" style={{ maxWidth: 700 }}>
-      <h3 className="span-2">{t('Solicitar factura')} — {t('Pedido')} #{pedidoId}</h3>
-
+      <h3 className="span-2">Solicitar factura — Pedido #{numeroPedido ?? pedidoId}</h3>
+      
       {datosFiscales.length > 0 && (
         <label className="field span-2">
           {t('Mis datos fiscales guardados')}

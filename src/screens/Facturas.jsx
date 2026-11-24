@@ -18,7 +18,7 @@ export function Facturas() {
   const [facturas, setFacturas] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
-  const [descargando, setDescargando] = useState(null); // id de la factura que se está descargando
+  const [descargando, setDescargando] = useState(null);
 
   const cargar = useCallback(async () => {
     try {
@@ -96,7 +96,7 @@ export function Facturas() {
               {facturas.map((f) => (
                 <tr key={f.id}>
                   <td><strong>{f.serie}{f.folio}</strong></td>
-                  <td>#{f.pedidoId}</td>
+                  <td>#{esAdmin ? f.pedidoId : f.numeroPedido}</td>
                   <td>{fechaLoc(f.fechaEmision)}</td>
                   {esAdmin && <td>{f.razonSocialReceptor}</td>}
                   <td>{dineroLocal(f.total)}</td>

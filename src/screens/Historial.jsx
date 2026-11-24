@@ -8,7 +8,7 @@ import { SolicitarFactura } from '../components/SolicitarFactura';
 import { RegistrarVenta } from '../components/RegistrarVenta';
 import { t, estatus, formatoFecha } from '../i18n';
 
-const CAMPOS = 'id fecha status total usuarioId nombreCompleto direccionEntrega codigoPostalEntrega coloniaEntrega ciudadEntrega estadoEntrega telefono latitud longitud paqueteria servicioEnvio costoEnvio';
+const CAMPOS = 'id numeroPedidoUsuario fecha status total usuarioId nombreCompleto direccionEntrega codigoPostalEntrega coloniaEntrega ciudadEntrega estadoEntrega telefono latitud longitud paqueteria servicioEnvio costoEnvio';
 const Q_MIS_PEDIDOS = `query MisPedidos($usuarioId: Int!) { pedidosPorUsuario(usuarioId: $usuarioId) { ${CAMPOS} } }`;
 const Q_TODOS = `query TodosLosPedidos { pedidos { ${CAMPOS} } }`;
 const Q_DETALLE = `query Detalle($pedidoId: Int!) { detallePedido(pedidoId: $pedidoId) { productoId cantidad precioUnitario } }`;
@@ -106,6 +106,7 @@ export function Historial() {
             ) : (
               <SolicitarFactura
                 pedidoId={facturando}
+                numeroPedido={pedidos.find((x) => x.id === facturando)?.numeroPedidoUsuario}
                 onFacturaEmitida={(f) => {
                   setFacturando(null);
                   alert(`${t('Factura')} ${f.serie}${f.folio} ${t('generada')} (${t('estado')}: ${estatus(f.estado)}). ${t('Puedes verla en "Facturas".')}`);
@@ -167,7 +168,11 @@ function FilaPedido({ p, esAdmin, columnas, abierto, actualizando, renglones, no
   return (
     <>
       <tr>
-        <td>#{p.id}</td>
+        <td>
+          {esAdmin
+            ? <>#{p.id} <small>(cliente: #{p.numeroPedidoUsuario})</small></>
+            : <>#{p.numeroPedidoUsuario}</>}
+        </td>
         <td>{formatoFecha(p.fecha)}</td>
         {esAdmin && <td>{p.nombreCompleto || `${t('Usuario')} ${p.usuarioId}`}</td>}
         <td>

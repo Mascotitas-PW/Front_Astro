@@ -7,12 +7,12 @@ const ENVIO_QUOTES_URL = `${API_BASE_URL}/api/envios/cotizaciones`;
 
 const CREAR_PEDIDO_MUTATION = `
   mutation CrearPedido($input: CrearPedidoInput!) {
-    crearPedido(input: $input) { id status total }
+    crearPedido(input: $input) { id numeroPedidoUsuario status total }
   }`;
 
 const CREAR_PEDIDO_SIN_PAGO_MUTATION = `
   mutation CrearPedidoSinPago($input: CrearPedidoSinPagoInput!) {
-    crearPedidoSinPago(input: $input) { id status total }
+   crearPedidoSinPago(input: $input) { id numeroPedidoUsuario status total }
   }`;
   
 export const TASA_IVA = 0.16;

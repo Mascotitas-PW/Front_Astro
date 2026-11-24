@@ -3,9 +3,9 @@ import { fetchGraphQL, GRAPHQL_ENDPOINT, obtenerToken } from '../graphql/client'
 const BASE = GRAPHQL_ENDPOINT.replace(/\/graphql\/?$/, '');
 
 const CAMPOS_FACTURA = `
-  id pedidoId usuarioId serie folio estado uuid fechaEmision
+  id pedidoId numeroPedido usuarioId serie folio estado uuid fechaEmision
   subtotal iva total rfcReceptor razonSocialReceptor usoCfdi
-  tipoComprobante motivoError origen
+  tipoComprobante motivoError
 `;
 
 const CAMPOS_DATOS = `
