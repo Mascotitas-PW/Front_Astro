@@ -1,109 +1,121 @@
-# Mascotitas — Frontend
+# Mascotitas — Front-end
 
-Tienda en línea de productos para mascotas, construida con **Astro** y **React**, instalable como **PWA** y desplegada en GitHub Pages.
-
-**Sitio:** https://mascotitas-pw.github.io/Front_Astro/
+Interfaz de la tienda Mascotitas hecha con **Astro** y **React**. Es una aplicación de una sola URL con navegación por estado, estilo **neumórfico**, **responsiva**, **bilingüe (es/en)** e **instalable como PWA**.
 
 ## Tecnologías
 
-| Área | Tecnología |
+|Área|Herramienta|
 |---|---|
-| Framework | Astro + React (renderizado en cliente con `client:only="react"`) |
-| Estilos | Tailwind CSS y estilo neumórfico propio (`Neumorfismo.css`, `global.css`) |
-| Datos | GraphQL por `fetch` y subscriptions en vivo con `graphql-ws` |
-| Estado | Store propio con `useSyncExternalStore` (`useStore`) |
-| Gráficas | Recharts |
-| Pagos | Mercado Pago (Card Payment Brick), efectivo y transferencia |
-| Otros servicios | Google Sign-In, Google Maps (mapa de entrega) |
-| PWA | `@vite-pwa/astro` (manifiesto y Service Worker con Workbox) |
-| CI/CD | GitHub Actions, despliegue a GitHub Pages |
-
-## Funcionalidades actuales
-
-**Cliente**
-- Catálogo con búsqueda por nombre y filtro por categoría.
-- Detalle de producto con control de cantidad según el stock disponible.
-- Carrito con subtotal, envío y total (envío gratis arriba de $500 MXN, de lo contrario $99 MXN).
-- Registro e inicio de sesión con correo y contraseña o con Google.
-- Checkout con datos de entrega, mapa que ubica la dirección y tres métodos de pago: tarjeta, efectivo contra entrega y transferencia SPEI.
-- Historial de compras con el detalle de cada pedido.
-- Stock actualizado en tiempo real.
-
-**Administrador**
-- Panel con estadísticas (ventas totales, pedidos, ticket promedio, ventas de los últimos 30 días, productos más vendidos y ventas por categoría).
-- Vista de stock con indicadores de disponibilidad.
-- Crear, actualizar y eliminar productos, con subida de imagen.
-- Historial con todas las compras de los clientes.
-
-**PWA**
-- Manifiesto web y Service Worker generados en cada compilación; la app se puede instalar y sus recursos estáticos se sirven desde el precaché.
+|Framework|Astro + `@astrojs/react` (isla `client:only="react"`)|
+|i18n|Astro i18n: `es` (por defecto, sin prefijo) y `en` (`/en/`)|
+|PWA|`@vite-pwa/astro` (manifest + service worker con Workbox)|
+|Estado|Store propio con `useSyncExternalStore`|
+|Datos|GraphQL por `fetch` + suscripciones con `graphql-ws`|
+|Pagos|Mercado Pago (Brick de tarjeta) y PayPal (SDK v6)|
+|Mapa|Leaflet + OpenStreetMap + Nominatim|
+|Gráficas|Recharts|
+|Inicio de sesión|Google Identity Services|
+|Estilos|CSS propio (`global.css`, `Neumorfismo.css`, `fase1.css`)|
 
 ## Estructura
 
 ```text
-src/
-├── pages/index.astro        # Punto de entrada (<head>, manifiesto y <App client:only="react" />)
-├── App.jsx                  # Navegación entre pantallas según el estado
-├── auth/                    # Sesión (sessionStorage), botón de Google y estilos de login
-├── components/              # CartModal, DetalleProducto, ProductoCard, PayPalButton, Mapa, Skeleton
-├── graphql/client.js        # Endpoint, token y fetchGraphQL
-├── hooks/                   # useStore, useBrickMercadoPago
-├── layout/                  # TopBar, Sidebar, Hero, ContextSection, Footer
-├── screens/                 # Home, Login, Register, Checkout, Historial, Dashboard, Estadisticas, etc.
-├── services/                # pedidos, productosAdmin, imagenes, stockEnVivo
-└── screens|components/styles/  # Neumorfismo.css, global.css
+Front_Astro/
+├── astro.config.mjs          site, base '/Front_Astro/', i18n, PWA
+├── public/                   favicon, icons/, productos/ (imágenes del catálogo)
+└── src/
+    ├── pages/
+    │   ├── index.astro       → /Front_Astro/      (español)
+    │   └── en/index.astro    → /Front_Astro/en/   (inglés)
+    ├── layout/Base.astro     <head> único: viewport, lang, hreflang, manifest
+    ├── App.jsx               Selecciona la pantalla según el estado
+    ├── screens/              Home, Login, Register, Checkout, Historial, Dashboard,
+    │                         Domicilios, Facturas, Estadisticas, Legal…
+    ├── components/           CartModal, DetalleProducto, PayPalButton, Mapa,
+    │                         ProductoCard, SolicitarFactura, ConsentimientoLegal…
+    ├── layout/               TopBar, Sidebar, Hero, Footer, ContextSection
+    ├── hooks/                useStore (estado global), useBrickMercadoPago
+    ├── services/             pedidos, domicilios, facturas, imagenes,
+    │                         productosAdmin, legal, stockEnVivo
+    ├── graphql/client.js     Endpoint, token y fetchGraphQL
+    ├── auth/                 auth.js (sesión), Btngoogle.jsx
+    └── styles/               global.css, Neumorfismo.css, fase1.css, auth.css
 ```
 
-La navegación no usa rutas: `useStore` guarda la pantalla actual (`HOME`, `LOGIN`, `REGISTER`, `DETALLE_PRODUCTO`, `CHECKOUT`, `HISTORIAL`, `DASHBOARD`) y `App.jsx` muestra la que corresponde.
+## Instalación
 
-## Variables de entorno
-
-Se definen en un archivo `.env` local (que está en `.gitignore`) y, para el despliegue, en las variables del repositorio de GitHub.
-
-| Variable | Uso |
-|---|---|
-| `PUBLIC_GRAPHQL_URL` | URL del backend GraphQL (si falta usa `https://back-astro.onrender.com/graphql`) |
-| `PUBLIC_MP_KEY` | Llave pública de Mercado Pago |
-| `PUBLIC_GOOGLE_CLIENT_ID` | Client ID para el inicio de sesión con Google |
-| `PUBLIC_GOOGLE_MAPS_KEY` | Llave de Google Maps (si falta, el mapa no se muestra) |
-| `PUBLIC_PAYPAL_CLIENT_ID` | Client ID de PayPal |
-| `PUBLIC_PAYPAL_ENVIRONMENT` | `sandbox` (por defecto) o `production` |
-| `PUBLIC_PAYPAL_API_URL` | Base de la API de pagos de PayPal (por defecto, la del backend) |
-
-Ejemplo de `.env`:
-
-```env
-PUBLIC_GRAPHQL_URL=http://localhost:5097/graphql
-PUBLIC_MP_KEY=tu_llave_publica
-PUBLIC_GOOGLE_CLIENT_ID=tu_client_id
-PUBLIC_GOOGLE_MAPS_KEY=tu_llave_de_maps
-```
-
-## Ejecución local
-
-Requisitos: Node.js 22 y el backend en ejecución (ver `README_back.md`).
+Requisitos: **Node.js 18+** y el back-end en marcha (local o el de Render).
 
 ```bash
 npm install
-npm run dev        # servidor de desarrollo
-npm run build      # compilación de producción en dist/
-npm run preview    # vista previa de la compilación
+npm run dev        # http://localhost:4321/Front_Astro/
+npm run build      # genera dist/ (incluye dist/en/index.html)
+npm run preview    # sirve el build para probar la PWA
 ```
 
-Mientras se desarrolla, si el backend remoto no responde, el catálogo intenta conectarse a `http://localhost:5097/graphql`.
+### Variables de entorno (`.env`)
 
-## PWA y rutas base
+|Variable|Descripción|
+|---|---|
+|`PUBLIC_GRAPHQL_URL`|URL de `/graphql` del back. Por defecto `https://back-astro.onrender.com/graphql`|
+|`PUBLIC_GOOGLE_CLIENT_ID`|ID de cliente de Google (si falta, se muestra un aviso)|
+|`PUBLIC_MP_KEY`|Public key de Mercado Pago|
+|`PUBLIC_PAYPAL_CLIENT_ID`|Client ID de PayPal|
+|`PUBLIC_PAYPAL_ENVIRONMENT`|`sandbox` (defecto) o `production`|
 
-El sitio se publica en el subdirectorio `/Front_Astro/` (`base: '/Front_Astro/'` en `astro.config.mjs`). Por eso el manifiesto, el `scope` y el `start_url` deben respetar ese prefijo, y los recursos propios se enlazan con `import.meta.env.BASE_URL` en lugar de rutas absolutas desde `/`.
+Ejemplo para desarrollo local:
 
-Para verificarla: abre el sitio, entra a DevTools → Application → Service Workers y Manifest, y comprueba que el Service Worker esté activo y que `manifest.webmanifest` cargue con estado 200.
+```env
+PUBLIC_GRAPHQL_URL=http://localhost:5097/graphql
+PUBLIC_GOOGLE_CLIENT_ID=...
+PUBLIC_MP_KEY=TEST-...
+PUBLIC_PAYPAL_CLIENT_ID=...
+```
 
-## CI/CD
+> Las variables `PUBLIC_*` quedan visibles en el navegador: solo van claves públicas, nunca secretos.
 
-El workflow `Front CI/CD` se ejecuta en cada push y pull request a `main`: instala con `npm ci` (Node 22) y compila con las variables `PUBLIC_GRAPHQL_URL` y `PUBLIC_MP_KEY`. En `main`, además, despliega `dist/` en GitHub Pages. El lint y las pruebas están comentados por ahora.
+## Pantallas
 
-## Notas
+|Pantalla (`pantalla`)|Acceso|Descripción|
+|---|---|---|
+|`HOME`|Público|Catálogo con búsqueda, categorías y stock en vivo|
+|`DETALLE_PRODUCTO`|Público|Ficha del producto y selector de cantidad|
+|`LOGIN` / `REGISTER`|Público|Correo/contraseña o Google|
+|`CHECKOUT`|Sesión|Entrega, cotización de envío, método de pago|
+|`HISTORIAL`|Sesión|Pedidos con detalle, mapa y botón de facturar|
+|`DOMICILIOS`|Sesión|Domicilios guardados|
+|`FACTURAS`|Sesión|Facturas emitidas (XML, PDF/HTML)|
+|`DASHBOARD`|Admin|Estadísticas, stock en vivo y CRUD de productos|
+|`TERMINOS` / `PRIVACIDAD`|Público|Textos legales (versionados en `legal.js`)|
 
-- La sesión (token y datos de usuario) se guarda en `sessionStorage`, así que se pierde al cerrar la pestaña.
-- El carrito vive en memoria y se vacía al cerrar sesión.
-- El componente `PayPalButton` y los endpoints de PayPal del backend ya existen, pero el botón todavía no está integrado en la pantalla de checkout.
+Para ir a otra pantalla se usa `cambiarPantalla('NOMBRE')` del store. La tienda no tiene rutas internas.
+
+## Funcionamiento
+
+- **Sesión:** el token JWT y los datos del usuario se guardan en `localStorage` (`auth.js`). Se sincronizan entre pestañas con el evento `storage`.
+- **Catálogo:** se guarda en caché local para mostrarse al instante y se refresca en segundo plano; se actualiza solo con las suscripciones `onStockActualizado` y `onProductoCambiado`.
+- **Checkout:** el total que se muestra es informativo; el back recalcula el monto real. El pago con tarjeta usa el Brick de Mercado Pago, el de PayPal crea y captura la orden en el back.
+- **Consentimiento legal:** la primera vez (y cada vez que sube `VERSION_LEGAL`) se pide aceptar términos y aviso de privacidad.
+- **Carrito:** vive en memoria; se vacía al cerrar sesión o recargar la página.
+
+## Responsive, idiomas y PWA (Práctica 12)
+
+- **Viewport:** `width=device-width, initial-scale=1, viewport-fit=cover`.
+- **CSS mobile-first** con puntos de ajuste en **360 / 768 / 1200 px**, sin scroll horizontal.
+- **Orientación y altura:** unidades `dvh`; ajustes para `landscape` de poca altura.
+- **Safe areas:** `env(safe-area-inset-*)` en barra superior, carrito, modales y pie.
+- **i18n:** `defaultLocale: 'es'`, `locales: ['es','en']`, `prefixDefaultLocale: false`; `<html lang>`, `hreflang` y `x-default` en `Base.astro`; selector de idioma en la barra superior.
+- **PWA:** `display: standalone`, `scope` y `start_url` en `/Front_Astro/`, íconos de 192 y 512 px (uno `maskable`). Para probarla, usa `npm run build && npm run preview`, instala desde el navegador y abre la ventana instalada.
+
+## Despliegue (GitHub Pages)
+
+`astro.config.mjs` define `site: 'https://mascotitas-pw.github.io'` y `base: '/Front_Astro/'`. Después de `npm run build`, se publica el contenido de `dist/`. Todos los enlaces a archivos públicos deben usar `import.meta.env.BASE_URL` para respetar la subcarpeta.
+
+## Problemas conocidos
+
+- Los nombres de producto y categoría no se traducen (vienen de la base de datos).
+- Cambiar de idioma recarga la página y vacía el carrito; se recomienda guardarlo en `localStorage`.
+- `Historial.jsx` solicita `guiaNumero`, `urlRastreo` y `envioEstado`, campos que el back aún no expone en `Pedido`; mientras tanto el botón **Facturar pedido** no aparece.
+- `productosAdmin.js` repite el campo `productos` en la consulta `Q_PRODUCTOS` (la segunda versión sin `pesoKg`); debe quedar una sola.
+- `ResumenPedido.jsx` dibuja dos filas de "Envío" y `Domicilios.jsx` dos párrafos de dirección por tarjeta; conviene dejar solo la versión completa.
+- `useCartStore.js` calcula un envío fijo que ya no se usa (el costo real viene de la cotización).
